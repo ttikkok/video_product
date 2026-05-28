@@ -147,7 +147,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
+		background-color: #0f1629;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
@@ -158,8 +158,7 @@
 		padding: 30rpx;
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #fff;
-		border-bottom: 1rpx solid #e0e0e0;
+		background-color: #16213e;
 	}
 
 	.nav-back {
@@ -177,7 +176,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #333;
+		color: #fff;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -187,7 +186,7 @@
 	}
 
 	.setting-list {
-		background-color: #fff;
+		background-color: #16213e;
 		margin: 20rpx;
 		border-radius: 12rpx;
 		overflow: hidden;
@@ -197,7 +196,7 @@
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		border-bottom: 1rpx solid #f0f0f0;
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 	}
 
 	.setting-item:last-child {
@@ -206,7 +205,7 @@
 
 	.item-label {
 		font-size: 28rpx;
-		color: #333;
+		color: #fff;
 		flex: 1;
 	}
 
@@ -222,7 +221,7 @@
 	}
 
 	.cache-size {
-		color: #333;
+		color: #fff;
 		font-weight: 500;
 	}
 
