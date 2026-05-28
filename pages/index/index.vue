@@ -1,18 +1,20 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<scroll-view scroll-x class="tabs-scroll">
-				<view class="tabs">
-					<view 
-						v-for="(item, index) in tabs" 
-						:key="index"
-						:class="['tab-item', { active: activeTab === index }]"
-						@click="switchTab(index)"
-					>
-						<text>{{ item.name }}</text>
-						<text v-if="item.icon" class="tab-icon">{{ item.icon }}</text>
+			<view class="tabs-wrapper">
+				<scroll-view scroll-x class="tabs-scroll">
+					<view class="tabs">
+						<view 
+							v-for="(item, index) in tabs" 
+							:key="index"
+							:class="['tab-item', { active: activeTab === index }]"
+							@click="switchTab(index)"
+						>
+							<text>{{ item.name }}</text>
+							<text v-if="item.icon" class="tab-icon">{{ item.icon }}</text>
+						</view>
 					</view>
-				</view>
+				</scroll-view>
 				<view class="category-btn" @click="openCategoryDrawer">
 					<view class="category-icon">
 						<view class="grid-line"></view>
@@ -21,9 +23,9 @@
 						<view class="grid-line"></view>
 					</view>
 				</view>
-			</scroll-view>
+			</view>
 			<view class="search-bar">
-				<view class="search-input-wrap">
+				<view class="search-input-wrap" @click="goToSearch">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:36rpx;" class="search-icon" />
 					<input class="search-input" placeholder="极品尤物" />
 				</view>
@@ -276,6 +278,48 @@
 				</view>
 			</view>
 		</view>
+
+		<!-- 最新公告弹窗 -->
+		<view v-if="showNotice" class="modal-overlay">
+			<view class="notice-modal">
+				<view class="notice-header">
+					<text class="notice-title">最新公告!</text>
+					<text class="notice-title-sub">最新公告!</text>
+				</view>
+				<view class="notice-content">
+					<text class="notice-greeting">感谢您使用好色先生TV，有任何问题，请联系客服~</text>
+					<view class="notice-list">
+						<text class="notice-item">[广告] 官方合作平台!</text>
+						<text class="notice-item">&gt;&gt;【官方推荐】高端约炮 真实上门约炮,点我&lt;&lt;</text>
+						<text class="notice-item">[广告] 官方合作平台</text>
+						<text class="notice-item">&gt;&gt;官方推荐推荐平台外围美女&巨乳, 领取周年庆活动,点我&lt;&lt;</text>
+						<text class="notice-item">斗罗欲传~征战伐戮,操遍天下美人</text>
+						<text class="notice-item">&gt;&gt;最好玩的~Hgame,点我下载&lt;&lt;</text>
+					</view>
+					<view class="notice-footer">
+						<text class="notice-brand">好色先生TV</text>
+						<text class="notice-url">请牢记我们的网址: [hao10.tv]</text>
+					</view>
+				</view>
+				<view class="notice-btn" @click="closeNotice">
+					<text>知道了</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 广告弹窗 -->
+		<view v-if="showAd" class="modal-overlay ad-overlay">
+			<view class="ad-modal">
+				<image 
+					src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20elegant%20fashion&image_size=portrait_4_3" 
+					mode="aspectFill" 
+					class="ad-image" 
+				/>
+				<view class="ad-btn" @click="closeAd">
+					<text>立即体验</text>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -283,6 +327,8 @@
 	export default {
 		data() {
 			return {
+				showNotice: false,
+				showAd: false,
 				activeTab: 0,
 				currentBanner: 0,
 				showDrawer: false,
@@ -479,9 +525,24 @@
 				]
 			}
 		},
+		onLoad() {
+			this.showNotice = true
+		},
 		methods: {
+			closeNotice() {
+				this.showNotice = false
+				setTimeout(() => {
+					this.showAd = true
+				}, 100)
+			},
+			closeAd() {
+				this.showAd = false
+			},
 			switchTab(index) {
 				this.activeTab = index
+			},
+			goToSearch() {
+				uni.navigateTo({ url: '/pages/index/search' })
 			},
 			handleAction(action) {
 				if (action === 'download') {
@@ -537,9 +598,17 @@
 		padding: 0 20rpx 20rpx;
 	}
 	
+	.tabs-wrapper {
+		display: flex;
+		align-items: center;
+		padding: 20rpx 0;
+		gap: 10rpx;
+	}
+
 	.tabs-scroll {
 		white-space: nowrap;
-		padding: 20rpx 0;
+		flex: 1;
+		overflow: hidden;
 	}
 	
 	.tabs {
@@ -917,8 +986,7 @@
 		height: 64rpx;
 		background-color: rgba(255, 255, 255, 0.15);
 		border-radius: 12rpx;
-		margin-left: 10rpx;
-		vertical-align: middle;
+		flex-shrink: 0;
 	}
 	
 	.category-icon {
@@ -1216,5 +1284,139 @@
 	.three-video-count {
 		font-size: 20rpx;
 		color: #999;
+	}
+
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.8);
+		z-index: 2000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.notice-modal {
+		width: 90%;
+		max-width: 680rpx;
+		background-color: #fff;
+		border-radius: 30rpx;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.notice-header {
+		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		padding: 30rpx;
+		text-align: center;
+	}
+
+	.notice-title {
+		display: block;
+		font-size: 48rpx;
+		color: #fff;
+		font-weight: bold;
+		text-shadow: 2rpx 2rpx 4rpx rgba(0, 0, 0, 0.3);
+	}
+
+	.notice-title-sub {
+		display: block;
+		font-size: 36rpx;
+		color: rgba(255, 255, 255, 0.9);
+		margin-top: 10rpx;
+	}
+
+	.notice-content {
+		padding: 30rpx;
+		max-height: 60vh;
+		overflow-y: auto;
+	}
+
+	.notice-greeting {
+		display: block;
+		font-size: 28rpx;
+		color: #666;
+		margin-bottom: 20rpx;
+		text-align: center;
+	}
+
+	.notice-list {
+		display: flex;
+		flex-direction: column;
+		gap: 15rpx;
+		margin-bottom: 20rpx;
+	}
+
+	.notice-item {
+		font-size: 26rpx;
+		color: #333;
+		line-height: 1.6;
+	}
+
+	.notice-footer {
+		text-align: center;
+		padding-top: 20rpx;
+		border-top: 1rpx dashed #ddd;
+	}
+
+	.notice-brand {
+		display: block;
+		font-size: 32rpx;
+		color: #ff8c00;
+		font-weight: bold;
+		margin-bottom: 10rpx;
+	}
+
+	.notice-url {
+		font-size: 24rpx;
+		color: #999;
+	}
+
+	.notice-btn {
+		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		padding: 25rpx;
+		text-align: center;
+	}
+
+	.notice-btn text {
+		font-size: 32rpx;
+		color: #000;
+		font-weight: bold;
+	}
+
+	.ad-overlay {
+		background-color: rgba(0, 0, 0, 0.9);
+	}
+
+	.ad-modal {
+		width: 90%;
+		max-width: 600rpx;
+		border-radius: 20rpx;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.ad-image {
+		width: 100%;
+		height: 800rpx;
+	}
+
+	.ad-btn {
+		position: absolute;
+		bottom: 40rpx;
+		left: 50%;
+		transform: translateX(-50%);
+		background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+		padding: 25rpx 80rpx;
+		border-radius: 50rpx;
+	}
+
+	.ad-btn text {
+		font-size: 32rpx;
+		color: #fff;
+		font-weight: bold;
 	}
 </style>

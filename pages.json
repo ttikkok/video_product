@@ -3,7 +3,10 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "%page.首页%"
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -14,24 +17,181 @@
 				"navigationBarBackgroundColor": "#2e344c",
 				"backgroundColor": "#F8F8F8",
 				"app-plus": {
-					// #ifdef H5
 					"titleNView": {
 						"type": "default"
 					}
-					// #endif
 				}
+			}
+		},
+		{
+			"path": "pages/index/search",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/banana/index",
 			"style": {
-				"navigationBarTitleText": "香蕉圈"
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/banana/detail",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/discover/index",
 			"style": {
-				"navigationBarTitleText": "发现"
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/novel/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/novel/read",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/novel/reader",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/vip/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/favorites",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/history",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/downloads",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/messages",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/lines",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/customerService",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/about",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/bindAccount",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/login",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/setting",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#fff",
+				"navigationBarTextStyle": "black",
+				"navigationStyle": "custom"
 			}
 		}
 	],
@@ -41,11 +201,6 @@
 		"navigationBarBackgroundColor": "#ffffff",
 		"backgroundColor": "#F8F8F8",
 		"titleNView": false
-    // "navigationStyle": "custom",
-		// "app-plus": {
-		// 	"bounce": "none",
-    //   "softinputMode": "adjustResize"
-		// }
 	},
 	"tabBar": {
     "color": "#828A99",
@@ -67,7 +222,7 @@
         "text": "香蕉圈"
       },
       {
-        "pagePath": "pages/discover/index",
+        "pagePath": "pages/novel/index",
         "iconPath": "static/tabbar/tab-currency.png",
         "selectedIconPath": "static/tabbar/tab-currency-active.png",
         "text": "发现"
