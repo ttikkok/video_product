@@ -3,6 +3,18 @@ image {
 	will-change: transform
 }
 
+/* 禁止横向滚动 */
+page, body {
+	width: 100%;
+	overflow-x: hidden;
+}
+
+/* 确保所有元素不会超出视口 */
+* {
+	box-sizing: border-box;
+	max-width: 100%;
+}
+
 /* scroll-view */
 .scroll-row {
 	width: 100%;
