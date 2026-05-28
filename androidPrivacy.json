@@ -1,0 +1,38 @@
+{
+    "version" : "1",
+    "prompt" : "none",
+    "title" : "Privacy Policy",
+    "message" : "　　Please be sure to carefully read and fully understand the terms of the Privacy Policy, including but not limited to: In order to better provide you with services, we need to collect your device ID, operation logs and other information for analysis and optimization of application performance. <br /> You can read the <a href=''> Privacy Policy </a> for details. If you agree, please click the button below to start receiving our services.",
+    "buttonAccept" : "Confirm",
+    "buttonRefuse" : "Cancel",
+    "hrefLoader" : "system|default",
+    "backToExit" : "false",
+    "second" : {
+        "title" : "Confirmation prompt",
+        "message" : "　　Before entering the application, you need to agree to <a href=''>privacy policy</a>, or exit the application.",
+        "buttonAccept" : "Confirm",
+        "buttonRefuse" : "Exit"
+    },
+    "disagreeMode" : {
+        "support" : false,
+        "loadNativePlugins" : false,
+        "visitorEntry" : false,
+        "showAlways" : true
+    },
+    "styles" : {
+        "backgroundColor" : "#FFFFFF",
+        "borderRadius" : "5px",
+        "title" : {
+            "color" : "#333333"
+        },
+        "buttonAccept" : {
+            "color" : "#19473D"
+        },
+        "buttonRefuse" : {
+            "color" : "#999999"
+        },
+        "buttonVisitor" : {
+            "color" : "#999999"
+        }
+    }
+}
