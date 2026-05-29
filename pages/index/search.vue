@@ -14,8 +14,8 @@
 				/>
 			</view>
 			<view class="search-btn" @click="doSearch">
-				<text>🔍</text>
-			</view>
+			<image src="../../static/images/search.png" mode="aspectFit" class="search-icon" />
+		</view>
 		</view>
 
 		<view class="filter-container">
@@ -69,10 +69,6 @@
 				@click="selectContentTab(index)"
 			>
 				<text>{{ tab }}</text>
-			</view>
-			<view class="filter-btn">
-				<text>🔍</text>
-				<text>精緻篩選</text>
 			</view>
 		</view>
 
@@ -263,8 +259,9 @@
 		margin-left: 15rpx;
 	}
 
-	.search-btn text {
-		font-size: 32rpx;
+	.search-icon {
+		width: 40rpx;
+		height: 40rpx;
 	}
 
 	.filter-container {
@@ -375,11 +372,14 @@
 
 	.reset-btn {
 		margin-left: auto;
+		padding: 12rpx 25rpx;
+		background-color: rgba(255, 255, 255, 0.1);
+		border-radius: 20rpx;
 	}
 
 	.reset-btn text {
 		font-size: 24rpx;
-		color: #666;
+		color: #999;
 	}
 
 	.content-tabs {
@@ -406,22 +406,6 @@
 
 	.content-tab.active text {
 		color: #ffd700;
-	}
-
-	.filter-btn {
-		margin-left: auto;
-		display: flex;
-		align-items: center;
-		gap: 10rpx;
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
-		padding: 12rpx 25rpx;
-		border-radius: 20rpx;
-	}
-
-	.filter-btn text {
-		font-size: 24rpx;
-		color: #000;
-		font-weight: 600;
 	}
 
 	.content-list {

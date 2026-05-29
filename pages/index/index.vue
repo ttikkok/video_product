@@ -372,22 +372,25 @@
 				],
 				videoList: [
 					{
+						id: 1,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20video%20cover%20artistic&image_size=portrait_4_3',
 						title: '高颜值美女私房写真',
-						playCount: '5.2万',
+						playCount: '5.2萬',
 						duration: '06:32',
 						tags: ['HD', '超清']
 					},
 					{
+						id: 2,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20fashion%20video%20cover&image_size=portrait_4_3',
 						title: '性感模特内衣秀',
-						playCount: '2.0万',
+						playCount: '2.0萬',
 						duration: '08:15',
 						tags: ['模特', '高清']
 					}
 				],
 				secondVideoList: [
 					{
+						id: 3,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20living%20room%20video%20cover&image_size=portrait_4_3',
 						title: '【秦雄全国探花】大神回第二場，熟悉的配方，極品外圍小姐姐，帥哥美女激...',
 						playCount: '8.3萬',
@@ -395,6 +398,7 @@
 						tags: ['打飞机', '美乳', '美女尤物', '国产']
 					},
 					{
+						id: 4,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20pink%20dress%20video%20cover&image_size=portrait_4_3',
 						title: '【太子极品探花】現代版的黑裙少婦，穿上情趣裝沙發上幹後猛...',
 						playCount: '2.0萬',
@@ -402,6 +406,7 @@
 						tags: ['美女尤物', '贵族', '母狗式', '裙子']
 					},
 					{
+						id: 5,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20sofa%20video%20cover&image_size=portrait_4_3',
 						title: '【北寻花】高颜值長相甜美萌妹啪啪，連喘情緒超帶墻口交後入猛...',
 						playCount: '2.5萬',
@@ -409,8 +414,9 @@
 						tags: ['二次元/萌妹', '高挑', '网袜', '美女尤物']
 					},
 					{
+						id: 6,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=couple%20sofa%20intimate%20video%20cover&image_size=portrait_4_3',
-						title: '素人打野\毒浓探花老嫖带你探外围，完美视角拍攝起来超浪，极品牛仔裙...',
+						title: '素人打野毒浓探花老嫖带你探外围，完美视角拍攝起来超浪，极品牛仔裙...',
 						playCount: '3.7萬',
 						duration: '01:16:05',
 						tags: ['自慰', '打飞机', '美女尤物', '牛仔裤']
@@ -438,6 +444,7 @@
 				],
 				horizontalVideoList: [
 					{
+						id: 7,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20bedroom%20video%20cover&image_size=portrait_4_3',
 						title: '美女主播热舞直播精选',
 						playCount: '12.5萬',
@@ -445,6 +452,7 @@
 						tags: ['热舞', '直播', '美女']
 					},
 					{
+						id: 8,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=asian%20woman%20office%20video%20cover&image_size=portrait_4_3',
 						title: '办公室OL制服诱惑',
 						playCount: '8.3萬',
@@ -452,6 +460,7 @@
 						tags: ['制服', 'OL', '办公室']
 					},
 					{
+						id: 9,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20girl%20swimsuit%20video%20cover&image_size=portrait_4_3',
 						title: '泳池比基尼美女合集',
 						playCount: '15.2萬',
@@ -459,6 +468,7 @@
 						tags: ['比基尼', '泳池', '美腿']
 					},
 					{
+						id: 10,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=model%20lingerie%20fashion%20video%20cover&image_size=portrait_4_3',
 						title: '内衣模特走秀精选',
 						playCount: '6.8萬',
@@ -466,6 +476,7 @@
 						tags: ['模特', '内衣', '走秀']
 					},
 					{
+						id: 11,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cosplay%20girl%20anime%20video%20cover&image_size=portrait_4_3',
 						title: 'Cosplay二次元美女',
 						playCount: '9.1萬',
@@ -475,6 +486,7 @@
 				],
 				leftImageVideoList: [
 					{
+						id: 12,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20red%20dress%20video%20cover&image_size=portrait_4_3',
 						title: '【极品探花】顶级外围女神颜值爆表',
 						playCount: '18.6萬',
@@ -482,6 +494,7 @@
 						tags: ['探花', '极品', '外围']
 					},
 					{
+						id: 13,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20couple%20intimate%20video%20cover&image_size=portrait_4_3',
 						title: '【富二代约会】重金约网红嫩模',
 						playCount: '25.3萬',
@@ -489,6 +502,7 @@
 						tags: ['约会', '网红', '嫩模']
 					},
 					{
+						id: 14,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20wife%20domestic%20video%20cover&image_size=portrait_4_3',
 						title: '【国产精品】人妻少妇寂寞难耐',
 						playCount: '32.1萬',
@@ -498,29 +512,39 @@
 				],
 				threeColumnVideoList: [
 					{
+						id: 15,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%201&image_size=portrait_4_3',
 						title: '【全国探花】长腿空姐酒店约炮',
-						playCount: '85.6萬'
+						playCount: '85.6萬',
+						duration: '01:05:30'
 					},
 					{
+						id: 16,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%202&image_size=portrait_4_3',
 						title: '【国产AV】大胸美女激情演绎',
-						playCount: '72.3萬'
+						playCount: '72.3萬',
+						duration: '00:58:20'
 					},
 					{
+						id: 17,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%203&image_size=portrait_4_3',
 						title: '【精品推荐】极品嫩模完美身材',
-						playCount: '68.9萬'
+						playCount: '68.9萬',
+						duration: '00:45:15'
 					},
 					{
+						id: 18,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%204&image_size=portrait_4_3',
 						title: '【真实自拍】90后小情侣酒店',
-						playCount: '61.2萬'
+						playCount: '61.2萬',
+						duration: '00:38:40'
 					},
 					{
+						id: 19,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%205&image_size=portrait_4_3',
 						title: '【高端会所】极品外围女技师',
-						playCount: '55.8萬'
+						playCount: '55.8萬',
+						duration: '01:12:00'
 					}
 				]
 			}
@@ -561,7 +585,14 @@
 				uni.showToast({ title: '查看更多', icon: 'none' })
 			},
 			handleVideoClick(video) {
-				uni.showToast({ title: `播放: ${video.title}`, icon: 'none' })
+				// 跳转到视频播放页面
+				uni.navigateTo({
+					url: '/pages/index/play?id=' + (video.id || Date.now()) + 
+						'&title=' + encodeURIComponent(video.title) +
+						'&poster=' + encodeURIComponent(video.cover) +
+						'&duration=' + video.duration +
+						'&views=' + video.playCount
+				});
 			},
 			openCategoryDrawer() {
 				this.showDrawer = true

@@ -33,6 +33,15 @@
 			}
 		},
 		{
+			"path": "pages/index/play",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#000",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/banana/index",
 			"style": {
 				"navigationBarTitleText": "",
