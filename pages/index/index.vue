@@ -47,6 +47,7 @@
 				:interval="4000"
 				:circular="true"
 				@change="onSwiperChange"
+				@click="handleBannerClick(bannerList[currentBanner])"
 			>
 				<swiper-item v-for="(item, index) in bannerList" :key="index">
 					<view class="banner-item">
@@ -82,6 +83,11 @@
 				</view>
 			</view>
 		</view>
+
+		<view v-if="squareAd" class="square-ad" @click="handleSquareAdClick">
+			<image :src="squareAd.image" mode="aspectFill" class="square-ad-image" />
+		</view>
+
 		<view class="video-section">
 			<view class="section-header">
 				<view class="header-left">
@@ -324,6 +330,8 @@
 </template>
 
 <script>
+	import { IndexAdvertise } from '@/api/home.js'
+
 	export default {
 		data() {
 			return {
@@ -341,35 +349,9 @@
 					{ name: '国产大工厂', icon: '🔥' },
 					{ name: '', icon: '🇯🇵' },
 				],
-				bannerList: [
-					{
-						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic%20photography&image_size=landscape_16_9',
-						title: '精选推荐',
-						desc: '每日精选内容'
-					},
-					{
-						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20fashion%20model%20portrait&image_size=landscape_16_9',
-						title: '热门精选',
-						desc: '最受欢迎的内容'
-					},
-					{
-						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=landscape_16_9',
-						title: '精彩集锦',
-						desc: '不容错过的精彩'
-					}
-				],
-				gridList: [
-					{ name: '美女写真', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20icon&image_size=square' },
-					{ name: '明星网红', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=celebrity%20star%20icon&image_size=square' },
-					{ name: '制服诱惑', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=uniform%20cosplay%20icon&image_size=square' },
-					{ name: '街拍女神', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=street%20fashion%20photography%20icon&image_size=square' },
-					{ name: '私房照', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=private%20photo%20elegant%20icon&image_size=square' },
-					{ name: '网红直播', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=live%20streaming%20beauty%20icon&image_size=square' },
-					{ name: '自拍达人', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=selfie%20beautiful%20icon&image_size=square' },
-					{ name: '模特走秀', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fashion%20model%20catwalk%20icon&image_size=square' },
-					{ name: '情趣内衣', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=lingerie%20fashion%20icon&image_size=square' },
-					{ name: '性感热舞', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dance%20sexy%20icon&image_size=square' }
-				],
+				bannerList: [],
+				gridList: [],
+				squareAd: null,
 				videoList: [
 					{
 						id: 1,
@@ -551,6 +533,7 @@
 		},
 		onLoad() {
 			this.showNotice = true
+			this.loadAdvertiseData()
 		},
 		methods: {
 			closeNotice() {
@@ -579,7 +562,114 @@
 				this.currentBanner = e.detail.current
 			},
 			handleGridClick(item) {
-				uni.showToast({ title: `点击了${item.name}`, icon: 'none' })
+				if (item.url) {
+					uni.navigateTo({
+						url: '/pages/index/webview?url=' + encodeURIComponent(item.url)
+					})
+				} else {
+					uni.showToast({ title: `点击了${item.name}`, icon: 'none' })
+				}
+			},
+			loadAdvertiseData() {
+				IndexAdvertise().then(res => {
+					if (res && res.data) {
+						// 轮播图广告 carousel
+						if (res.data.carousel && res.data.carousel.length > 0) {
+							this.bannerList = res.data.carousel.map(item => ({
+								image: item.image,
+								title: '',
+								desc: '',
+								url: item.url
+							}))
+						} else {
+							this.bannerList = [
+								{
+									image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic%20photography&image_size=landscape_16_9',
+									title: '精选推荐',
+									desc: '每日精选内容',
+									url: ''
+								},
+								{
+									image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20fashion%20model%20portrait&image_size=landscape_16_9',
+									title: '热门精选',
+									desc: '最受欢迎的内容',
+									url: ''
+								},
+								{
+									image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=landscape_16_9',
+									title: '精彩集锦',
+									desc: '不容错过的精彩',
+									url: ''
+								}
+							]
+						}
+
+						// 十个广告位置 ten
+						if (res.data.ten && res.data.ten.length > 0) {
+							this.gridList = res.data.ten.map((item, index) => ({
+								name: item.title,
+								image: item.image,
+								url: item.url
+							}))
+						}
+
+						// 方块广告 square
+						if (res.data.square && res.data.square.length > 0) {
+							this.squareAd = res.data.square[0]
+						}
+					}
+				}).catch(err => {
+					console.error('广告数据加载失败', err)
+					this.loadDefaultData()
+				})
+			},
+			loadDefaultData() {
+				this.bannerList = [
+					{
+						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic%20photography&image_size=landscape_16_9',
+						title: '精选推荐',
+						desc: '每日精选内容',
+						url: ''
+					},
+					{
+						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20fashion%20model%20portrait&image_size=landscape_16_9',
+						title: '热门精选',
+						desc: '最受欢迎的内容',
+						url: ''
+					},
+					{
+						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=landscape_16_9',
+						title: '精彩集锦',
+						desc: '不容错过的精彩',
+						url: ''
+					}
+				]
+				this.gridList = [
+					{ name: '美女写真', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20icon&image_size=square', url: '' },
+					{ name: '明星网红', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=celebrity%20star%20icon&image_size=square', url: '' },
+					{ name: '制服诱惑', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=uniform%20cosplay%20icon&image_size=square', url: '' },
+					{ name: '街拍女神', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=street%20fashion%20photography%20icon&image_size=square', url: '' },
+					{ name: '私房照', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=private%20photo%20elegant%20icon&image_size=square', url: '' },
+					{ name: '网红直播', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=live%20streaming%20beauty%20icon&image_size=square', url: '' },
+					{ name: '自拍达人', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=selfie%20beautiful%20icon&image_size=square', url: '' },
+					{ name: '模特走秀', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fashion%20model%20catwalk%20icon&image_size=square', url: '' },
+					{ name: '情趣内衣', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=lingerie%20fashion%20icon&image_size=square', url: '' },
+					{ name: '性感热舞', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dance%20sexy%20icon&image_size=square', url: '' }
+				]
+			},
+			handleBannerClick(item) {
+				if (item.url) {
+					uni.navigateTo({
+						url: '/pages/index/webview?url=' + encodeURIComponent(item.url)
+					})
+				}
+			},
+			handleSquareAdClick() {
+				if (this.squareAd && this.squareAd.url) {
+					uni.navigateTo({
+						url: '/pages/index/webview?url=' + encodeURIComponent(this.squareAd.url)
+					})
+				}
 			},
 			handleMore() {
 				uni.showToast({ title: '查看更多', icon: 'none' })
@@ -1315,6 +1405,23 @@
 	.three-video-count {
 		font-size: 20rpx;
 		color: #999;
+	}
+
+	.square-ad {
+		position: fixed;
+		right: 10rpx;
+		top: 65%;
+		transform: translateY(-50%);
+		width: 120rpx;
+		height: 120rpx;
+		border-radius: 4rpx;
+		overflow: hidden;
+		z-index: 99;
+	}
+
+	.square-ad-image {
+		width: 100%;
+		height: 100%;
 	}
 
 	.modal-overlay {
