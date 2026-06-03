@@ -2,20 +2,23 @@
 	<view class="page">
 		<view class="top-header">
 			<view class="tabs-wrapper">
-				<scroll-view scroll-x class="tabs-scroll">
+				<view v-if="showCategoryList" class="back-btn" @click="goBackToHome">
+					<text class="back-icon">‹</text>
+				</view>
+				<scroll-view scroll-x class="tabs-scroll" :scroll-into-view="scrollToTab" scroll-with-animation>
 					<view class="tabs">
 						<view 
 							v-for="(item, index) in tabs" 
 							:key="index"
+							:id="'tab-' + index"
 							:class="['tab-item', { active: activeTab === index }]"
 							@click="switchTab(index)"
 						>
 							<text>{{ item.name }}</text>
-							<text v-if="item.icon" class="tab-icon">{{ item.icon }}</text>
 						</view>
 					</view>
 				</scroll-view>
-				<view class="category-btn" @click="openCategoryDrawer">
+				<view v-if="!showCategoryList" class="category-btn" @click="openCategoryDrawer">
 					<view class="category-icon">
 						<view class="grid-line"></view>
 						<view class="grid-line"></view>
@@ -30,16 +33,22 @@
 					<input class="search-input" placeholder="极品尤物" />
 				</view>
 				<view class="search-actions">
-					<view class="action-btn" @click="handleAction('download')">
+					<!-- <view class="action-btn" @click="handleAction('download')">
 						<image src="../../static/images/img01.png" mode="widthFix" style="width:60%;" />
-					</view>
-					<view class="action-btn" @click="handleAction('refresh')">
+					</view> -->
+					<view class="action-btn" @click="goToHistory">
 						<image src="../../static/images/img02.png" mode="widthFix" style="width:60%;" />
 					</view>
+					<!-- <view class="action-btn history-btn" @click="goToHistory">
+						<image src="../../static/images/history.png" mode="widthFix" style="width:60%;" />
+						<text class="btn-text">历史</text>
+					</view> -->
 				</view>
 			</view>
 		</view>
-		<view class="banner-section">
+
+		<view v-if="!showCategoryList">
+			<view class="banner-section">
 			<swiper 
 				class="banner-swiper"
 				:indicator-dots="false"
@@ -88,33 +97,37 @@
 			<image :src="squareAd.image" mode="aspectFill" class="square-ad-image" />
 		</view>
 
-		<view class="video-section">
+		<view :class="['video-section', { 'second-video-section': tabIndex === 1 }]" v-for="(tab, tabIndex) in tabs" :key="tabIndex">
 			<view class="section-header">
 				<view class="header-left">
 					<view class="title-badge"></view>
-					<text class="section-title">特约板块-国产最新</text>
+					<text class="section-title">{{ tab.nickname }}</text>
 				</view>
-				<view class="header-right" @click="handleMore">
+				<view v-if="tabIndex !== 1" class="header-right" @click="handleMore(tabIndex)">
 					<text class="more-text">更多</text>
 					<text class="more-arrow">›</text>
 				</view>
 			</view>
-			<view class="video-container">
+			<view class="video-container" v-if="tabIndex === 0 || tabIndex === 1">
 				<view 
-					v-for="(video, index) in videoList" 
+					v-for="(video, index) in (tabIndex === 0 ? getVideoListByIndex(tabIndex).slice(0, 2) : getVideoListByIndex(tabIndex))" 
 					:key="index" 
 					class="video-card"
 					@click="handleVideoClick(video)"
 				>
 					<view class="video-cover">
-						<image :src="video.cover" mode="aspectFill" class="cover-image" />
+						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
 						<view class="video-overlay">
 							<view class="play-icon">▶</view>
 						</view>
 						<text class="play-count">{{ video.playCount }}</text>
 						<text class="video-duration">{{ video.duration }}</text>
+						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
 					</view>
-					<text class="video-title">{{ video.title }}</text>
+					<view class="video-title-row">
+						<view v-if="video.is_free === 0" class="vip-label">VIP</view>
+						<text class="video-title">{{ video.title }}</text>
+					</view>
 					<view class="video-tags">
 						<text 
 							v-for="(tag, tagIndex) in video.tags" 
@@ -124,73 +137,26 @@
 					</view>
 				</view>
 			</view>
-		</view>
-		<view class="video-section second-video-section">
-			<view class="section-header">
-				<view class="header-left">
-					<view class="title-badge"></view>
-					<text class="section-title">精彩推荐</text>
-				</view>
-			</view>
-			<view class="video-container">
+			<scroll-view v-if="tabIndex === 2" scroll-x class="horizontal-scroll-container">
 				<view 
-					v-for="(video, index) in secondVideoList" 
-					:key="index" 
-					class="video-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="video-cover">
-						<image :src="video.cover" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
-							<view class="play-icon">▶</view>
-						</view>
-						<text class="play-count">{{ video.playCount }}</text>
-						<text class="video-duration">{{ video.duration }}</text>
-					</view>
-					<text class="video-title">{{ video.title }}</text>
-					<view class="video-tags">
-						<text 
-							v-for="(tag, tagIndex) in video.tags" 
-							:key="tagIndex" 
-							class="video-tag"
-						>{{ tag }}</text>
-					</view>
-				</view>
-			</view>
-			<view class="video-actions">
-				<view class="action-button" @click="handleMoreSource">
-					<text class="action-icon">⊕</text>
-					<text class="action-text">更多片源</text>
-				</view>
-				<view class="action-button" @click="handleRefreshVideos">
-					<text class="action-icon">⟳</text>
-					<text class="action-text">换一换</text>
-				</view>
-			</view>
-		</view>
-		<view class="video-section horizontal-scroll-section">
-			<view class="section-header">
-				<view class="header-left">
-					<view class="title-badge"></view>
-					<text class="section-title">热门精选</text>
-				</view>
-			</view>
-			<scroll-view scroll-x class="horizontal-scroll-container">
-				<view 
-					v-for="(video, index) in horizontalVideoList" 
+					v-for="(video, index) in getVideoListByIndex(tabIndex)" 
 					:key="index" 
 					class="horizontal-video-card"
 					@click="handleVideoClick(video)"
 				>
 					<view class="video-cover">
-						<image :src="video.cover" mode="aspectFill" class="cover-image" />
+						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
 						<view class="video-overlay">
 							<view class="play-icon">▶</view>
 						</view>
 						<text class="play-count">{{ video.playCount }}</text>
 						<text class="video-duration">{{ video.duration }}</text>
+						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
 					</view>
-					<text class="video-title">{{ video.title }}</text>
+					<view class="video-title-row">
+						<view v-if="video.is_free === 0" class="vip-label">VIP</view>
+						<text class="video-title">{{ video.title }}</text>
+					</view>
 					<view class="video-tags">
 						<text 
 							v-for="(tag, tagIndex) in video.tags" 
@@ -200,31 +166,27 @@
 					</view>
 				</view>
 			</scroll-view>
-		</view>
-		<view class="video-section left-image-section">
-			<view class="section-header">
-				<view class="header-left">
-					<view class="title-badge"></view>
-					<text class="section-title">最新上线</text>
-				</view>
-			</view>
-			<view class="left-image-container">
+			<view v-if="tabIndex === 3" class="left-image-container">
 				<view 
-					v-for="(video, index) in leftImageVideoList" 
+					v-for="(video, index) in getVideoListByIndex(tabIndex)" 
 					:key="index" 
 					class="left-image-card"
 					@click="handleVideoClick(video)"
 				>
 					<view class="left-video-cover">
-						<image :src="video.cover" mode="aspectFill" class="left-cover-image" />
+						<image :src="video.cover_image" mode="aspectFill" class="left-cover-image" />
 						<view class="left-video-overlay">
 							<view class="left-play-icon">▶</view>
 						</view>
 						<text class="left-play-count">{{ video.playCount }}</text>
 						<text class="left-video-duration">{{ video.duration }}</text>
+						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
 					</view>
 					<view class="left-video-info">
-						<text class="left-video-title">{{ video.title }}</text>
+						<view class="left-video-title-row">
+							<view v-if="video.is_free === 0" class="vip-label">VIP</view>
+							<text class="left-video-title">{{ video.title }}</text>
+						</view>
 						<view class="left-video-tags">
 							<text 
 								v-for="(tag, tagIndex) in video.tags" 
@@ -235,32 +197,160 @@
 					</view>
 				</view>
 			</view>
-		</view>
-		<view class="video-section three-column-section">
-			<view class="section-header">
-				<view class="header-left">
-					<view class="title-badge"></view>
-					<text class="section-title">热门排行榜</text>
-				</view>
-			</view>
-			<view class="three-column-container">
+			<view v-if="tabIndex === 4" class="three-column-container">
 				<view 
-					v-for="(video, index) in threeColumnVideoList" 
+					v-for="(video, index) in getVideoListByIndex(tabIndex)" 
 					:key="index" 
 					class="three-column-card"
 					@click="handleVideoClick(video)"
 				>
 					<view class="rank-number">{{ index + 1 }}</view>
 					<view class="three-video-cover">
-						<image :src="video.cover" mode="aspectFill" class="three-cover-image" />
+						<image :src="video.cover_image" mode="aspectFill" class="three-cover-image" />
+						<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
 					</view>
 					<view class="three-video-info">
-						<text class="three-video-title">{{ video.title }}</text>
+						<view class="three-video-title-row">
+							<view v-if="video.is_free === 0" class="vip-label small">VIP</view>
+							<text class="three-video-title">{{ video.title }}</text>
+						</view>
 						<text class="three-video-count">{{ video.playCount }}次</text>
 					</view>
 				</view>
 			</view>
+			<view v-if="tabIndex === 5" class="big-card-container">
+				<view 
+					v-for="(video, index) in getVideoListByIndex(tabIndex)" 
+					:key="index" 
+					class="big-card"
+					@click="handleVideoClick(video)"
+				>
+					<view class="big-video-cover">
+						<image :src="video.cover_image" mode="aspectFill" class="big-cover-image" />
+						<view class="big-video-overlay">
+							<view class="big-play-icon">▶</view>
+						</view>
+						<text class="big-play-count">{{ video.playCount }}</text>
+						<text class="big-video-duration">{{ video.duration }}</text>
+						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+					</view>
+					<view class="big-video-info">
+						<view class="big-video-title-row">
+							<view v-if="video.is_free === 0" class="vip-label">VIP</view>
+							<text class="big-video-title">{{ video.title }}</text>
+						</view>
+						<view class="big-video-meta">
+							<text class="meta-item">评分 {{ video.score }}</text>
+							<text class="meta-item">|</text>
+							<text class="meta-item">{{ video.likeNumber }} 点赞</text>
+						</view>
+						<view class="big-video-tags">
+							<text 
+								v-for="(tag, tagIndex) in video.tags.slice(0, 3)" 
+								:key="tagIndex" 
+								class="big-video-tag"
+							>{{ tag }}</text>
+						</view>
+					</view>
+				</view>
+			</view>
+			<view v-if="tabIndex === 6" class="small-grid-container">
+				<view 
+					v-for="(video, index) in getVideoListByIndex(tabIndex)" 
+					:key="index" 
+					class="small-grid-card"
+					@click="handleVideoClick(video)"
+				>
+					<view class="small-video-cover">
+						<image :src="video.cover_image" mode="aspectFill" class="small-cover-image" />
+						<view class="small-video-overlay">
+							<view class="small-play-icon">▶</view>
+						</view>
+						<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
+					</view>
+					<view class="small-video-title-row">
+						<view v-if="video.is_free === 0" class="vip-label small">VIP</view>
+						<text class="small-video-title">{{ video.title }}</text>
+					</view>
+				</view>
+			</view>
+			<view v-if="tabIndex === 7" class="mixed-container">
+				<view 
+					v-for="(video, index) in getVideoListByIndex(tabIndex)" 
+					:key="index" 
+					:class="['mixed-card', { 'big': index % 3 === 0 }]"
+					@click="handleVideoClick(video)"
+				>
+					<view :class="['mixed-video-cover', { 'big': index % 3 === 0 }]">
+						<image :src="video.cover_image" mode="aspectFill" :class="['mixed-cover-image', { 'big': index % 3 === 0 }]" />
+						<view class="mixed-video-overlay">
+							<view class="mixed-play-icon">▶</view>
+						</view>
+						<text class="mixed-play-count">{{ video.playCount }}</text>
+						<view v-if="video.is_free === 0" :class="['vip-badge', { 'small': index % 3 !== 0 }]">VIP</view>
+					</view>
+					<view :class="['mixed-video-title-row', { 'big': index % 3 === 0 }]">
+						<view v-if="video.is_free === 0" :class="['vip-label', { 'small': index % 3 !== 0 }]">VIP</view>
+						<text :class="['mixed-video-title', { 'big': index % 3 === 0 }]">{{ video.title }}</text>
+					</view>
+				</view>
+			</view>
+			<view v-if="tabIndex === 1" class="video-actions">
+				<view class="action-button" @click="handleMoreSource">
+					<text class="action-icon">⊕</text>
+					<text class="action-text">更多片源</text>
+				</view>
+				<view class="action-button" @click="handleRefresh(tabIndex)">
+					<text class="action-icon">⟳</text>
+					<text class="action-text">换一换</text>
+				</view>
+			</view>
+			<view v-if="tabIndex !== 0 && tabIndex !== 1" class="video-actions-single">
+				<view class="action-button-single" @click="handleRefresh(tabIndex)">
+					<text class="action-icon">⟳</text>
+					<text class="action-text">换一换</text>
+				</view>
+			</view>
 		</view>
+		</view>
+
+		<view v-if="showCategoryList" class="category-video-list">
+			<view class="category-header">
+				<text class="category-title">{{ tabs[activeTab] && tabs[activeTab].nickname ? tabs[activeTab].nickname : '精选内容' }}</text>
+			</view>
+			<view class="category-video-container">
+				<view 
+					v-for="(video, index) in videoList" 
+					:key="index" 
+					class="category-video-card"
+					@click="handleVideoClick(video)"
+				>
+					<view class="category-video-cover">
+						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
+						<view class="video-overlay">
+							<view class="play-icon">▶</view>
+						</view>
+						<text class="play-count">{{ video.playCount }}</text>
+						<text class="video-duration">{{ video.duration }}</text>
+						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+					</view>
+					<view class="category-video-info">
+						<view class="category-video-title-row">
+							<view v-if="video.is_free === 0" class="vip-label">VIP</view>
+							<text class="category-video-title">{{ video.title }}</text>
+						</view>
+						<view class="category-video-tags">
+							<text 
+								v-for="(tag, tagIndex) in video.tags" 
+								:key="tagIndex" 
+								class="video-tag"
+							>{{ tag }}</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
 		<view v-if="showDrawer" class="drawer-overlay" @click="closeCategoryDrawer">
 			<view class="drawer-content" @click.stop>
 				<view class="drawer-header">
@@ -272,7 +362,7 @@
 					<text class="drawer-section-title">常用频道</text>
 					<view class="category-grid">
 						<view 
-							v-for="(item, index) in categoryList" 
+							v-for="(item, index) in tabs" 
 							:key="index" 
 							class="category-item"
 							:style="{ backgroundColor: item.color }"
@@ -285,44 +375,24 @@
 			</view>
 		</view>
 
-		<!-- 最新公告弹窗 -->
-		<view v-if="showNotice" class="modal-overlay">
-			<view class="notice-modal">
-				<view class="notice-header">
-					<text class="notice-title">最新公告!</text>
-					<text class="notice-title-sub">最新公告!</text>
-				</view>
-				<view class="notice-content">
-					<text class="notice-greeting">感谢您使用好色先生TV，有任何问题，请联系客服~</text>
-					<view class="notice-list">
-						<text class="notice-item">[广告] 官方合作平台!</text>
-						<text class="notice-item">&gt;&gt;【官方推荐】高端约炮 真实上门约炮,点我&lt;&lt;</text>
-						<text class="notice-item">[广告] 官方合作平台</text>
-						<text class="notice-item">&gt;&gt;官方推荐推荐平台外围美女&巨乳, 领取周年庆活动,点我&lt;&lt;</text>
-						<text class="notice-item">斗罗欲传~征战伐戮,操遍天下美人</text>
-						<text class="notice-item">&gt;&gt;最好玩的~Hgame,点我下载&lt;&lt;</text>
+		<view v-if="showPopup && popupList.length > 0" class="modal-overlay">
+			<view class="popup-modal">
+				<view v-if="popupList[currentPopupIndex] && popupList[currentPopupIndex].content" class="popup-content">
+					<view class="popup-header">
+						<text class="popup-title">最新公告!</text>
 					</view>
-					<view class="notice-footer">
-						<text class="notice-brand">好色先生TV</text>
-						<text class="notice-url">请牢记我们的网址: [hao10.tv]</text>
+					<view class="popup-body">
+						<text class="popup-text">{{ popupList[currentPopupIndex].content }}</text>
 					</view>
 				</view>
-				<view class="notice-btn" @click="closeNotice">
-					<text>知道了</text>
-				</view>
-			</view>
-		</view>
-
-		<!-- 广告弹窗 -->
-		<view v-if="showAd" class="modal-overlay ad-overlay">
-			<view class="ad-modal">
 				<image 
-					src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20elegant%20fashion&image_size=portrait_4_3" 
+					v-if="popupList[currentPopupIndex] && popupList[currentPopupIndex].images" 
+					:src="popupList[currentPopupIndex].images" 
 					mode="aspectFill" 
-					class="ad-image" 
+					class="popup-image" 
 				/>
-				<view class="ad-btn" @click="closeAd">
-					<text>立即体验</text>
+				<view class="popup-btn" @click="closePopup">
+					<text>知道了</text>
 				</view>
 			</view>
 		</view>
@@ -330,36 +400,231 @@
 </template>
 
 <script>
-	import { IndexAdvertise } from '@/api/home.js'
+	import { IndexAdvertise, IndexChannel, IndexPopup_window, IndexIndex_list_data, IndexIndex_list_data_Refresh } from '@/api/home.js'
 
 	export default {
 		data() {
 			return {
-				showNotice: false,
-				showAd: false,
+				popupList: [],
+				currentPopupIndex: 0,
+				showPopup: false,
 				activeTab: 0,
+				scrollToTab: '',
 				currentBanner: 0,
 				showDrawer: false,
-				tabs: [
-					{ name: '推荐', icon: '' },
-					{ name: '最新', icon: '' },
-					{ name: '色图', icon: '' },
-					{ name: '福利姬', icon: '' },
-					{ name: '探花大神', icon: '' },
-					{ name: '国产大工厂', icon: '🔥' },
-					{ name: '', icon: '🇯🇵' },
-				],
+				showCategoryList: false,
+				tabs: [],
 				bannerList: [],
 				gridList: [],
 				squareAd: null,
-				videoList: [
+				videoList: [],
+				secondVideoList: [],
+				horizontalVideoList: [],
+				leftImageVideoList: [],
+				threeColumnVideoList: [],
+				bigCardVideoList: [],
+				smallGridVideoList: [],
+				mixedVideoList: []
+			}
+		},
+		onLoad() {
+			this.loadPopupData()
+			this.loadChannelData()
+			this.loadAdvertiseData()
+		},
+		methods: {
+			loadPopupData() {
+				IndexPopup_window().then(res => {
+					if (res && res.data && res.data.length > 0) {
+						this.popupList = res.data
+						this.currentPopupIndex = 0
+						this.showPopup = true
+					}
+				}).catch(err => {
+					console.error('弹窗数据加载失败', err)
+				})
+			},
+			closePopup() {
+				this.showPopup = false
+				if (this.currentPopupIndex < this.popupList.length - 1) {
+					this.currentPopupIndex++
+					setTimeout(() => {
+						this.showPopup = true
+					}, 100)
+				}
+			},
+			loadChannelData() {
+				const colors = ['#6BA3E0', '#FF9F43', '#EE5A5A', '#E85FD7', '#9B59B6', '#2ECC71', '#5DADE2', '#F39C12', '#E74C3C', '#D35DE8', '#8E44AD', '#27AE60', '#3498DB', '#F1C40F', '#E67E22', '#D98880', '#58D68D']
+				IndexChannel().then(res => {
+					if (res && res.data && res.data.length > 0) {
+						this.tabs = res.data.map((item, index) => ({
+							id: item.id,
+							name: item.name,
+							nickname: item.nickname,
+							color: colors[index % colors.length]
+						}))
+					} else {
+						this.tabs = [
+							{ id: 1, name: '推荐', nickname: '精选推荐' },
+							{ id: 2, name: '最新', nickname: '最新更新' },
+							{ id: 3, name: '色图', nickname: '高清美图' },
+							{ id: 4, name: '福利姬', nickname: '福利精选' },
+							{ id: 5, name: '探花大神', nickname: '探花精选' },
+							{ id: 6, name: '国产大工厂', nickname: '国产精品' },
+							{ id: 7, name: '日本AV', nickname: '岛国精选' },
+						]
+					}
+					this.loadVideoList(this.tabs[this.activeTab] && this.tabs[this.activeTab].id ? this.tabs[this.activeTab].id : null)
+					this.loadDefaultVideos()
+				}).catch(err => {
+					console.error('频道数据加载失败', err)
+					this.tabs = [
+						{ id: 1, name: '推荐', nickname: '精选推荐' },
+						{ id: 2, name: '最新', nickname: '最新更新' },
+						{ id: 3, name: '色图', nickname: '高清美图' },
+						{ id: 4, name: '福利姬', nickname: '福利精选' },
+						{ id: 5, name: '探花大神', nickname: '探花精选' },
+						{ id: 6, name: '国产大工厂', nickname: '国产精品' },
+						{ id: 7, name: '日本AV', nickname: '岛国精选' },
+					]
+					this.loadDefaultVideos()
+				})
+			},
+			loadVideoList(channelId) {
+				if (channelId === null || channelId === undefined) return
+				uni.showLoading({ title: '加载中...' })
+				IndexIndex_list_data({ category_id: channelId }).then(res => {
+					uni.hideLoading()
+					if (res && res.data && res.data.length > 0) {
+						let channelData = res.data[0]
+						if (channelData.videos && channelData.videos.length > 0) {
+							this.videoList = channelData.videos.map(video => ({
+								id: video.id,
+								cover_image: video.cover_image || '',
+								title: video.title || '',
+								playCount: this.formatNumber(video.look_number) || '0',
+								duration: '00:00',
+								tags: video.tags || [],
+								videoUrl: video.video || '',
+								isFree: video.is_free,
+								score: video.fraction || 0
+							}))
+						}
+					}
+				}).catch(err => {
+					uni.hideLoading()
+					console.error('视频数据加载失败', err)
+					this.loadDefaultVideos()
+				})
+			},
+			formatNumber(num) {
+				if (!num) return '0'
+				let n = parseInt(num)
+				if (n >= 10000) {
+					return (n / 10000).toFixed(1) + '萬'
+				}
+				return num.toString()
+			},
+			loadAdvertiseData() {
+				IndexAdvertise().then(res => {
+					if (res && res.data) {
+						if (res.data.carousel && res.data.carousel.length > 0) {
+							this.bannerList = res.data.carousel.map(item => ({
+								image: item.image,
+								title: '',
+								desc: '',
+								url: item.url
+							}))
+						} else {
+							this.loadDefaultBanner()
+						}
+
+						if (res.data.ten && res.data.ten.length > 0) {
+							this.gridList = res.data.ten.map((item, index) => ({
+								name: item.title || '分类' + (index + 1),
+								image: item.image,
+								url: item.url
+							}))
+						}
+
+						if (res.data.square && res.data.square.length > 0) {
+							this.squareAd = res.data.square[0]
+						}
+					}
+				}).catch(err => {
+					console.error('广告数据加载失败', err)
+					this.loadDefaultBanner()
+					this.loadDefaultGrid()
+				})
+			},
+			loadDefaultVideos() {
+				this.tabs.forEach((tab, index) => {
+					this.loadIndexVideoData(tab.id, index)
+				})
+			},
+			loadIndexVideoData(channelId, tabIndex) {
+				IndexIndex_list_data({ category_id: channelId }).then(res => {
+					if (res && res.data && res.data.length > 0) {
+						let channelData = res.data[0]
+						if (channelData.videos && channelData.videos.length > 0) {
+							let videos = channelData.videos.map(video => ({
+								id: video.id,
+								cover_image: video.cover_image || '',
+								title: video.title || '',
+								playCount: this.formatNumber(video.look_number) || '0',
+								duration: '00:00',
+								tags: video.tags || [],
+								videoUrl: video.video || '',
+								is_free: video.is_free,
+								score: video.fraction || 0,
+								likeNumber: video.like_number || 0,
+								collectNumber: video.collect_number || 0
+							}))
+							switch(tabIndex) {
+								case 0:
+									this.videoList = videos
+									break
+								case 1:
+									this.secondVideoList = videos
+									break
+								case 2:
+									this.horizontalVideoList = videos
+									break
+								case 3:
+									this.leftImageVideoList = videos
+									break
+								case 4:
+									this.threeColumnVideoList = videos
+									break
+								case 5:
+									this.bigCardVideoList = videos
+									break
+								case 6:
+									this.smallGridVideoList = videos
+									break
+								case 7:
+									this.mixedVideoList = videos
+									break
+							}
+						}
+					}
+				}).catch(err => {
+					console.error('分类视频数据加载失败', err)
+					this.loadStaticVideos(tabIndex)
+				})
+			},
+			loadStaticVideos(tabIndex) {
+				let staticData = [
 					{
 						id: 1,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20video%20cover%20artistic&image_size=portrait_4_3',
 						title: '高颜值美女私房写真',
 						playCount: '5.2萬',
 						duration: '06:32',
-						tags: ['HD', '超清']
+						tags: ['HD', '超清'],
+						score: 4.8,
+						likeNumber: 1234,
+						collectNumber: 567
 					},
 					{
 						id: 2,
@@ -367,10 +632,85 @@
 						title: '性感模特内衣秀',
 						playCount: '2.0萬',
 						duration: '08:15',
-						tags: ['模特', '高清']
+						tags: ['模特', '高清'],
+						score: 4.5,
+						likeNumber: 890,
+						collectNumber: 345
+					},
+					{
+						id: 3,
+						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20night%20video%20cover&image_size=portrait_4_3',
+						title: '夜色迷人',
+						playCount: '3.8萬',
+						duration: '05:45',
+						tags: ['夜景', '唯美'],
+						score: 4.6,
+						likeNumber: 678,
+						collectNumber: 234
+					},
+					{
+						id: 4,
+						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20beach%20video%20cover&image_size=portrait_4_3',
+						title: '海滩风情',
+						playCount: '4.1萬',
+						duration: '07:20',
+						tags: ['海滩', '比基尼'],
+						score: 4.7,
+						likeNumber: 987,
+						collectNumber: 456
 					}
-				],
-				secondVideoList: [
+				]
+				switch(tabIndex) {
+					case 0:
+						this.videoList = staticData.slice(0, 2)
+						break
+					case 1:
+						this.secondVideoList = staticData
+						break
+					case 2:
+						this.horizontalVideoList = staticData
+						break
+					case 3:
+						this.leftImageVideoList = staticData
+						break
+					case 4:
+						this.threeColumnVideoList = staticData
+						break
+					case 5:
+						this.bigCardVideoList = staticData
+						break
+					case 6:
+						this.smallGridVideoList = staticData
+						break
+					case 7:
+						this.mixedVideoList = staticData
+						break
+				}
+			},
+			getVideoListByIndex(index) {
+				switch(index) {
+					case 0:
+						return this.videoList
+					case 1:
+						return this.secondVideoList
+					case 2:
+						return this.horizontalVideoList
+					case 3:
+						return this.leftImageVideoList
+					case 4:
+						return this.threeColumnVideoList
+					case 5:
+						return this.bigCardVideoList
+					case 6:
+						return this.smallGridVideoList
+					case 7:
+						return this.mixedVideoList
+					default:
+						return this.videoList
+				}
+			},
+			loadStaticVideoList() {
+				this.secondVideoList = [
 					{
 						id: 3,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20living%20room%20video%20cover&image_size=portrait_4_3',
@@ -403,28 +743,8 @@
 						duration: '01:16:05',
 						tags: ['自慰', '打飞机', '美女尤物', '牛仔裤']
 					}
-				],
-				categoryList: [
-					{ name: '推荐', color: '#6BA3E0' },
-					{ name: '最新', color: '#FF9F43' },
-					{ name: '色图', color: '#EE5A5A' },
-					{ name: '福利姬', color: '#E85FD7' },
-					{ name: '探花大神', color: '#9B59B6' },
-					{ name: '🔥国产大厂', color: '#2ECC71' },
-					{ name: '🇯🇵日本AV', color: '#5DADE2' },
-					{ name: '🇨🇳国产自拍', color: '#F39C12' },
-					{ name: 'P站模特', color: '#E74C3C' },
-					{ name: '成人节目', color: '#D35DE8' },
-					{ name: '🇺🇸欧美', color: '#8E44AD' },
-					{ name: 'S级女优', color: '#27AE60' },
-					{ name: '欧美女优', color: '#3498DB' },
-					{ name: '直播', color: '#F1C40F' },
-					{ name: '制服诱惑', color: '#E67E22' },
-					{ name: '猎奇', color: '#D98880' },
-					{ name: '无码', color: '#9B59B6' },
-					{ name: '🇰🇷韩国', color: '#58D68D' }
-				],
-				horizontalVideoList: [
+				]
+				this.horizontalVideoList = [
 					{
 						id: 7,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20bedroom%20video%20cover&image_size=portrait_4_3',
@@ -465,8 +785,8 @@
 						duration: '00:25:10',
 						tags: ['Cosplay', '二次元', '萌妹']
 					}
-				],
-				leftImageVideoList: [
+				]
+				this.leftImageVideoList = [
 					{
 						id: 12,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20red%20dress%20video%20cover&image_size=portrait_4_3',
@@ -491,8 +811,8 @@
 						duration: '01:08:20',
 						tags: ['国产', '人妻', '少妇']
 					}
-				],
-				threeColumnVideoList: [
+				]
+				this.threeColumnVideoList = [
 					{
 						id: 15,
 						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%201&image_size=portrait_4_3',
@@ -529,101 +849,28 @@
 						duration: '01:12:00'
 					}
 				]
-			}
-		},
-		onLoad() {
-			this.showNotice = true
-			this.loadAdvertiseData()
-		},
-		methods: {
-			closeNotice() {
-				this.showNotice = false
-				setTimeout(() => {
-					this.showAd = true
-				}, 100)
+				this.categoryList = [
+					{ name: '推荐', color: '#6BA3E0' },
+					{ name: '最新', color: '#FF9F43' },
+					{ name: '色图', color: '#EE5A5A' },
+					{ name: '福利姬', color: '#E85FD7' },
+					{ name: '探花大神', color: '#9B59B6' },
+					{ name: '🔥国产大厂', color: '#2ECC71' },
+					{ name: '🇯🇵日本AV', color: '#5DADE2' },
+					{ name: '🇨🇳国产自拍', color: '#F39C12' },
+					{ name: 'P站模特', color: '#E74C3C' },
+					{ name: '成人节目', color: '#D35DE8' },
+					{ name: '🇺🇸欧美', color: '#8E44AD' },
+					{ name: 'S级女优', color: '#27AE60' },
+					{ name: '欧美女优', color: '#3498DB' },
+					{ name: '直播', color: '#F1C40F' },
+					{ name: '制服诱惑', color: '#E67E22' },
+					{ name: '猎奇', color: '#D98880' },
+					{ name: '无码', color: '#9B59B6' },
+					{ name: '🇰🇷韩国', color: '#58D68D' }
+				]
 			},
-			closeAd() {
-				this.showAd = false
-			},
-			switchTab(index) {
-				this.activeTab = index
-			},
-			goToSearch() {
-				uni.navigateTo({ url: '/pages/index/search' })
-			},
-			handleAction(action) {
-				if (action === 'download') {
-					uni.showToast({ title: '下载功能', icon: 'none' })
-				} else if (action === 'refresh') {
-					uni.showToast({ title: '刷新中...', icon: 'loading' })
-				}
-			},
-			onSwiperChange(e) {
-				this.currentBanner = e.detail.current
-			},
-			handleGridClick(item) {
-				if (item.url) {
-					uni.navigateTo({
-						url: '/pages/index/webview?url=' + encodeURIComponent(item.url)
-					})
-				} else {
-					uni.showToast({ title: `点击了${item.name}`, icon: 'none' })
-				}
-			},
-			loadAdvertiseData() {
-				IndexAdvertise().then(res => {
-					if (res && res.data) {
-						// 轮播图广告 carousel
-						if (res.data.carousel && res.data.carousel.length > 0) {
-							this.bannerList = res.data.carousel.map(item => ({
-								image: item.image,
-								title: '',
-								desc: '',
-								url: item.url
-							}))
-						} else {
-							this.bannerList = [
-								{
-									image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic%20photography&image_size=landscape_16_9',
-									title: '精选推荐',
-									desc: '每日精选内容',
-									url: ''
-								},
-								{
-									image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20fashion%20model%20portrait&image_size=landscape_16_9',
-									title: '热门精选',
-									desc: '最受欢迎的内容',
-									url: ''
-								},
-								{
-									image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=landscape_16_9',
-									title: '精彩集锦',
-									desc: '不容错过的精彩',
-									url: ''
-								}
-							]
-						}
-
-						// 十个广告位置 ten
-						if (res.data.ten && res.data.ten.length > 0) {
-							this.gridList = res.data.ten.map((item, index) => ({
-								name: item.title,
-								image: item.image,
-								url: item.url
-							}))
-						}
-
-						// 方块广告 square
-						if (res.data.square && res.data.square.length > 0) {
-							this.squareAd = res.data.square[0]
-						}
-					}
-				}).catch(err => {
-					console.error('广告数据加载失败', err)
-					this.loadDefaultData()
-				})
-			},
-			loadDefaultData() {
+			loadDefaultBanner() {
 				this.bannerList = [
 					{
 						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic%20photography&image_size=landscape_16_9',
@@ -644,6 +891,8 @@
 						url: ''
 					}
 				]
+			},
+			loadDefaultGrid() {
 				this.gridList = [
 					{ name: '美女写真', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20icon&image_size=square', url: '' },
 					{ name: '明星网红', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=celebrity%20star%20icon&image_size=square', url: '' },
@@ -656,6 +905,53 @@
 					{ name: '情趣内衣', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=lingerie%20fashion%20icon&image_size=square', url: '' },
 					{ name: '性感热舞', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dance%20sexy%20icon&image_size=square', url: '' }
 				]
+			},
+			switchTab(index) {
+				this.activeTab = index
+				this.showCategoryList = true
+				this.scrollToTab = ''
+				this.$nextTick(() => {
+					this.scrollToTab = 'tab-' + index
+					setTimeout(() => {
+						uni.pageScrollTo({
+							scrollTop: 0,
+							duration: 300
+						})
+					}, 100)
+				})
+				const channelId = this.tabs[index] && this.tabs[index].id !== undefined ? this.tabs[index].id : null
+				if (channelId !== null && channelId !== undefined) {
+					this.loadVideoList(channelId)
+				}
+			},
+			goBackToHome() {
+				this.showCategoryList = false
+				this.activeTab = 0
+			},
+			goToSearch() {
+				uni.navigateTo({ url: '/pages/index/search' })
+			},
+			goToHistory() {
+				uni.navigateTo({ url: '/pages/mine/history' })
+			},
+			handleAction(action) {
+				if (action === 'download') {
+					uni.showToast({ title: '下载功能', icon: 'none' })
+				} else if (action === 'refresh') {
+					uni.showToast({ title: '刷新中...', icon: 'loading' })
+				}
+			},
+			onSwiperChange(e) {
+				this.currentBanner = e.detail.current
+			},
+			handleGridClick(item) {
+				if (item.url) {
+					uni.navigateTo({
+						url: '/pages/index/webview?url=' + encodeURIComponent(item.url)
+					})
+				} else {
+					uni.showToast({ title: `点击了${item.name}`, icon: 'none' })
+				}
 			},
 			handleBannerClick(item) {
 				if (item.url) {
@@ -671,18 +967,34 @@
 					})
 				}
 			},
-			handleMore() {
-				uni.showToast({ title: '查看更多', icon: 'none' })
+			handleMore(tabIndex) {
+				this.activeTab = tabIndex
+				this.scrollToTab = ''
+				this.$nextTick(() => {
+					this.scrollToTab = 'tab-' + tabIndex
+					setTimeout(() => {
+						uni.pageScrollTo({
+							scrollTop: 0,
+							duration: 300
+						})
+					}, 100)
+				})
+				this.showCategoryList = true
+				const channelId = this.tabs[tabIndex] && this.tabs[tabIndex].id !== undefined ? this.tabs[tabIndex].id : null
+				if (channelId !== null && channelId !== undefined) {
+					this.loadVideoList(channelId)
+				}
 			},
 			handleVideoClick(video) {
-				// 跳转到视频播放页面
 				uni.navigateTo({
 					url: '/pages/index/play?id=' + (video.id || Date.now()) + 
 						'&title=' + encodeURIComponent(video.title) +
-						'&poster=' + encodeURIComponent(video.cover) +
+						'&poster=' + encodeURIComponent(video.cover_image) +
+						'&video=' + encodeURIComponent(video.video || '') +
 						'&duration=' + video.duration +
-						'&views=' + video.playCount
-				});
+						'&views=' + video.playCount +
+						'&is_free=' + (video.is_free !== undefined ? video.is_free : 1)
+				})
 			},
 			openCategoryDrawer() {
 				this.showDrawer = true
@@ -692,7 +1004,22 @@
 			},
 			handleCategoryClick(item) {
 				this.showDrawer = false
-				uni.showToast({ title: `选择了: ${item.name}`, icon: 'none' })
+				const tabIndex = this.tabs.findIndex(tab => tab.id === item.id)
+				this.activeTab = tabIndex
+				this.scrollToTab = ''
+				this.$nextTick(() => {
+					this.scrollToTab = 'tab-' + tabIndex
+					setTimeout(() => {
+						uni.pageScrollTo({
+							scrollTop: 0,
+							duration: 300
+						})
+					}, 100)
+				})
+				this.showCategoryList = true
+				if (item.id !== null && item.id !== undefined) {
+					this.loadVideoList(item.id)
+				}
 			},
 			handleMoreSource() {
 				uni.showToast({ title: '查看更多片源', icon: 'none' })
@@ -700,8 +1027,61 @@
 			handleRefreshVideos() {
 				uni.showToast({ title: '换一换中...', icon: 'loading' })
 				setTimeout(() => {
-					this.secondVideoList = this.secondVideoList.sort(() => Math.random() - 0.5)
+					this.secondVideoList = [...this.secondVideoList].sort(() => Math.random() - 0.5)
 				}, 500)
+			},
+			handleRefresh(tabIndex) {
+				let channelId = this.tabs[tabIndex] && this.tabs[tabIndex].id !== undefined ? this.tabs[tabIndex].id : null
+				if (channelId === null || channelId === undefined) return
+				uni.showToast({ title: '换一换中...', icon: 'loading' })
+				IndexIndex_list_data_Refresh({ category_id: channelId }).then(res => {
+					uni.hideToast()
+					if (res && res.data && res.data.length > 0) {
+						let channelData = res.data[0]
+						if (channelData.videos && channelData.videos.length > 0) {
+							let videos = channelData.videos.map(video => ({
+								id: video.id,
+								cover: video.cover_image || '',
+								title: video.title || '',
+								playCount: this.formatNumber(video.look_number) || '0',
+								duration: '00:00',
+								tags: video.tags || [],
+								videoUrl: video.video || '',
+								is_free: video.is_free === 1,
+								score: video.fraction || 0,
+								likeNumber: video.like_number || 0,
+								collectNumber: video.collect_number || 0
+							}))
+							switch(tabIndex) {
+								case 1:
+									this.secondVideoList = videos
+									break
+								case 2:
+									this.horizontalVideoList = videos
+									break
+								case 3:
+									this.leftImageVideoList = videos
+									break
+								case 4:
+									this.threeColumnVideoList = videos
+									break
+								case 5:
+									this.bigCardVideoList = videos
+									break
+								case 6:
+									this.smallGridVideoList = videos
+									break
+								case 7:
+									this.mixedVideoList = videos
+									break
+							}
+						}
+					}
+				}).catch(err => {
+					uni.hideToast()
+					console.error('换一换失败', err)
+					uni.showToast({ title: '换一换失败', icon: 'none' })
+				})
 			}
 		}
 	}
@@ -724,6 +1104,23 @@
 		align-items: center;
 		padding: 20rpx 0;
 		gap: 10rpx;
+	}
+
+	.back-btn {
+		width: 60rpx;
+		height: 60rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(255, 255, 255, 0.1);
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.back-icon {
+		font-size: 48rpx;
+		color: #fff;
+		line-height: 1;
 	}
 
 	.tabs-scroll {
@@ -752,10 +1149,6 @@
 		&.active {
 			background-color: #ffd700;
 			color: #000;
-		}
-		
-		.tab-icon {
-			font-size: 24rpx;
 		}
 	}
 	
@@ -791,7 +1184,7 @@
 		display: flex;
 		gap: 15rpx;
 	}
-	
+
 	.action-btn {
 		width: 60rpx;
 		height: 60rpx;
@@ -801,6 +1194,20 @@
 		background-color: rgba(255, 255, 255, 0.1);
 		border-radius: 50%;
 		font-size: 28rpx;
+		
+		&.history-btn {
+			width: auto;
+			height: auto;
+			padding: 10rpx 20rpx;
+			border-radius: 30rpx;
+			flex-direction: column;
+			gap: 5rpx;
+		}
+	}
+
+	.btn-text {
+		font-size: 20rpx;
+		color: #fff;
 	}
 	
 	.banner-section {
@@ -969,13 +1376,17 @@
 	
 	.video-container {
 		display: flex;
-		gap: 20rpx;
+		gap: 30rpx;
 	}
-	
+
 	.video-card {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
+		background-color: #16213e;
+		border-radius: 16rpx;
+		overflow: hidden;
+		padding: 15rpx;
 	}
 	
 	.video-cover {
@@ -1033,7 +1444,52 @@
 		padding: 4rpx 12rpx;
 		border-radius: 8rpx;
 	}
-	
+
+	.vip-badge {
+		position: absolute;
+		top: 10rpx;
+		left: 10rpx;
+		font-size: 22rpx;
+		color: #fff;
+		background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%);
+		padding: 6rpx 16rpx;
+		border-radius: 8rpx;
+		font-weight: 700;
+		box-shadow: 0 4rpx 12rpx rgba(255, 69, 0, 0.5);
+		
+		&.small {
+			font-size: 18rpx;
+			padding: 4rpx 12rpx;
+		}
+	}
+
+	.vip-label {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 22rpx;
+		color: #ff6347;
+		background-color: rgba(255, 99, 71, 0.25);
+		padding: 4rpx 12rpx;
+		border-radius: 6rpx;
+		margin-right: 10rpx;
+		font-weight: 700;
+		flex-shrink: 0;
+		border: 1rpx solid rgba(255, 99, 71, 0.4);
+		
+		&.small {
+			font-size: 18rpx;
+			padding: 2rpx 8rpx;
+			margin-right: 8rpx;
+		}
+	}
+
+	.video-title-row {
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: 10rpx;
+	}
+
 	.video-title {
 		font-size: 26rpx;
 		color: #fff;
@@ -1409,12 +1865,12 @@
 
 	.square-ad {
 		position: fixed;
-		right: 10rpx;
-		top: 65%;
+		right: 20rpx;
+		top: 50%;
 		transform: translateY(-50%);
 		width: 120rpx;
 		height: 120rpx;
-		border-radius: 4rpx;
+		border-radius: 12rpx;
 		overflow: hidden;
 		z-index: 99;
 	}
@@ -1525,36 +1981,384 @@
 		font-weight: bold;
 	}
 
-	.ad-overlay {
-		background-color: rgba(0, 0, 0, 0.9);
-	}
-
-	.ad-modal {
+	.popup-modal {
 		width: 90%;
-		max-width: 600rpx;
-		border-radius: 20rpx;
+		max-width: 680rpx;
+		background-color: #fff;
+		border-radius: 30rpx;
 		overflow: hidden;
 		position: relative;
 	}
 
-	.ad-image {
-		width: 100%;
-		height: 800rpx;
+	.popup-content {
+		padding: 30rpx;
 	}
 
-	.ad-btn {
-		position: absolute;
-		bottom: 40rpx;
-		left: 50%;
-		transform: translateX(-50%);
-		background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-		padding: 25rpx 80rpx;
-		border-radius: 50rpx;
+	.popup-header {
+		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		padding: 30rpx;
+		text-align: center;
 	}
 
-	.ad-btn text {
-		font-size: 32rpx;
+	.popup-title {
+		font-size: 48rpx;
 		color: #fff;
 		font-weight: bold;
+		text-shadow: 2rpx 2rpx 4rpx rgba(0, 0, 0, 0.3);
+	}
+
+	.popup-body {
+		padding: 30rpx;
+		max-height: 50vh;
+		overflow-y: auto;
+	}
+
+	.popup-text {
+		font-size: 28rpx;
+		color: #333;
+		line-height: 1.8;
+	}
+
+	.popup-image {
+		width: 100%;
+		height: 700rpx;
+	}
+
+	.popup-btn {
+		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		padding: 25rpx;
+		text-align: center;
+	}
+
+	.popup-btn text {
+		font-size: 32rpx;
+		color: #000;
+		font-weight: bold;
+	}
+
+	.category-video-list {
+		padding: 20rpx;
+	}
+
+	.category-header {
+		padding: 20rpx 0;
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		margin-bottom: 20rpx;
+	}
+
+	.category-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.category-video-container {
+		display: flex;
+		flex-direction: column;
+		gap: 20rpx;
+	}
+
+	.category-video-card {
+		display: flex;
+		background-color: #16213e;
+		border-radius: 16rpx;
+		overflow: hidden;
+		padding: 15rpx;
+	}
+
+	.category-video-cover {
+		position: relative;
+		width: 280rpx;
+		height: 180rpx;
+		border-radius: 12rpx;
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+
+	.category-video-info {
+		flex: 1;
+		padding: 0 20rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	.category-video-title {
+		font-size: 28rpx;
+		color: #fff;
+		font-weight: 500;
+		line-height: 1.4;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.category-video-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10rpx;
+	}
+
+	.big-card-container {
+		display: flex;
+		flex-direction: column;
+		gap: 25rpx;
+	}
+
+	.big-card {
+		background-color: #16213e;
+		border-radius: 20rpx;
+		overflow: hidden;
+	}
+
+	.big-video-cover {
+		position: relative;
+		width: 100%;
+		height: 400rpx;
+	}
+
+	.big-cover-image {
+		width: 100%;
+		height: 100%;
+	}
+
+	.big-video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100rpx;
+		height: 100rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.big-play-icon {
+		font-size: 40rpx;
+		color: #fff;
+		margin-left: 8rpx;
+	}
+
+	.big-play-count {
+		position: absolute;
+		bottom: 15rpx;
+		left: 15rpx;
+		font-size: 24rpx;
+		color: #fff;
+		background-color: rgba(0, 0, 0, 0.6);
+		padding: 5rpx 15rpx;
+		border-radius: 20rpx;
+	}
+
+	.big-video-duration {
+		position: absolute;
+		bottom: 15rpx;
+		right: 15rpx;
+		font-size: 24rpx;
+		color: #fff;
+		background-color: rgba(0, 0, 0, 0.6);
+		padding: 5rpx 15rpx;
+		border-radius: 20rpx;
+	}
+
+	.big-video-info {
+		padding: 20rpx;
+	}
+
+	.big-video-title {
+		font-size: 30rpx;
+		color: #fff;
+		font-weight: 500;
+		margin-bottom: 15rpx;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.big-video-meta {
+		display: flex;
+		align-items: center;
+		gap: 15rpx;
+		margin-bottom: 15rpx;
+	}
+
+	.meta-item {
+		font-size: 24rpx;
+		color: #999;
+	}
+
+	.big-video-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12rpx;
+	}
+
+	.big-video-tag {
+		font-size: 22rpx;
+		color: #ffd700;
+		background-color: rgba(255, 215, 0, 0.15);
+		padding: 6rpx 16rpx;
+		border-radius: 20rpx;
+	}
+
+	.small-grid-container {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 15rpx;
+	}
+
+	.small-grid-card {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.small-video-cover {
+		position: relative;
+		width: 100%;
+		height: 180rpx;
+		border-radius: 12rpx;
+		overflow: hidden;
+		margin-bottom: 10rpx;
+	}
+
+	.small-cover-image {
+		width: 100%;
+		height: 100%;
+	}
+
+	.small-video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 50rpx;
+		height: 50rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.small-play-icon {
+		font-size: 24rpx;
+		color: #fff;
+		margin-left: 4rpx;
+	}
+
+	.small-video-title {
+		font-size: 22rpx;
+		color: #ccc;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.mixed-container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 15rpx;
+	}
+
+	.mixed-card {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.mixed-card.big {
+		grid-column: span 2;
+	}
+
+	.mixed-video-cover {
+		position: relative;
+		width: 100%;
+		height: 200rpx;
+		border-radius: 12rpx;
+		overflow: hidden;
+		margin-bottom: 10rpx;
+	}
+
+	.mixed-video-cover.big {
+		height: 300rpx;
+	}
+
+	.mixed-cover-image {
+		width: 100%;
+		height: 100%;
+	}
+
+	.mixed-cover-image.big {
+		width: 100%;
+		height: 100%;
+	}
+
+	.mixed-video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 60rpx;
+		height: 60rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.mixed-play-icon {
+		font-size: 28rpx;
+		color: #fff;
+		margin-left: 5rpx;
+	}
+
+	.mixed-play-count {
+		position: absolute;
+		bottom: 10rpx;
+		left: 10rpx;
+		font-size: 22rpx;
+		color: #fff;
+		background-color: rgba(0, 0, 0, 0.6);
+		padding: 4rpx 12rpx;
+		border-radius: 15rpx;
+	}
+
+	.mixed-video-title {
+		font-size: 24rpx;
+		color: #fff;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.mixed-video-title.big {
+		font-size: 28rpx;
+		-webkit-line-clamp: 2;
+	}
+
+	.video-actions-single {
+		display: flex;
+		justify-content: center;
+		margin-top: 20rpx;
+	}
+
+	.action-button-single {
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+		background-color: #16213e;
+		padding: 15rpx 40rpx;
+		border-radius: 30rpx;
 	}
 </style>

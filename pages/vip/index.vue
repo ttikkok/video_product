@@ -9,17 +9,17 @@
 		<!-- 用户信息 -->
 		<view class="user-section">
 			<view class="user-info">
-				<image src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=avatar%20portrait%20icon&image_size=square" mode="aspectFill" class="user-avatar" />
+				<image :src="userAvatar" mode="aspectFill" class="user-avatar" />
 				<view class="user-detail">
-					<text class="user-name">丢三丢四、不丢你￥</text>
-					<text class="user-status">（未绑定帐号）</text>
+					<text class="user-name">{{ userName }}</text>
+					<text class="user-status">（{{ isVisitor ? '游客' : '已绑定' }}）</text>
 				</view>
 			</view>
 			<view class="vip-badge">
-				<text class="vip-text">好色先生财富用户</text>
+				<text class="vip-text">{{ isMember ? 'VIP会员' : '普通用户' }}</text>
 			</view>
 			<view class="vip-hint">
-				<text>遊客用戶，購買會員享受無限次數觀影體驗</text>
+				<text>購買會員享受無限次數觀影體驗</text>
 			</view>
 		</view>
 
@@ -27,28 +27,28 @@
 		<scroll-view scroll-x class="vip-packages">
 			<view class="packages-container">
 				<view 
-					v-for="(pkg, index) in packages" 
-					:key="index"
+					v-for="(pkg, index) in vipPackages" 
+					:key="pkg.id"
 					:class="['package-card', { active: selectedPackage === index }]"
 					@click="selectPackage(index)"
 				>
-					<view v-if="pkg.recommend" class="recommend-tag">
-						<text class="recommend-text">{{ pkg.recommendText }}</text>
+					<view v-if="pkg.days === 365" class="recommend-tag">
+						<text class="recommend-text">推荐</text>
 					</view>
 					<view class="package-price">
 						<text class="price-symbol">¥</text>
 						<text class="price-value">{{ pkg.price }}</text>
-						<text class="price-unit">/{{ pkg.duration }}</text>
+						<text class="price-unit">/{{ pkg.days }}天</text>
 					</view>
-					<view v-if="pkg.originalPrice" class="package-original">
-						<text>原價{{ pkg.originalPrice }}元</text>
+					<view v-if="pkg.original_price" class="package-original">
+						<text>原价¥{{ pkg.original_price }}</text>
 					</view>
 					<view class="package-card-bg">
 						<view class="card-icon">
 							<view class="card-chip"></view>
 							<view class="card-signal"></view>
 						</view>
-						<view class="package-name">{{ pkg.name }}</view>
+						<view class="package-name">{{ pkg.title }}</view>
 					</view>
 				</view>
 			</view>
@@ -57,7 +57,7 @@
 		<!-- VIP权益 -->
 		<view class="benefits-section">
 			<view class="benefits-header">
-				<text class="benefits-title">年卡會員享價值</text>
+				<text class="benefits-title">VIP會員享價值</text>
 				<view class="benefits-value">
 					<text class="value-symbol">¥</text>
 					<text class="value-number">988元</text>
@@ -116,36 +116,12 @@
 </template>
 
 <script>
+	import { VipApiData } from '@/api/home.js'
 	export default {
 		data() {
 			return {
-				selectedPackage: 1,
-				packages: [
-					{
-						name: '半年卡',
-						price: 188,
-						originalPrice: 588,
-						duration: '183天',
-						recommend: false,
-						recommendText: ''
-					},
-					{
-						name: '年卡',
-						price: 300,
-						originalPrice: 988,
-						duration: '365天',
-						recommend: true,
-						recommendText: '所有VIP特權'
-					},
-					{
-						name: '終身',
-						price: 500,
-						originalPrice: 1688,
-						duration: '永久',
-						recommend: true,
-						recommendText: '至尊VIP特權'
-					}
-				],
+				selectedPackage: 0,
+				vipPackages: [],
 				benefits: [
 					{ name: '無限觀影', icon: '🎬' },
 					{ name: '無限下載', icon: '⬇️' },
@@ -154,15 +130,84 @@
 					{ name: '午夜電臺', icon: '📖' },
 					{ name: '槐凰免打賞', icon: '🎁' },
 					{ name: '發布打賞帖', icon: '💰' }
-				]
+				],
+				userAvatar: '',
+				userName: '游客用户',
+				isMember: false,
+				isVisitor: true
 			}
 		},
 		computed: {
 			currentPrice() {
-				return this.packages[this.selectedPackage]?.price || 0
+				return this.vipPackages[this.selectedPackage] && this.vipPackages[this.selectedPackage].price ? this.vipPackages[this.selectedPackage].price : 0
 			}
 		},
+		onLoad() {
+			this.loadVipData()
+			this.loadUserInfo()
+		},
 		methods: {
+			loadVipData() {
+				VipApiData().then(res => {
+					if (res && res.code === 1 && res.data) {
+						this.vipPackages = res.data
+					}
+				}).catch(err => {
+					console.error('VIP数据加载失败', err)
+					this.vipPackages = [
+						{
+							id: 1,
+							title: '周卡',
+							content: '一周时间',
+							icon: '',
+							original_price: '20.00',
+							price: '10.00',
+							days: 7
+						},
+						{
+							id: 2,
+							title: '月卡',
+							content: '一个月时间',
+							icon: '',
+							original_price: '60.00',
+							price: '30.00',
+							days: 30
+						},
+						{
+							id: 3,
+							title: '季卡',
+							content: '一季度时间',
+							icon: '',
+							original_price: '180.00',
+							price: '90.00',
+							days: 90
+						},
+						{
+							id: 4,
+							title: '年卡',
+							content: '一年时间',
+							icon: '',
+							original_price: '500.00',
+							price: '220.00',
+							days: 365
+						}
+					]
+				})
+			},
+			loadUserInfo() {
+				let userinfo = uni.getStorageSync('userinfo')
+				if (userinfo) {
+					try {
+						let info = JSON.parse(userinfo)
+						this.userAvatar = info.icon || info.avatar || ''
+						this.userName = info.nickname || info.username || '游客用户'
+						this.isMember = info.is_member === 1
+						this.isVisitor = info.is_visitor === 1
+					} catch (e) {
+						console.error('解析用户信息失败', e)
+					}
+				}
+			},
 			goToOrder() {
 				uni.showToast({
 					title: '查看订单',
@@ -309,14 +354,11 @@
 		overflow: hidden;
 		border: 3rpx solid transparent;
 		transition: all 0.3s;
+		background: linear-gradient(135deg, #8B0000 0%, #4A0000 100%);
 	}
 
 	.package-card.active {
 		border-color: #ffd700;
-	}
-
-	.package-card:nth-child(1) {
-		background: linear-gradient(135deg, #8B0000 0%, #4A0000 100%);
 	}
 
 	.package-card:nth-child(2) {
@@ -324,14 +366,18 @@
 	}
 
 	.package-card:nth-child(3) {
-		background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+		background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
+	}
+
+	.package-card:nth-child(4) {
+		background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
 	}
 
 	.recommend-tag {
 		position: absolute;
 		top: 0;
 		right: 0;
-		background-color: #ffd700;
+		background-color: #ff0000;
 		padding: 8rpx 20rpx;
 		border-radius: 0 20rpx 0 20rpx;
 		z-index: 1;
@@ -339,7 +385,7 @@
 
 	.recommend-text {
 		font-size: 20rpx;
-		color: #000;
+		color: #fff;
 		font-weight: 500;
 	}
 

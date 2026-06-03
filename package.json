@@ -3,6 +3,21 @@
     "dayjs": "^1.11.11",
     "echarts": "^5.5.0",
     "html2canvas": "^1.0.0-rc.4",
-    "vue-qr": "^4.0.9"
+    "vue-qr": "^4.0.9",
+    "@dcloudio/uni-app": "2.0.2-5000720260410001",
+    "@dcloudio/uni-h5": "2.0.2-5000720260410001",
+    "@dcloudio/uni-mp-weixin": "2.0.2-5000720260410001",
+    "@dcloudio/vue-cli-plugin-uni": "2.0.2-5000720260410001",
+    "vue": "^2.6.14",
+    "vue-template-compiler": "^2.6.14",
+    "sass": "^1.77.8",
+    "sass-loader": "^13.3.2",
+    "yargs-parser": "^21.1.1"
+  },
+  "scripts": {
+    "dev:h5": "uniapp-cli",
+    "build:h5": "uniapp-cli build",
+    "dev:mp-weixin": "uniapp-cli -p mp-weixin",
+    "build:mp-weixin": "uniapp-cli build -p mp-weixin"
   }
 }

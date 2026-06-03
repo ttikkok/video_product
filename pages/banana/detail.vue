@@ -11,48 +11,40 @@
 
 		<!-- 帖子内容 -->
 		<scroll-view scroll-y class="content">
-			<!-- 帖子头部 -->
-			<view class="post-header">
-				<view class="user-info">
-					<image :src="post.avatar" mode="aspectFill" class="user-avatar" />
-					<view class="user-details">
-						<view class="user-name-row">
-							<text class="user-name">{{ post.userName }}</text>
-							<view v-if="post.level" class="user-level">LV.{{ post.level }}</view>
-						</view>
-					</view>
-				</view>
+			<!-- 帖子内容 -->
+			<view class="post-content">
+				<text>{{ post.title }}</text>
+			</view>
+
+			<!-- 帖子视频 -->
+			<view v-if="post.video" class="post-media video">
+				<video 
+					:src="post.video" 
+					class="video-player"
+					:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
+					controls
+					show-center-play-btn
+					:duration="post.duration"
+				></video>
+			</view>
+			<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
+				<image 
+					v-for="(img, imgIndex) in post.images.slice(0, 9)" 
+					:key="imgIndex" 
+					:src="img" 
+					mode="aspectFill" 
+					:class="['grid-image', { 'big': post.images.length === 2 && imgIndex === 0 }]" 
+				/>
+			</view>
+			<view v-else-if="post.images && post.images.length === 1" class="post-media single-image">
+				<image :src="post.images[0]" mode="aspectFill" class="media-image" />
 			</view>
 
 			<!-- 帖子标签 -->
 			<view v-if="post.tags && post.tags.length > 0" class="post-tags">
-				<view v-for="(tag, tagIndex) in post.tags" :key="tagIndex" class="post-tag" :style="{ backgroundColor: tag.bgColor, color: tag.color }">
-					{{ tag.name }}
+				<view v-for="(tag, tagIndex) in post.tags" :key="tagIndex" class="post-tag">
+					{{ tag }}
 				</view>
-			</view>
-
-			<!-- 帖子内容 -->
-			<view class="post-content">
-				<text>{{ post.content }}</text>
-			</view>
-
-			<!-- 帖子图片/视频 -->
-			<view v-if="post.media" class="post-media">
-				<image :src="post.media" mode="widthFix" class="media-image" />
-				<!-- <view v-if="post.mediaOverlay" class="media-overlay">
-					<image :src="post.mediaOverlay" mode="widthFix" class="overlay-image" />
-				</view> -->
-			</view>
-
-			<!-- 位置标签 -->
-			<view v-if="post.location" class="post-location">
-				<text class="location-icon">📍</text>
-				<text class="location-text">{{ post.location }}</text>
-			</view>
-
-			<!-- 话题标签 -->
-			<view v-if="post.topics && post.topics.length > 0" class="post-topics">
-				<text v-for="(topic, topicIndex) in post.topics" :key="topicIndex" class="topic-tag">#{{ topic }}</text>
 			</view>
 
 			<!-- 分割线 -->
@@ -61,11 +53,11 @@
 			<!-- 互动按钮 -->
 			<view class="action-bar">
 				<view class="action-item" :class="{ active: isLiked }" @click="toggleLike">
-					<image :src="isLiked ? '../../static/images/dianzan-active.png' : '../../static/images/dianzan.png'" mode="widthFix" class="action-icon" />
-					<text class="action-text">{{ post.likes }}{{ isLiked ? '+1' : '' }}</text>
+					<image :src="isLiked ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="action-icon" />
+					<text class="action-text">{{ post.like_number }}</text>
 				</view>
 				<view class="action-item" :class="{ active: isCollected }" @click="toggleCollect">
-					<image :src="isCollected ? '../../static/images/shoucang-active.png' : '../../static/images/shoucang.png'" mode="widthFix" class="action-icon" />
+					<image :src="isCollected ? '../../static/images/collect_active.png' : '../../static/images/collect.png'" mode="widthFix" class="action-icon" />
 					<text class="action-text">{{ isCollected ? '已收藏' : '收藏' }}</text>
 				</view>
 			</view>
@@ -74,6 +66,7 @@
 </template>
 
 <script>
+	import { CircleApi_circle_details, CircleApi_circle_like, CircleApi_circle_collect } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -83,28 +76,68 @@
 			}
 		},
 		onLoad(options) {
-			const postData = JSON.parse(decodeURIComponent(options.post));
-			this.post = postData;
+			if (options.id) {
+				this.loadPostDetail(options.id)
+			} else if (options.post) {
+				const postData = JSON.parse(decodeURIComponent(options.post));
+				this.post = postData;
+				this.isLiked = postData.is_like === 1
+				this.isCollected = postData.is_collect === 1
+			}
 		},
 		methods: {
-			goBack() {
-				uni.navigateBack();
+			loadPostDetail(circleId) {
+				CircleApi_circle_details({ circle_id: circleId }).then(res => {
+					if (res && res.code === 1 && res.data) {
+						this.post = res.data
+						this.isLiked = res.data.is_like === 1
+						this.isCollected = res.data.is_collect === 1
+					}
+				}).catch(err => {
+					console.error('帖子详情加载失败', err)
+				})
 			},
+			goBack() {
+					uni.navigateBack();
+				},
+				playVideo() {
+					if (this.post.video) {
+						uni.navigateTo({
+							url: `/pages/index/play?id=${this.post.id}&title=${encodeURIComponent(this.post.title)}`
+						})
+					}
+				},
 			toggleLike() {
-				this.isLiked = !this.isLiked;
-				if (this.isLiked) {
-					uni.showToast({
-						title: '点赞成功',
-						icon: 'none'
-					});
-				}
+				CircleApi_circle_like({ circle_id: this.post.id }).then(res => {
+					if (res && res.code === 1) {
+						this.isLiked = !this.isLiked
+						if (this.post.like_number !== undefined) {
+							this.post.like_number = this.isLiked ? this.post.like_number + 1 : Math.max(0, this.post.like_number - 1)
+						}
+						uni.showToast({ title: res.msg || (this.isLiked ? '点赞成功' : '取消点赞'), icon: 'none' })
+					} else {
+						uni.showToast({ title: res.msg || '操作失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('点赞失败', err)
+					uni.showToast({ title: '操作失败', icon: 'none' })
+				})
 			},
 			toggleCollect() {
-				this.isCollected = !this.isCollected;
-				uni.showToast({
-					title: this.isCollected ? '收藏成功' : '已取消收藏',
-					icon: 'none'
-				});
+				CircleApi_circle_collect({ circle_id: this.post.id }).then(res => {
+					if (res && res.code === 1) {
+						this.isCollected = !this.isCollected
+						if (this.post.collect_number !== undefined) {
+							this.post.collect_number = this.isCollected ? this.post.collect_number + 1 : Math.max(0, this.post.collect_number - 1)
+						}
+						uni.showToast({ title: res.msg || (this.isCollected ? '收藏成功' : '取消收藏'), icon: 'none' })
+					} else {
+						uni.showToast({ title: res.msg || '操作失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('收藏失败', err)
+					uni.showToast({ title: '操作失败', icon: 'none' })
+				})
 			}
 		}
 	}
@@ -215,9 +248,68 @@
 	}
 
 	.post-tag {
-		font-size: 22rpx;
-		padding: 5rpx 15rpx;
+		font-size: 24rpx;
+		padding: 6rpx 16rpx;
 		border-radius: 6rpx;
+		background-color: rgba(107, 163, 224, 0.2);
+		color: #6BA3E0;
+	}
+
+	.video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 120rpx;
+		height: 120rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.video-player {
+		width: 100%;
+		height: 400rpx;
+	}
+
+	.video-duration {
+		position: absolute;
+		bottom: 10rpx;
+		right: 30rpx;
+		background-color: rgba(0, 0, 0, 0.7);
+		padding: 4rpx 12rpx;
+		border-radius: 6rpx;
+		font-size: 24rpx;
+		color: #fff;
+	}
+
+	.images-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 4rpx;
+		padding: 0 20rpx;
+	}
+
+	.grid-image {
+		width: 100%;
+		height: 200rpx;
+		border-radius: 8rpx;
+	}
+
+	.grid-image.big {
+		grid-row: span 2;
+		height: 404rpx;
+	}
+
+	.single-image {
+		padding: 0 20rpx;
+	}
+
+	.single-image .media-image {
+		border-radius: 12rpx;
+		max-height: 600rpx;
 	}
 
 	.post-content {
@@ -225,6 +317,7 @@
 		font-size: 28rpx;
 		color: #ccc;
 		line-height: 1.6;
+		padding-top: 40rpx;
 	}
 
 	.post-media {

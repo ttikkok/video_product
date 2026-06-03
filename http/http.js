@@ -19,7 +19,7 @@ function requestType(type, url, params, baseUrl, resolve, reject) {
   if (params) {
     params = {
       ...params,
-      token: accesToken
+      // token: accesToken
     };
   }
   uni.request({

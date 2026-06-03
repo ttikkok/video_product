@@ -12,21 +12,25 @@
 		<!-- 视频播放窗口 -->
 		<view class="video-container">
 			<video 
-				id="videoPlayer"
-				class="video-player"
-				:src="videoSrc"
-				:poster="videoPoster"
-				:autoplay="false"
-				:show-center-play-btn="true"
-				:controls="true"
-				:enable-progress-gesture="true"
-				:show-play-btn="true"
-				:object-fit="contain"
-				@play="onPlay"
-				@pause="onPause"
-				@error="onError"
-				@ended="onEnded"
-			></video>
+			id="videoPlayer"
+			class="video-player"
+			:src="videoSrc"
+			:poster="videoPoster"
+			:autoplay="false"
+			:show-center-play-btn="true"
+			:controls="true"
+			:enable-progress-gesture="true"
+			:show-play-btn="true"
+			object-fit="contain"
+			@play="onPlay"
+			@pause="onPause"
+			@timeupdate="onTimeUpdate"
+			@error="handleVideoError"
+			@ended="onEnded"
+		></video>
+			<view v-if="!videoSrc" class="video-placeholder">
+				<text class="placeholder-text">视频加载中...</text>
+			</view>
 		</view>
 
 		<!-- 广告位 -->
@@ -43,7 +47,10 @@
 
 		<!-- 视频信息 -->
 		<view class="video-info">
-			<view class="video-title">{{ videoTitle }}</view>
+			<view class="video-title-row">
+				<view v-if="isFree === 0" class="vip-label">VIP</view>
+				<view class="video-title">{{ videoTitle }}</view>
+			</view>
 			<view class="video-meta">
 				<view class="meta-item">
 					<text class="meta-text">番號: {{ videoCode }}</text>
@@ -90,10 +97,10 @@
 				>
 					<view class="video-cover">
 						<image 
-							:src="item.poster || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20video%20thumbnail&image_size=portrait_4_3'" 
+							:src="item.cover_image || item.poster || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20video%20thumbnail&image_size=portrait_4_3'" 
 							mode="aspectFill" 
 							class="cover-image"
-						/>
+					/>
 						<view class="video-overlay">
 							<view class="play-icon">▶</view>
 						</view>
@@ -112,11 +119,13 @@
 </template>
 
 <script>
+	import { VodApi_vod_details } from '@/api/home.js';
+
 	export default {
 		data() {
 			return {
 				videoId: '',
-				videoSrc: 'https://example.com/video.mp4',
+				videoSrc: '',
 				videoPoster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20video%20poster%20cover&image_size=landscape_16_9',
 				videoTitle: '【极品探花】顶级外围女神颜值爆表，极品长腿酒店约会',
 				videoCode: 'FSDSS-789',
@@ -124,6 +133,10 @@
 				videoViews: '18.6萬',
 				videoDesc: '精彩内容简介，视频相关介绍信息，本视频包含精彩剧情，不容错过...',
 				ratingPercent: 95,
+				isFree: 1,
+				isMember: false,
+				playTime: 0,
+				hasShownVipModal: false,
 				recommendList: [
 					{
 						id: 1,
@@ -164,22 +177,14 @@
 			}
 		},
 		onLoad(options) {
-			// 从跳转参数中获取视频信息
+			// 从跳转参数中获取视频ID
 			if (options.id) {
 				this.videoId = options.id;
 			}
-			if (options.title) {
-				this.videoTitle = decodeURIComponent(options.title);
-			}
-			if (options.poster) {
-				this.videoPoster = decodeURIComponent(options.poster);
-			}
-			if (options.duration) {
-				this.videoDuration = options.duration;
-			}
-			if (options.views) {
-				this.videoViews = options.views;
-			}
+			// 获取用户会员状态
+			const userInfo = uni.getStorageSync('userinfo');
+			this.isMember = userInfo && userInfo.is_member === 1;
+			// 调用接口获取视频详情
 			this.loadVideoData();
 		},
 		onUnload() {
@@ -196,28 +201,74 @@
 				uni.navigateBack();
 			},
 			loadVideoData() {
+				if (!this.videoId) {
+					return;
+				}
 				uni.showLoading({
 					title: '加载中...'
 				});
-				setTimeout(() => {
+				VodApi_vod_details({ video_id: this.videoId }).then(res => {
 					uni.hideLoading();
-				}, 500);
+					if (res && res.code === 1 && res.data) {
+						const data = res.data;
+						this.videoTitle = data.title || this.videoTitle;
+						this.videoSrc = data.video || '';
+						this.videoPoster = data.cover_image || this.videoPoster;
+						this.videoDuration = data.duration || '';
+						this.videoViews = data.play_count || data.playCount || '';
+						this.videoDesc = data.description || data.desc || '';
+						this.isFree = data.is_free !== undefined ? data.is_free : 1;
+						console.log('视频详情加载成功：', this.videoSrc);
+					} else {
+						console.log('视频详情加载失败：', res);
+					}
+				}).catch(err => {
+					uni.hideLoading();
+					console.error('视频详情加载失败：', err);
+				});
 			},
 			onPlay() {
 				console.log('视频开始播放');
+				this.playTime = 0;
 			},
 			onPause() {
 				console.log('视频暂停');
 			},
-			onError(e) {
+			onTimeUpdate(e) {
+				if (e && e.detail && e.detail.currentTime !== undefined) {
+					this.playTime = e.detail.currentTime;
+				}
+				// 如果不是免费视频且用户不是会员，限制观看10秒
+				if (this.isFree === 0 && !this.isMember && this.playTime >= 10 && !this.hasShownVipModal) {
+					this.hasShownVipModal = true;
+					this.showVipModal();
+				}
+			},
+			handleVideoError(e) {
 				console.error('视频播放错误', e);
-				uni.showToast({
-					title: '视频加载失败',
-					icon: 'none'
-				});
+				console.error('当前视频地址：', this.videoSrc);
 			},
 			onEnded() {
 				console.log('视频播放结束');
+			},
+			showVipModal() {
+				// 暂停视频
+				const videoContext = uni.createVideoContext('videoPlayer', this);
+				videoContext.pause();
+				
+				uni.showModal({
+					title: '会员专属',
+					content: '此视频为VIP专属内容，开通会员即可观看完整视频',
+					confirmText: '开通会员',
+					cancelText: '取消',
+					success: (res) => {
+						if (res.confirm) {
+							uni.navigateTo({
+								url: '/pages/mine/vip'
+							});
+						}
+					}
+				});
 			},
 			playVideo(item) {
 				// 跳转到新的视频播放页面
@@ -225,6 +276,7 @@
 					url: '/pages/index/play?id=' + item.id + 
 						'&title=' + encodeURIComponent(item.title) +
 						'&poster=' + encodeURIComponent(item.poster) +
+						'&video=' + encodeURIComponent(item.video || '') +
 						'&duration=' + item.duration +
 						'&views=' + item.views
 				});
@@ -290,6 +342,44 @@
 	.video-player {
 		width: 100%;
 		height: 100%;
+	}
+
+	.video-placeholder {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #000;
+	}
+
+	.placeholder-text {
+		color: #888;
+		font-size: 28rpx;
+	}
+
+	.vip-label {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 24rpx;
+		color: #ff6347;
+		background-color: rgba(255, 99, 71, 0.25);
+		padding: 6rpx 16rpx;
+		border-radius: 8rpx;
+		margin-right: 15rpx;
+		font-weight: 700;
+		flex-shrink: 0;
+		border: 1rpx solid rgba(255, 99, 71, 0.4);
+	}
+
+	.video-title-row {
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: 20rpx;
 	}
 
 	.ad-section {

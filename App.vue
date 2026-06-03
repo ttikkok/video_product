@@ -1,9 +1,10 @@
 <script>
 	// import { getUserInfo } from "@/api/public";
 	import config from "@/http/config";
+	import { register_login } from "@/api/home.js";
 	export default {
 		onLaunch: function() {
-			// console.log('App Launch')
+			this.autoLogin()
 		},
 		onShow: function() {
 			// uni.request({  
@@ -48,6 +49,36 @@
 		},
 		onHide: function() {
 			// console.log('App Hide')
+		},
+		methods: {
+			autoLogin() {
+				// 检查是否已经登录成功，如果有token则不需要重复登录
+				let token = uni.getStorageSync('token')
+				let userinfo = uni.getStorageSync('userinfo')
+				
+				if (token && userinfo) {
+					console.log('已经登录成功，无需重复登录')
+					return
+				}
+				
+				let deviceId = uni.getStorageSync('deviceId')
+				if (!deviceId) {
+					deviceId = 'xxxxxxx' + Date.now() + Math.random().toString(36).substr(2, 9)
+					uni.setStorageSync('deviceId', deviceId)
+				}
+				register_login({ device_id: deviceId }).then(res => {
+					if (res && res.code === 1 && res.data) {
+						if (res.data.userinfo) {
+							uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))
+						}
+						if (res.data.token) {
+							uni.setStorageSync('token', res.data.token)
+						}
+					}
+				}).catch(err => {
+					console.error('登录失败', err)
+				})
+			}
 		}
 	}
 </script>

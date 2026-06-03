@@ -228,7 +228,7 @@
         "pagePath": "pages/banana/index",
         "iconPath": "static/tabbar/tab-wallet.png",
         "selectedIconPath": "static/tabbar/tab-wallet-active.png",
-        "text": "香蕉圈"
+        "text": "朋友圈"
       },
       {
         "pagePath": "pages/novel/index",

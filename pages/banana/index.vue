@@ -6,7 +6,14 @@
 			<view class="search-header">
 				<view class="search-bar">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
-					<input class="search-input" placeholder="搜索帖子" />
+					<input 
+						class="search-input" 
+						placeholder="搜索帖子" 
+						v-model="searchKeyword"
+						@confirm="handleSearch"
+						@input="handleSearchInput"
+					/>
+					<view v-if="searchKeyword" class="search-clear" @click="clearSearch">✕</view>
 				</view>
 			</view>
 
@@ -14,12 +21,12 @@
 			<scroll-view scroll-x class="nav-tabs">
 				<view class="tabs">
 					<view 
-						v-for="(tab, index) in navTabs" 
-						:key="index"
+						v-for="(category, index) in categoryList" 
+						:key="category.id || index"
 						:class="['tab-item', { active: activeTab === index }]"
 						@click="switchNavTab(index)"
 					>
-						{{ tab.name }}
+						{{ category.name }}
 					</view>
 				</view>
 			</scroll-view>
@@ -27,39 +34,51 @@
 
 		<!-- 帖子列表 -->
 		<scroll-view scroll-y class="post-list">
+			<!-- 加载状态 -->
+			<view v-if="loading && postList.length === 0" class="loading-container">
+				<view class="loading-spinner"></view>
+				<text class="loading-text">加载中...</text>
+			</view>
+
+			<!-- 空状态 -->
+			<view v-else-if="!loading && postList.length === 0" class="empty-container">
+				<text class="empty-text">暂无数据</text>
+			</view>
+
 			<view v-for="(post, index) in postList" :key="index" class="post-card" @click="goToDetail(post)">
-				<!-- 帖子头部 -->
-				<view class="post-header">
-					<view class="user-info">
-						<image :src="post.avatar" mode="aspectFill" class="user-avatar" />
-						<view class="user-details">
-							<view class="user-name-row">
-								<text class="user-name">{{ post.userName }}</text>
-								<view v-if="post.level" class="user-level">LV.{{ post.level }}</view>
-							</view>
-						</view>
-					</view>
-					<!-- <view class="follow-btn">+ 關注</view> -->
+				<!-- 帖子内容 -->
+				<view class="post-content">
+					<text>{{ post.title }}</text>
+				</view>
+
+				<!-- 帖子视频 -->
+				<view v-if="post.video" class="post-media video">
+					<video 
+						:src="post.video" 
+						class="video-player"
+						:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
+						controls
+						show-center-play-btn
+						:duration="post.duration"
+					></video>
+				</view>
+				<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
+					<image 
+						v-for="(img, imgIndex) in post.images.slice(0, 9)" 
+						:key="imgIndex" 
+						:src="img" 
+						mode="aspectFill" 
+						:class="['grid-image', { 'big': post.images.length === 2 && imgIndex === 0 }]" 
+					/>
+				</view>
+				<view v-else-if="post.images && post.images.length === 1" class="post-media single-image">
+					<image :src="post.images[0]" mode="aspectFill" class="media-image" />
 				</view>
 
 				<!-- 帖子标签 -->
 				<view v-if="post.tags && post.tags.length > 0" class="post-tags">
-					<view v-for="(tag, tagIndex) in post.tags" :key="tagIndex" class="post-tag" :style="{ backgroundColor: tag.bgColor, color: tag.color }">
-						{{ tag.name }}
-					</view>
-				</view>
-
-				<!-- 帖子内容 -->
-				<view class="post-content">
-					<text>{{ post.content }}</text>
-					<text v-if="post.hasMore" class="expand-text">_ 全部</text>
-				</view>
-
-				<!-- 帖子图片/视频 -->
-				<view v-if="post.media" class="post-media">
-					<image :src="post.media" mode="aspectFill" class="media-image" />
-					<view v-if="post.mediaOverlay" class="media-overlay">
-						<image :src="post.mediaOverlay" mode="aspectFill" class="overlay-image" />
+					<view v-for="(tag, tagIndex) in post.tags" :key="tagIndex" class="post-tag">
+						{{ tag }}
 					</view>
 				</view>
 
@@ -67,19 +86,15 @@
 				<view class="post-stats">
 					<view class="stat-item">
 						<image src="../../static/images/look.png" mode="widthFix" class="stat-icon" />
-						<text class="stat-text">{{ post.views }}</text>
+						<text class="stat-text">{{ post.look_number }}</text>
 					</view>
-					<!-- <view class="stat-item">
-						<text class="stat-icon">💬</text>
-						<text class="stat-text">{{ post.comments }}</text>
-					</view> -->
-					<view class="stat-item">
-						<image src="../../static/images/dianzan.png" mode="widthFix" class="stat-icon" />
-						<text class="stat-text">{{ post.likes }}</text>
+					<view :class="['stat-item', { active: post.is_like === 1 }]" @click.stop="toggleLike(post)">
+						<image :src="post.is_like === 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="stat-icon" />
+						<text class="stat-text">{{ post.like_number }}</text>
 					</view>
-					<view class="stat-item">
-						<image src="../../static/images/shoucang.png" mode="widthFix" class="stat-icon" />
-						<!-- <text class="stat-icon">🤍</text> -->
+					<view :class="['stat-item', { active: post.is_collect === 1 }]" @click.stop="toggleCollect(post)">
+						<image :src="post.is_collect === 1 ? '../../static/images/collect_active.png' : '../../static/images/collect.png'" mode="widthFix" class="stat-icon" />
+						<text class="stat-text">{{ post.collect_number }}</text>
 					</view>
 					<!-- <view class="stat-item">
 						<text class="stat-icon">↗️</text>
@@ -129,73 +144,250 @@
 </template>
 
 <script>
+	import { CircleApi_circle_data_list, CircleApi_circle_type_list, CircleApi_circle_data_list_search, CircleApi_circle_like, CircleApi_circle_collect } from '@/api/home.js'
 	export default {
 		data() {
 			return {
-				activeTab: 1,
-				navTabs: [
-					{ name: '關注' },
-					{ name: '推薦' },
-					{ name: '同城樓鳳' },
-					{ name: '視頻' },
-					{ name: '圖片' },
-					{ name: '話題' }
-				],
-				postList: [
-					{
-						avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20avatar&image_size=square',
-						userName: '好色先生官方帳號',
-						level: 3,
-						tags: [
-							{ name: '置頂', bgColor: '#e74c3c', color: '#fff' },
-							{ name: '原創', bgColor: '#3498db', color: '#fff' }
-						],
-						content: '好色先生官方棋牌平台，招募微信支付宝码商，押金2万起！\n棋牌平台长期收量，欢迎各大渠道联系合作 _ 全部',
-						hasMore: true,
-						media: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20video%20cover%20artistic&image_size=portrait_4_3',
-						mediaOverlay: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20casino%20ad%20banner&image_size=landscape_16_9',
-						views: '296.2萬',
-						comments: '1363',
-						likes: '6134',
-						location: '香港特别行政区',
-						topics: ['最爱啪啪啪', '寂寞才自慰', 'AV番號交流'],
-						replies: [
-							{ avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=user%20avatar%20portrait&image_size=square' },
-							{ avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=user%20avatar%20portrait&image_size=square' },
-							{ avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=user%20avatar%20portrait&image_size=square' },
-							{ avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=user%20avatar%20portrait&image_size=square' },
-							{ avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=user%20avatar%20portrait&image_size=square' },
-							{ avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=user%20avatar%20portrait&image_size=square' }
-						]
-					},
-					{
-						avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=handsome%20man%20portrait%20avatar&image_size=square',
-						userName: '不安的流年、∞',
-						level: 1,
-						tags: [],
-						content: '效果嘎嘎猛',
-						hasMore: false,
-						media: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=video%20call%20screenshot&image_size=landscape_16_9',
-						views: '1.2萬',
-						comments: '86',
-						likes: '234',
-						location: '',
-						topics: [],
-						replies: [],
-						bottomReply: null
-					}
-				]
+				activeTab: 0,
+				categoryList: [],
+				currentCategoryId: null,
+				postList: [],
+				page: 1,
+				pageSize: 10,
+				total: 0,
+				loading: false,
+				searchKeyword: ''
+			}
+		},
+		onLoad() {
+			this.loadCategoryList()
+		},
+		onPullDownRefresh() {
+			this.page = 1
+			this.total = 0
+			this.postList = []
+			this.loadPostList(() => {
+				uni.stopPullDownRefresh()
+			})
+		},
+		onReachBottom() {
+			if (this.loading) return
+			if (this.postList.length >= this.total) {
+				uni.showToast({ title: '没有更多了', icon: 'none' })
+				return
+			}
+			this.page++
+			if (this.searchKeyword) {
+				this.loadSearchList()
+			} else {
+				this.loadPostList()
 			}
 		},
 		methods: {
+			loadCategoryList() {
+				CircleApi_circle_type_list().then(res => {
+					if (res && res.code === 1 && res.data && res.data.length > 0) {
+						this.categoryList = res.data
+					} else {
+						this.categoryList = [
+							{ id: 0, name: '推荐' },
+							{ id: 1, name: '视频' },
+							{ id: 2, name: '图片' },
+							{ id: 3, name: '话题' }
+						]
+					}
+					this.loadPostList()
+				}).catch(err => {
+					console.error('分类列表加载失败', err)
+					this.categoryList = [
+						{ id: 0, name: '推荐' },
+						{ id: 1, name: '视频' },
+						{ id: 2, name: '图片' },
+						{ id: 3, name: '话题' }
+					]
+					this.loadPostList()
+				})
+			},
 			switchNavTab(index) {
-				this.activeTab = index;
+				this.activeTab = index
+				this.currentCategoryId = this.categoryList[index] && this.categoryList[index].id !== undefined ? this.categoryList[index].id : null
+				this.page = 1
+				this.postList = []
+				this.loadPostList()
+			},
+			handleSearchInput() {
+				if (!this.searchKeyword) {
+					this.page = 1
+					this.postList = []
+					this.loadPostList()
+				}
+			},
+			handleSearch() {
+				if (this.searchKeyword.trim()) {
+					this.page = 1
+					this.postList = []
+					this.loadSearchList()
+				}
+			},
+			clearSearch() {
+				this.searchKeyword = ''
+				this.page = 1
+				this.postList = []
+				this.loadPostList()
+			},
+			loadSearchList(callback) {
+				this.loading = true
+				CircleApi_circle_data_list_search({ 
+					page: this.page, 
+					pagesize: this.pageSize,
+					title: this.searchKeyword 
+				}).then(res => {
+					this.loading = false
+					if (res && res.code === 1 && res.data) {
+						this.total = res.data.total || 0
+						if (res.data.rows && res.data.rows.length > 0) {
+							if (this.page === 1) {
+								this.postList = res.data.rows
+							} else {
+								this.postList = [...this.postList, ...res.data.rows]
+							}
+						}
+					} else {
+						if (this.page === 1) {
+							this.postList = []
+						}
+					}
+					if (typeof callback === 'function') {
+						callback()
+					}
+				}).catch(err => {
+					this.loading = false
+					console.error('搜索失败', err)
+					if (typeof callback === 'function') {
+						callback()
+					}
+				})
 			},
 			goToDetail(post) {
 				const postData = encodeURIComponent(JSON.stringify(post));
 				uni.navigateTo({
 					url: `/pages/banana/detail?post=${postData}`
 				});
+			},
+			playVideo(post) {
+				if (post.video) {
+					uni.navigateTo({
+						url: `/pages/index/play?id=${post.id}&title=${encodeURIComponent(post.title)}`
+					})
+				}
+			},
+			loadPostList(callback) {
+				this.loading = true
+				let params = { page: this.page, pagesize: this.pageSize }
+				if (this.currentCategoryId !== null && this.currentCategoryId !== undefined) {
+					params.category_id = this.currentCategoryId
+				}
+				CircleApi_circle_data_list(params).then(res => {
+					this.loading = false
+					if (res && res.code === 1 && res.data) {
+						this.total = res.data.total || 0
+						if (res.data.rows && res.data.rows.length > 0) {
+							if (this.page === 1) {
+								this.postList = res.data.rows
+							} else {
+								this.postList = [...this.postList, ...res.data.rows]
+							}
+						}
+					} else {
+						if (this.page === 1) {
+							this.loadStaticData()
+						}
+					}
+					if (typeof callback === 'function') {
+						callback()
+					}
+				}).catch(err => {
+					this.loading = false
+					console.error('帖子列表加载失败', err)
+					if (this.page === 1) {
+						this.loadStaticData()
+					}
+					if (typeof callback === 'function') {
+						callback()
+					}
+				})
+			},
+			loadStaticData() {
+				this.postList = [
+					{
+						id: 1,
+						title: '互联网现在发展很快',
+						tags: ['互联网', '计算机'],
+						video: '',
+						images: [
+							'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic&image_size=square'
+						],
+						look_number: 12,
+						like_number: 1,
+						collect_number: 0,
+						is_like: 0,
+						is_collect: 0
+					},
+					{
+						id: 2,
+						title: '今天天气真好',
+						tags: ['日常', '生活'],
+						video: '',
+						images: [
+							'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20landscape%20nature&image_size=portrait_4_3',
+							'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20sky%20clouds&image_size=portrait_4_3'
+						],
+						look_number: 89,
+						like_number: 12,
+						collect_number: 3,
+						is_like: 0,
+						is_collect: 0
+					}
+				]
+				this.total = 2
+			},
+			toggleLike(post) {
+				CircleApi_circle_like({ circle_id: post.id }).then(res => {
+					if (res && res.code === 1) {
+						if (post.is_like === 1) {
+							post.is_like = 0
+							post.like_number = Math.max(0, post.like_number - 1)
+						} else {
+							post.is_like = 1
+							post.like_number++
+						}
+						uni.showToast({ title: res.msg || (post.is_like === 1 ? '点赞成功' : '取消点赞'), icon: 'none' })
+					} else {
+						uni.showToast({ title: res.msg || '操作失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('点赞失败', err)
+					uni.showToast({ title: '操作失败', icon: 'none' })
+				})
+			},
+			toggleCollect(post) {
+				CircleApi_circle_collect({ circle_id: post.id }).then(res => {
+					if (res && res.code === 1) {
+						if (post.is_collect === 1) {
+							post.is_collect = 0
+							post.collect_number = Math.max(0, post.collect_number - 1)
+						} else {
+							post.is_collect = 1
+							post.collect_number++
+						}
+						uni.showToast({ title: res.msg || (post.is_collect === 1 ? '收藏成功' : '取消收藏'), icon: 'none' })
+					} else {
+						uni.showToast({ title: res.msg || '操作失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('收藏失败', err)
+					uni.showToast({ title: '操作失败', icon: 'none' })
+				})
 			}
 		}
 	}
@@ -248,6 +440,16 @@
 		background: transparent;
 		border: none;
 		color: #fff;
+		font-size: 28rpx;
+	}
+
+	.search-clear {
+		width: 40rpx;
+		height: 40rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #999;
 		font-size: 28rpx;
 	}
 
@@ -306,11 +508,55 @@
 		border-radius: 2rpx;
 	}
 
+	/* 加载状态 */
+	.loading-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 100rpx 0;
+	}
+
+	.loading-spinner {
+		width: 60rpx;
+		height: 60rpx;
+		border: 4rpx solid rgba(107, 163, 224, 0.3);
+		border-top-color: #6BA3E0;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.loading-text {
+		margin-top: 20rpx;
+		font-size: 28rpx;
+		color: #999;
+	}
+
+	/* 空状态 */
+	.empty-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 100rpx 0;
+	}
+
+	.empty-text {
+		font-size: 28rpx;
+		color: #999;
+	}
+
 	/* 帖子列表 */
 	.post-list {
 		flex: 1;
-		padding-top: calc(180rpx + constant(safe-area-inset-top));
-		padding-top: calc(180rpx + env(safe-area-inset-top));
+		padding-top: calc(200rpx + constant(safe-area-inset-top));
+		padding-top: calc(200rpx + env(safe-area-inset-top));
 	}
 
 	.post-card {
@@ -380,9 +626,11 @@
 	}
 
 	.post-tag {
-		font-size: 22rpx;
-		padding: 4rpx 12rpx;
-		border-radius: 4rpx;
+		font-size: 24rpx;
+		padding: 6rpx 16rpx;
+		border-radius: 6rpx;
+		background-color: rgba(107, 163, 224, 0.2);
+		color: #6BA3E0;
 	}
 
 	/* 帖子内容 */
@@ -424,11 +672,62 @@
 		height: 100%;
 	}
 
+	.video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100rpx;
+		height: 100rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.video-player {
+		width: 100%;
+		height: 400rpx;
+	}
+
+	.video-duration {
+		position: absolute;
+		bottom: 10rpx;
+		right: 10rpx;
+		background-color: rgba(0, 0, 0, 0.7);
+		padding: 4rpx 12rpx;
+		border-radius: 6rpx;
+		font-size: 24rpx;
+		color: #fff;
+	}
+
+	.images-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 4rpx;
+	}
+
+	.grid-image {
+		width: 100%;
+		height: 200rpx;
+	}
+
+	.grid-image.big {
+		grid-row: span 2;
+		height: 404rpx;
+	}
+
+	.single-image .media-image {
+		height: auto;
+		max-height: 500rpx;
+	}
+
 	/* 互动数据 */
 	.post-stats {
 		display: flex;
 		align-items: center;
-		gap: 30rpx;
+		gap: 50rpx;
 		margin-bottom: 15rpx;
 	}
 
@@ -436,14 +735,14 @@
 		display: flex;
 		align-items: center;
 		gap: 5rpx;
-		font-size: 24rpx;
+		// font-size: 24rpx;
 		color: #999;
 		white-space: nowrap;
 	}
 
 	.stat-icon {
-		width: 36rpx;
-		height: 36rpx;
+		width: 30rpx;
+		height: 30rpx;
 		margin-right: 8rpx;
 		flex-shrink: 0;
 	}
