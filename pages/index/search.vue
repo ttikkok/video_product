@@ -22,26 +22,26 @@
 			<scroll-view scroll-y class="category-scroll">
 				<view 
 					v-for="(cat, index) in categories" 
-					:key="index"
+					:key="cat.id"
 					:class="['category-item', { active: activeCategory === index }]"
 					@click="selectCategory(index)"
 				>
-					<text>{{ cat.name }}</text>
+					<text>{{ cat.title }}</text>
 				</view>
 			</scroll-view>
 
 			<view class="tags-container">
 				<view class="tags-header">
-					<text>{{ categories[activeCategory].name }}</text>
+					<text>{{ categories[activeCategory] && categories[activeCategory].title || '视频分类' }}</text>
 				</view>
 				<view class="tags-scroll">
 					<view 
 						v-for="(tag, index) in currentTags" 
-						:key="index"
-						:class="['tag-item', { active: selectedTags.includes(tag) }]"
+						:key="tag.id"
+						:class="['tag-item', { active: selectedTags.includes(tag.title) }]"
 						@click="toggleTag(tag)"
 					>
-						<text>{{ tag }}</text>
+						<text>{{ tag.title }}</text>
 					</view>
 				</view>
 			</view>
@@ -61,7 +61,7 @@
 			</view>
 		</view>
 
-		<view class="content-tabs">
+		<!-- <view class="content-tabs">
 			<view 
 				v-for="(tab, index) in contentTabs" 
 				:key="index"
@@ -70,7 +70,7 @@
 			>
 				<text>{{ tab }}</text>
 			</view>
-		</view>
+		</view> -->
 
 		<scroll-view scroll-y class="content-list">
 			<view v-for="(item, index) in searchResults" :key="index" class="content-item" @click="playVideo(item)">
@@ -96,6 +96,7 @@
 </template>
 
 <script>
+	import { VodApi_vod_type_list } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -104,15 +105,7 @@
 				activeSort: 0,
 				activeContentTab: 1,
 				selectedTags: [],
-				categories: [
-					{ name: '热门标签', tags: ['全部', '麻豆传媒', '蜜桃影像', '果冻传媒', '乌鸦传媒', 'HongKongDoll', '杏吧', '猫爪影像', 'PsychopornTW', '兔子先生', '皇家华人', '精东影业', '天美传媒', '91制片厂', '星空无限传', '麻豆番外篇', '乐播传媒', '抖阴', '女优淫娃培', '开心鬼传媒', '突袭女优家', '淫欲战姬-02', 'KISS糖果屋', '大鸟十八', '情趣K歌房', '小粥奇行', '国产AV', 'AV', 'av'] },
-					{ name: '年龄', tags: ['全部', '18-22', '22-25', '25-30', '30-35', '35+'] },
-					{ name: '不同地域', tags: ['全部', '大陆', '台湾', '香港', '日本', '欧美', '韩国'] },
-					{ name: '不同时间', tags: ['全部', '今日更新', '本周更新', '本月更新', '上月更新'] },
-					{ name: '发行时间', tags: ['全部', '2024', '2023', '2022', '2021', '2020', '2019'] },
-					{ name: '人种/特征', tags: ['全部', '亚洲', '欧美', '混血', '黑丝', '制服', '巨乳', '萝莉', '御姐'] },
-					{ name: '角色/职业', tags: ['全部', '教师', '护士', '秘书', '学生', 'OL', '空姐', '模特', '人妻'] }
-				],
+				categories: [],
 				sortOptions: ['最多播放', '最近添加', '最高评分'],
 				contentTabs: ['播單', '視頻', '圖集', 'GIFs'],
 				searchResults: [
@@ -157,15 +150,34 @@
 		},
 		computed: {
 			currentTags() {
-				return this.categories[this.activeCategory].tags
+				return this.categories[this.activeCategory]?.children || []
 			}
 		},
 		onLoad(options) {
 			if (options && options.keyword) {
 				this.keyword = decodeURIComponent(options.keyword)
 			}
+			this.loadCategories()
 		},
 		methods: {
+			loadCategories() {
+				uni.showLoading({ title: '加载中...' })
+				VodApi_vod_type_list({}).then(res => {
+					uni.hideLoading()
+					if (res && res.code === 1 && res.data) {
+						this.categories = res.data
+						if (this.categories.length > 0 && this.categories[0].children) {
+							this.activeCategory = 0
+						}
+					} else {
+						this.categories = []
+					}
+				}).catch(err => {
+					uni.hideLoading()
+					console.error('加载分类失败:', err)
+					this.categories = []
+				})
+			},
 			goBack() {
 				uni.navigateBack()
 			},
@@ -177,15 +189,11 @@
 				this.selectedTags = []
 			},
 			toggleTag(tag) {
-				if (tag === '全部') {
-					this.selectedTags = []
-					return
-				}
-				const index = this.selectedTags.indexOf(tag)
+				const index = this.selectedTags.indexOf(tag.title)
 				if (index > -1) {
 					this.selectedTags.splice(index, 1)
 				} else {
-					this.selectedTags.push(tag)
+					this.selectedTags.push(tag.title)
 				}
 			},
 			selectSort(index) {
@@ -409,7 +417,8 @@
 	}
 
 	.content-list {
-		flex: 1;
+		height: calc(100vh - 600rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 600rpx - env(safe-area-inset-bottom));
 		padding: 20rpx;
 		box-sizing: border-box;
 	}

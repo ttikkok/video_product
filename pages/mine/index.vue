@@ -58,12 +58,12 @@
 				<text class="menu-count">{{ userInfo.historyCount }}部</text>
 				<text class="menu-arrow">›</text>
 			</view>
-			<view class="menu-item" @click="goToPage('downloads')">
+			<!-- <view class="menu-item" @click="goToPage('downloads')">
 				<image src="../../static/images/img01.png" mode="widthFix" class="menu-icon"></image>
 				<text class="menu-name">下载管理</text>
 				<text class="menu-count">{{ userInfo.downloadCount }}部</text>
 				<text class="menu-arrow">›</text>
-			</view>
+			</view> -->
 		</view>
 
 		<view class="menu-section">

@@ -318,36 +318,56 @@
 			<view class="category-header">
 				<text class="category-title">{{ tabs[activeTab] && tabs[activeTab].nickname ? tabs[activeTab].nickname : '精选内容' }}</text>
 			</view>
-			<view class="category-video-container">
-				<view 
-					v-for="(video, index) in videoList" 
-					:key="index" 
-					class="category-video-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="category-video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
-							<view class="play-icon">▶</view>
+			<scroll-view 
+				v-if="videoList.length > 0" 
+				scroll-y 
+				class="category-video-scroll"
+				@scrolltolower="loadMore"
+			>
+				<view class="category-video-container">
+					<view 
+						v-for="(video, index) in videoList" 
+						:key="index" 
+						class="category-video-card"
+						@click="handleVideoClick(video)"
+					>
+						<view class="category-video-cover">
+							<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
+							<view class="video-overlay">
+								<view class="play-icon">▶</view>
+							</view>
+							<text class="play-count">{{ video.playCount }}</text>
+							<text class="video-duration">{{ video.duration }}</text>
+							<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
 						</view>
-						<text class="play-count">{{ video.playCount }}</text>
-						<text class="video-duration">{{ video.duration }}</text>
-						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="category-video-info">
-						<view class="category-video-title-row">
-							<view v-if="video.is_free === 0" class="vip-label">VIP</view>
-							<text class="category-video-title">{{ video.title }}</text>
-						</view>
-						<view class="category-video-tags">
-							<text 
-								v-for="(tag, tagIndex) in video.tags" 
-								:key="tagIndex" 
-								class="video-tag"
-							>{{ tag }}</text>
+						<view class="category-video-info">
+							<view class="category-video-title-row">
+								<view v-if="video.is_free === 0" class="vip-label">VIP</view>
+								<text class="category-video-title">{{ video.title }}</text>
+							</view>
+							<view class="category-video-tags">
+								<text 
+									v-for="(tag, tagIndex) in video.tags" 
+									:key="tagIndex" 
+									class="video-tag"
+								>{{ tag }}</text>
+							</view>
 						</view>
 					</view>
 				</view>
+				<u-loadmore 
+					v-if="!isLoading && videoList.length > 0" 
+					:status="isLoadMore" 
+					:loading-text="'加载中'" 
+					:loadmore-text="'加载中'" 
+					:nomore-text="'暂无更多'" 
+					class="py-3" 
+				/>
+			</scroll-view>
+			<view v-else class="empty-state">
+				<view class="empty-icon">📺</view>
+				<text class="empty-text">暂无相关视频</text>
+				<text class="empty-hint">该分类下暂无视频内容</text>
 			</view>
 		</view>
 
@@ -400,7 +420,7 @@
 </template>
 
 <script>
-	import { IndexAdvertise, IndexChannel, IndexPopup_window, IndexIndex_list_data, IndexIndex_list_data_Refresh } from '@/api/home.js'
+	import { IndexAdvertise, IndexChannel, IndexPopup_window, IndexIndex_list_data, IndexIndex_list_data_Refresh, VodApi_vod_data_list_search } from '@/api/home.js'
 
 	export default {
 		data() {
@@ -424,7 +444,11 @@
 				threeColumnVideoList: [],
 				bigCardVideoList: [],
 				smallGridVideoList: [],
-				mixedVideoList: []
+				mixedVideoList: [],
+				currentPage: 1,
+				totalPages: 1,
+				isLoading: false,
+				isLoadMore: 'loadmore'
 			}
 		},
 		onLoad() {
@@ -490,31 +514,58 @@
 					this.loadDefaultVideos()
 				})
 			},
-			loadVideoList(channelId) {
+			loadVideoList(channelId, page = 1, isLoadMore = false) {
 				if (channelId === null || channelId === undefined) return
-				uni.showLoading({ title: '加载中...' })
-				IndexIndex_list_data({ category_id: channelId }).then(res => {
+				if (!isLoadMore) {
+					uni.showLoading({ title: '加载中...' })
+				}
+				VodApi_vod_data_list_search({ category_id: channelId, page: page, pagesize: 10 }).then(res => {
 					uni.hideLoading()
-					if (res && res.data && res.data.length > 0) {
-						let channelData = res.data[0]
-						if (channelData.videos && channelData.videos.length > 0) {
-							this.videoList = channelData.videos.map(video => ({
-								id: video.id,
-								cover_image: video.cover_image || '',
-								title: video.title || '',
-								playCount: this.formatNumber(video.look_number) || '0',
-								duration: '00:00',
-								tags: video.tags || [],
-								videoUrl: video.video || '',
-								isFree: video.is_free,
-								score: video.fraction || 0
-							}))
+					this.isLoading = false
+					let dataList = []
+					if (res && res.code === 1 && res.data) {
+						if (Array.isArray(res.data)) {
+							dataList = res.data
+						} else if (res.data.rows && Array.isArray(res.data.rows)) {
+							dataList = res.data.rows
+						}
+					}
+					if (dataList.length > 0) {
+						let videos = dataList.map(video => ({
+							id: video.id,
+							cover_image: video.cover_image || '',
+							title: video.title || '',
+							playCount: this.formatNumber(video.look_number) || '0',
+							duration: video.duration || '00:00',
+							tags: video.tags || [],
+							videoUrl: video.video || '',
+							isFree: video.is_free,
+							score: video.fraction || 0
+						}))
+						if (isLoadMore) {
+							this.videoList = [...this.videoList, ...videos]
+							this.isLoadMore = videos.length < 10 ? 'nomore' : 'loadmore'
+						} else {
+							this.videoList = videos
+							this.currentPage = 1
+							this.isLoadMore = videos.length < 10 ? 'nomore' : 'loadmore'
+						}
+					} else {
+						if (!isLoadMore) {
+							this.videoList = []
+						} else {
+							this.isLoadMore = 'nomore'
 						}
 					}
 				}).catch(err => {
 					uni.hideLoading()
+					this.isLoading = false
 					console.error('视频数据加载失败', err)
-					this.loadDefaultVideos()
+					if (!isLoadMore) {
+						this.videoList = []
+					} else {
+						this.isLoadMore = 'nomore'
+					}
 				})
 			},
 			formatNumber(num) {
@@ -909,6 +960,8 @@
 			switchTab(index) {
 				this.activeTab = index
 				this.showCategoryList = true
+				this.currentPage = 1
+				this.isLoadMore = 'loadmore'
 				this.scrollToTab = ''
 				this.$nextTick(() => {
 					this.scrollToTab = 'tab-' + index
@@ -969,6 +1022,8 @@
 			},
 			handleMore(tabIndex) {
 				this.activeTab = tabIndex
+				this.currentPage = 1
+				this.isLoadMore = 'loadmore'
 				this.scrollToTab = ''
 				this.$nextTick(() => {
 					this.scrollToTab = 'tab-' + tabIndex
@@ -983,6 +1038,16 @@
 				const channelId = this.tabs[tabIndex] && this.tabs[tabIndex].id !== undefined ? this.tabs[tabIndex].id : null
 				if (channelId !== null && channelId !== undefined) {
 					this.loadVideoList(channelId)
+				}
+			},
+			loadMore() {
+				if (this.isLoading || this.isLoadMore === 'nomore') return
+				this.isLoading = true
+				this.isLoadMore = 'loading'
+				this.currentPage++
+				const channelId = this.tabs[this.activeTab] && this.tabs[this.activeTab].id !== undefined ? this.tabs[this.activeTab].id : null
+				if (channelId !== null && channelId !== undefined) {
+					this.loadVideoList(channelId, this.currentPage, true)
 				}
 			},
 			handleVideoClick(video) {
@@ -1089,14 +1154,15 @@
 
 <style lang="scss" scoped>
 	.page {
-		min-height: 100vh;
+		// min-height: 100vh;
 		background-color: #1a1a2e;
-		padding-bottom: 98rpx;
+		// padding-bottom: 98rpx;
 	}
 	
 	.top-header {
 		background-color: #16213e;
-		padding: 0 20rpx 20rpx;
+		padding: 0 20rpx;
+		margin-bottom: 20rpx;
 	}
 	
 	.tabs-wrapper {
@@ -1510,8 +1576,8 @@
 	
 	.video-tag {
 		font-size: 22rpx;
-		color: #ffd700;
-		background-color: rgba(255, 215, 0, 0.15);
+		color: #6BA3E0;
+		background-color: rgba(107, 163, 224, 0.2);
 		padding: 4rpx 12rpx;
 		border-radius: 6rpx;
 	}
@@ -1788,8 +1854,8 @@
 	
 	.left-video-tag {
 		font-size: 20rpx;
-		color: #ffd700;
-		background-color: rgba(255, 215, 0, 0.15);
+		color: #6BA3E0;
+		background-color: rgba(107, 163, 224, 0.2);
 		padding: 3rpx 10rpx;
 		border-radius: 6rpx;
 	}
@@ -2038,10 +2104,18 @@
 
 	.category-video-list {
 		padding: 20rpx;
+		height: calc(100vh - 200rpx - 98rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 200rpx - 98rpx - env(safe-area-inset-bottom));
+		box-sizing: border-box;
+	}
+
+	.category-video-scroll {
+		height: calc(100% - 80rpx);
+		box-sizing: border-box;
 	}
 
 	.category-header {
-		padding: 20rpx 0;
+		padding-bottom: 20rpx;
 		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 		margin-bottom: 20rpx;
 	}
@@ -2056,6 +2130,30 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20rpx;
+	}
+
+	.empty-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 100rpx 40rpx;
+	}
+
+	.empty-icon {
+		font-size: 120rpx;
+		margin-bottom: 30rpx;
+	}
+
+	.empty-text {
+		font-size: 32rpx;
+		color: #fff;
+		margin-bottom: 15rpx;
+	}
+
+	.empty-hint {
+		font-size: 26rpx;
+		color: #666;
 	}
 
 	.category-video-card {
@@ -2202,8 +2300,8 @@
 
 	.big-video-tag {
 		font-size: 22rpx;
-		color: #ffd700;
-		background-color: rgba(255, 215, 0, 0.15);
+		color: #6BA3E0;
+		background-color: rgba(107, 163, 224, 0.2);
 		padding: 6rpx 16rpx;
 		border-radius: 20rpx;
 	}

@@ -10,7 +10,8 @@
 			</view>
 		</view>
 
-		<view class="time-filter">
+		<!-- 时间分类已注释 -->
+		<!-- <view class="time-filter">
 			<view 
 				v-for="(filter, index) in filters" 
 				:key="index"
@@ -19,30 +20,46 @@
 			>
 				{{ filter }}
 			</view>
-		</view>
+		</view> -->
 
-		<view v-if="history.length === 0" class="empty-state">
-			<text class="empty-icon">📺</text>
-			<text class="empty-text">暂无观看历史</text>
-		</view>
+		<!-- 内容列表 -->
+		<scroll-view scroll-y class="content-list" @scrolltolower="loadMore">
+			<!-- 空状态 -->
+			<u-empty v-if="!loading && history.length === 0" :text="'暂无观看历史'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
-		<scroll-view scroll-y v-else class="content-list">
-			<view v-for="(item, index) in filteredHistory" :key="index" class="content-item" @click="playVideo(item)">
-				<view v-if="isEdit" class="item-checkbox" @click.stop="toggleSelect(index)">
-					<text>{{ item.selected ? '✓' : '' }}</text>
-				</view>
-				<view class="item-cover-wrap">
-					<image :src="item.cover" mode="aspectFill" class="item-cover" />
-					<view class="item-progress" v-if="item.progress > 0">
-						<view class="progress-bar" :style="{ width: item.progress + '%' }"></view>
+			<template v-if="history.length > 0">
+				<view v-for="(item, index) in history" :key="index" class="content-item" @click="playVideo(item)">
+					<view v-if="isEdit" class="item-checkbox" @click.stop="toggleSelect(index)">
+						<text>{{ item.selected ? '✓' : '' }}</text>
 					</view>
-					<text class="item-duration">{{ item.duration }}</text>
+					<view class="item-cover-wrap">
+						<image :src="item.cover" mode="aspectFill" class="item-cover" />
+						<view class="item-progress" v-if="item.progress > 0">
+							<view class="progress-bar" :style="{ width: item.progress + '%' }"></view>
+						</view>
+						<text class="item-duration">{{ item.duration }}</text>
+					</view>
+					<view class="item-info">
+						<text class="item-title">{{ item.title }}</text>
+						<view class="item-tags">
+							<text v-for="(tag, tagIndex) in item.tags" :key="tagIndex" class="item-tag">{{ tag }}</text>
+						</view>
+						<view class="item-meta">
+							<text class="item-year" v-if="item.year">{{ item.year }}</text>
+							<text class="item-time">{{ item.watchTime }}</text>
+						</view>
+					</view>
 				</view>
-				<view class="item-info">
-					<text class="item-title">{{ item.title }}</text>
-					<text class="item-time">{{ item.watchTime }}</text>
-				</view>
-			</view>
+				<!-- 加载更多 -->
+				<u-loadmore 
+					v-if="history.length > 0" 
+					:status="loading ? 'loading' : (hasMore ? 'loadmore' : 'nomore')" 
+					loading-text="加载中" 
+					loadmore-text="加载中" 
+					nomore-text="暂无更多数据" 
+					class="py-3" 
+				/>
+			</template>
 		</scroll-view>
 
 		<view v-if="isEdit && selectedCount > 0" class="bottom-bar">
@@ -57,72 +74,81 @@
 </template>
 
 <script>
+	import { VodApi_vod_history_list } from '@/api/home.js'
 	export default {
 		data() {
 			return {
 				isEdit: false,
-				activeFilter: 0,
-				filters: ['全部', '今天', '昨天', '本周'],
-				history: [
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20video%20cover&image_size=portrait_4_3',
-						title: '高颜值美女私房写真',
-						duration: '06:32',
-						progress: 80,
-						watchTime: '10分钟前',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20fashion%20video%20cover&image_size=portrait_4_3',
-						title: '性感模特内衣秀',
-						duration: '08:15',
-						progress: 45,
-						watchTime: '30分钟前',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20bedroom%20video%20cover&image_size=portrait_4_3',
-						title: '美女主播热舞直播精选',
-						duration: '00:35:20',
-						progress: 100,
-						watchTime: '昨天',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=portrait_4_3',
-						title: '【秦雄全国探花】大神回复',
-						duration: '01:33:36',
-						progress: 20,
-						watchTime: '昨天',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=couple%20sofa%20intimate%20video%20cover&image_size=portrait_4_3',
-						title: '素人打野精彩片段',
-						duration: '01:16:05',
-						progress: 0,
-						watchTime: '本周',
-						selected: false
-					}
-				]
+				history: [],
+				page: 1,
+				pageSize: 10,
+				total: 0,
+				loading: false,
+				hasMore: true
 			}
 		},
 		computed: {
-			filteredHistory() {
-				if (this.activeFilter === 0) return this.history
-				const now = new Date()
-				return this.history.filter(item => {
-					if (this.activeFilter === 1) return item.watchTime.includes('分钟')
-					if (this.activeFilter === 2) return item.watchTime === '昨天'
-					if (this.activeFilter === 3) return item.watchTime === '本周'
-					return true
-				})
-			},
 			selectedCount() {
-				return this.filteredHistory.filter(item => item.selected).length
+				return this.history.filter(item => item.selected).length
 			}
 		},
+		onLoad() {
+			this.loadHistory()
+		},
 		methods: {
+			loadMore() {
+				if (this.loading) return
+				if (!this.hasMore) return
+				if (this.history.length >= this.total && this.total > 0) {
+					this.hasMore = false
+					return
+				}
+				this.page++
+				this.loadHistory()
+			},
+			loadHistory(callback) {
+				this.loading = true
+				VodApi_vod_history_list({ page: this.page, pagesize: this.pageSize }).then(res => {
+					this.loading = false
+					if (res && res.code === 1 && res.data) {
+						const list = Array.isArray(res.data) ? res.data : (res.data.rows || res.data.data || [])
+						this.total = res.data.total || list.length
+						const historyData = list.map(item => ({
+							id: item.id,
+							cover: item.cover_image || '',
+							title: item.title || '',
+							tags: item.tags || [],
+							year: item.year || '',
+							duration: item.duration || '',
+							video: item.video || '',
+							progress: item.progress || 0,
+							watchTime: item.watch_time || '刚刚',
+							selected: false
+						}))
+						if (this.page === 1) {
+							this.history = historyData
+						} else {
+							this.history = [...this.history, ...historyData]
+						}
+						if (historyData.length < this.pageSize) {
+							this.hasMore = false
+						}
+					} else {
+						this.history = []
+						this.total = 0
+						this.hasMore = false
+					}
+					if (typeof callback === 'function') {
+						callback()
+					}
+				}).catch(err => {
+					this.loading = false
+					console.error('加载观看历史失败:', err)
+					if (typeof callback === 'function') {
+						callback()
+					}
+				})
+			},
 			goBack() {
 				uni.navigateBack()
 			},
@@ -155,8 +181,6 @@
 	.page {
 		min-height: 100vh;
 		background-color: #1a1a2e;
-		display: flex;
-		flex-direction: column;
 	}
 
 	.top-nav {
@@ -234,8 +258,11 @@
 	}
 
 	.content-list {
-		flex: 1;
+		height: calc(100vh - 140rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 140rpx - env(safe-area-inset-bottom));
 		padding: 20rpx;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
 		box-sizing: border-box;
 	}
 
@@ -315,15 +342,41 @@
 		font-size: 28rpx;
 		color: #fff;
 		font-weight: 500;
-		margin-bottom: 10rpx;
+		margin-bottom: 8rpx;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
 
+	.item-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8rpx;
+		margin-bottom: 8rpx;
+	}
+
+	.item-tag {
+		font-size: 20rpx;
+		color: #6BA3E0;
+		background-color: rgba(107, 163, 224, 0.2);
+		padding: 4rpx 12rpx;
+		border-radius: 4rpx;
+	}
+
+	.item-meta {
+		display: flex;
+		align-items: center;
+		gap: 16rpx;
+	}
+
+	.item-year {
+		font-size: 22rpx;
+		color: #999;
+	}
+
 	.item-time {
-		font-size: 24rpx;
+		font-size: 22rpx;
 		color: #999;
 	}
 
@@ -355,5 +408,12 @@
 		font-size: 28rpx;
 		color: #fff;
 		font-weight: 600;
+	}
+
+	.load-more-tip {
+		padding: 30rpx;
+		text-align: center;
+		font-size: 24rpx;
+		color: #999;
 	}
 </style>

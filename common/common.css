@@ -6,13 +6,14 @@ page {
 }
 .page {
 	/* background-color: #282828; */
-	min-height: 100vh;
-	height: auto !important;
+	/* min-height: 100vh; */
+	/* height: auto !important; */
 }
 body {
 	padding: 0;
 	margin: 0;
 	font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif, '宋体';
+	background-color: #1a1a2e;
 }
 /* (2) 图片默认100%宽度 */
 image, img {

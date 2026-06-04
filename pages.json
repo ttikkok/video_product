@@ -150,6 +150,15 @@
 			}
 		},
 		{
+			"path": "pages/mine/messageDetail",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#16213e",
+				"navigationBarTextStyle": "white",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/mine/lines",
 			"style": {
 				"navigationBarTitleText": "",

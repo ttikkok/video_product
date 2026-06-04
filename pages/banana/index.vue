@@ -33,34 +33,28 @@
 		</view>
 
 		<!-- 帖子列表 -->
-		<scroll-view scroll-y class="post-list">
-			<!-- 加载状态 -->
-			<view v-if="loading && postList.length === 0" class="loading-container">
-				<view class="loading-spinner"></view>
-				<text class="loading-text">加载中...</text>
-			</view>
-
+		<scroll-view scroll-y class="post-list" @scrolltolower="loadMore">
 			<!-- 空状态 -->
-			<view v-else-if="!loading && postList.length === 0" class="empty-container">
-				<text class="empty-text">暂无数据</text>
-			</view>
+			<u-empty v-if="!loading && postList.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
-			<view v-for="(post, index) in postList" :key="index" class="post-card" @click="goToDetail(post)">
+			<template v-if="postList.length > 0">
+				<view v-for="(post, index) in postList" :key="index" class="post-card" @click="goToDetail(post)">
 				<!-- 帖子内容 -->
 				<view class="post-content">
 					<text>{{ post.title }}</text>
 				</view>
 
-				<!-- 帖子视频 -->
-				<view v-if="post.video" class="post-media video">
-					<video 
-						:src="post.video" 
-						class="video-player"
-						:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
-						controls
-						show-center-play-btn
-						:duration="post.duration"
-					></video>
+				<!-- 视频封面（列表页只显示封面，不加载视频） -->
+				<view v-if="post.video" class="post-media video-cover">
+					<image 
+						:src="post.images && post.images.length > 0 ? post.images[0] : post.cover_image" 
+						mode="aspectFill" 
+						class="cover-image" 
+					/>
+					<view class="play-icon">
+						<text>▶</text>
+					</view>
+					<text v-if="post.duration" class="video-duration">{{ post.duration }}</text>
 				</view>
 				<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
 					<image 
@@ -139,6 +133,16 @@
 					</view>
 				</view> -->
 			</view>
+			</template>
+			<!-- 加载更多 -->
+			<u-loadmore 
+				v-if="postList.length > 0" 
+				:status="loading ? 'loading' : (hasMore ? 'loadmore' : 'nomore')" 
+				loading-text="加载中" 
+				loadmore-text="加载中" 
+				nomore-text="暂无更多数据" 
+				class="py-3" 
+			/>
 		</scroll-view>
 	</view>
 </template>
@@ -156,34 +160,28 @@
 				pageSize: 10,
 				total: 0,
 				loading: false,
-				searchKeyword: ''
+				searchKeyword: '',
+				hasMore: true
 			}
 		},
 		onLoad() {
 			this.loadCategoryList()
 		},
-		onPullDownRefresh() {
-			this.page = 1
-			this.total = 0
-			this.postList = []
-			this.loadPostList(() => {
-				uni.stopPullDownRefresh()
-			})
-		},
-		onReachBottom() {
-			if (this.loading) return
-			if (this.postList.length >= this.total) {
-				uni.showToast({ title: '没有更多了', icon: 'none' })
-				return
-			}
-			this.page++
-			if (this.searchKeyword) {
-				this.loadSearchList()
-			} else {
-				this.loadPostList()
-			}
-		},
 		methods: {
+			loadMore() {
+				if (this.loading) return
+				if (!this.hasMore) return
+				if (this.postList.length >= this.total && this.total > 0) {
+					this.hasMore = false
+					return
+				}
+				this.page++
+				if (this.searchKeyword) {
+					this.loadSearchList()
+				} else {
+					this.loadPostList()
+				}
+			},
 			loadCategoryList() {
 				CircleApi_circle_type_list().then(res => {
 					if (res && res.code === 1 && res.data && res.data.length > 0) {
@@ -291,12 +289,16 @@
 					this.loading = false
 					if (res && res.code === 1 && res.data) {
 						this.total = res.data.total || 0
-						if (res.data.rows && res.data.rows.length > 0) {
+						const rows = res.data.rows || []
+						if (rows.length > 0) {
 							if (this.page === 1) {
-								this.postList = res.data.rows
+								this.postList = rows
 							} else {
-								this.postList = [...this.postList, ...res.data.rows]
+								this.postList = [...this.postList, ...rows]
 							}
+						}
+						if (rows.length < this.pageSize) {
+							this.hasMore = false
 						}
 					} else {
 						if (this.page === 1) {
@@ -395,11 +397,10 @@
 
 <style lang="scss" scoped>
 	.page {
-		min-height: 100vh;
+		// min-height: 100vh;
 		background-color: #1a1a2e;
-		display: flex;
-		flex-direction: column;
-		padding-bottom: 98rpx;
+		// padding-bottom: 98rpx;
+		// box-sizing: border-box;
 	}
 
 	.fixed-header {
@@ -554,9 +555,11 @@
 
 	/* 帖子列表 */
 	.post-list {
-		flex: 1;
+		height: calc(100vh - 200rpx - 98rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 200rpx - 98rpx - env(safe-area-inset-bottom));
 		padding-top: calc(200rpx + constant(safe-area-inset-top));
 		padding-top: calc(200rpx + env(safe-area-inset-top));
+		box-sizing: content-box;
 	}
 
 	.post-card {
@@ -689,6 +692,38 @@
 	.video-player {
 		width: 100%;
 		height: 400rpx;
+	}
+
+	.video-cover {
+		width: 100%;
+		height: 400rpx;
+	}
+
+	.video-cover .cover-image {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
+
+	.play-icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100rpx;
+		height: 100rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.play-icon text {
+		color: #fff;
+		font-size: 36rpx;
+		margin-left: 6rpx;
 	}
 
 	.video-duration {
@@ -848,5 +883,12 @@
 		font-size: 26rpx;
 		color: #ccc;
 		line-height: 1.5;
+	}
+
+	.load-more-tip {
+		padding: 30rpx;
+		text-align: center;
+		font-size: 24rpx;
+		color: #999;
 	}
 </style>

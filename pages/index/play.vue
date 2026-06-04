@@ -55,12 +55,28 @@
 				<view class="meta-item">
 					<text class="meta-text">番號: {{ videoCode }}</text>
 				</view>
-				<view class="meta-item">
-					<text class="meta-text">時長: {{ videoDuration }}</text>
+				<view v-if="videoYear" class="meta-item">
+					<text class="meta-text">年份: {{ videoYear }}</text>
 				</view>
-				<view class="meta-item">
-					<text class="meta-text">播放: {{ videoViews }}</text>
+			</view>
+
+			<view class="video-actions">
+				<view class="action-item" @click="toggleLike">
+					<image :src="isLiked ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="action-icon" />
+					<text class="action-text">{{ likeCount }}</text>
 				</view>
+				<view class="action-item" @click="toggleCollect">
+					<image :src="isCollected ? '../../static/images/collect_active.png' : '../../static/images/collect.png'" mode="widthFix" class="action-icon" />
+					<text class="action-text">{{ collectCount }}</text>
+				</view>
+			</view>
+
+			<view v-if="videoTags.length > 0" class="video-tags">
+				<text 
+					v-for="(tag, index) in videoTags" 
+					:key="index" 
+					class="video-tag"
+				>{{ tag }}</text>
 			</view>
 
 			<view class="rating-section">
@@ -113,13 +129,16 @@
 						</view>
 					</view>
 				</view>
+				<view v-if="!recommendHasMore && recommendList.length > 0" class="load-more-tip">
+					<text>没有更多了</text>
+				</view>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	import { VodApi_vod_details } from '@/api/home.js';
+	import { VodApi_vod_details, VodApi_vod_like, VodApi_vod_collect } from '@/api/home.js';
 
 	export default {
 		data() {
@@ -137,43 +156,18 @@
 				isMember: false,
 				playTime: 0,
 				hasShownVipModal: false,
-				recommendList: [
-					{
-						id: 1,
-						title: '【太子极品探花】现代版黑裙少妇，穿上情趣装沙发上干后猛...',
-						poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20pink%20dress%20video%20thumbnail&image_size=portrait_4_3',
-						duration: '00:42:40',
-						views: '2.0萬'
-					},
-					{
-						id: 2,
-						title: '【北寻花】高颜值长相甜美萌妹啪啪，连喘情绪超带感口交后入猛...',
-						poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20sofa%20video%20thumbnail&image_size=portrait_4_3',
-						duration: '00:25:12',
-						views: '2.5萬'
-					},
-					{
-						id: 3,
-						title: '素人打野毒浓探花老嫖带你探外围，完美视角拍摄起来超浪...',
-						poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=couple%20sofa%20intimate%20video%20thumbnail&image_size=portrait_4_3',
-						duration: '01:16:05',
-						views: '3.7萬'
-					},
-					{
-						id: 4,
-						title: '【富二代约会】重金约网红嫩模，颜值身材在线',
-						poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20living%20room%20video%20thumbnail&image_size=portrait_4_3',
-						duration: '00:55:30',
-						views: '25.3萬'
-					},
-					{
-						id: 5,
-						title: '【国产精品】人妻少妇寂寞难耐',
-						poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20wife%20domestic%20video%20thumbnail&image_size=portrait_4_3',
-						duration: '01:08:20',
-						views: '32.1萬'
-					}
-				]
+				isLiked: false,
+				isCollected: false,
+				likeCount: '0',
+				collectCount: '0',
+				videoYear: '',
+				videoTags: [],
+				recommendList: [],
+				recommendPage: 1,
+				recommendPageSize: 10,
+				recommendTotal: 0,
+				recommendLoading: false,
+				recommendHasMore: true
 			}
 		},
 		onLoad(options) {
@@ -186,6 +180,18 @@
 			this.isMember = userInfo && userInfo.is_member === 1;
 			// 调用接口获取视频详情
 			this.loadVideoData();
+			// 加载相关推荐
+			this.loadRecommendList();
+		},
+		onReachBottom() {
+			if (this.recommendLoading) return
+			if (!this.recommendHasMore) return
+			if (this.recommendList.length >= this.recommendTotal && this.recommendTotal > 0) {
+				this.recommendHasMore = false
+				return
+			}
+			this.recommendPage++
+			this.loadRecommendList()
 		},
 		onUnload() {
 			// 停止视频播放
@@ -214,11 +220,14 @@
 						this.videoTitle = data.title || this.videoTitle;
 						this.videoSrc = data.video || '';
 						this.videoPoster = data.cover_image || this.videoPoster;
-						this.videoDuration = data.duration || '';
-						this.videoViews = data.play_count || data.playCount || '';
-						this.videoDesc = data.description || data.desc || '';
+						this.videoYear = data.year || '';
+						this.videoTags = data.tags || [];
+						this.videoDesc = data.content || data.description || data.desc || '';
 						this.isFree = data.is_free !== undefined ? data.is_free : 1;
-						console.log('视频详情加载成功：', this.videoSrc);
+						this.likeCount = data.like_number || '0';
+						this.collectCount = data.collect_number || '0';
+						this.isCollected = data.is_collect == 1 ? true : false;
+						this.isLiked = data.is_like == 1 ? true : false;
 					} else {
 						console.log('视频详情加载失败：', res);
 					}
@@ -226,6 +235,61 @@
 					uni.hideLoading();
 					console.error('视频详情加载失败：', err);
 				});
+			},
+			loadRecommendList() {
+				this.recommendLoading = true
+				// TODO: 替换为实际的相关推荐接口
+				// VodApi.vod_recommend_list({ page: this.recommendPage, pagesize: this.recommendPageSize, video_id: this.videoId }).then(res => {
+				// 这里使用模拟数据演示
+				setTimeout(() => {
+					this.recommendLoading = false
+					const mockData = [
+						{
+							id: 1,
+							title: '【太子极品探花】现代版黑裙少妇，穿上情趣装沙发上干后猛...',
+							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20pink%20dress%20video%20thumbnail&image_size=portrait_4_3',
+							duration: '00:42:40',
+							views: '2.0萬'
+						},
+						{
+							id: 2,
+							title: '【北寻花】高颜值长相甜美萌妹啪啪，连喘情绪超带感口交后入猛...',
+							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20sofa%20video%20thumbnail&image_size=portrait_4_3',
+							duration: '00:25:12',
+							views: '2.5萬'
+						},
+						{
+							id: 3,
+							title: '素人打野毒浓探花老嫖带你探外围，完美视角拍摄起来超浪...',
+							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=couple%20sofa%20intimate%20video%20thumbnail&image_size=portrait_4_3',
+							duration: '01:16:05',
+							views: '3.7萬'
+						},
+						{
+							id: 4,
+							title: '【富二代约会】重金约网红嫩模，颜值身材在线',
+							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20living%20room%20video%20thumbnail&image_size=portrait_4_3',
+							duration: '00:55:30',
+							views: '25.3萬'
+						},
+						{
+							id: 5,
+							title: '【国产精品】人妻少妇寂寞难耐',
+							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20wife%20domestic%20video%20thumbnail&image_size=portrait_4_3',
+							duration: '01:08:20',
+							views: '32.1萬'
+						}
+					]
+					this.recommendTotal = mockData.length
+					if (this.recommendPage === 1) {
+						this.recommendList = mockData
+					} else {
+						this.recommendList = [...this.recommendList, ...mockData]
+					}
+					if (mockData.length < this.recommendPageSize) {
+						this.recommendHasMore = false
+					}
+				}, 500)
 			},
 			onPlay() {
 				console.log('视频开始播放');
@@ -284,6 +348,44 @@
 			goToMore() {
 				uni.switchTab({
 					url: '/pages/index/index'
+				});
+			},
+			toggleLike() {
+				if (!this.videoId) return;
+				VodApi_vod_like({ video_id: this.videoId }).then(res => {
+					if (res && res.code === 1) {
+						this.isLiked = !this.isLiked;
+						if (this.isLiked) {
+							this.likeCount = (parseInt(this.likeCount) + 1).toString();
+						} else {
+							this.likeCount = Math.max(0, parseInt(this.likeCount) - 1).toString();
+						}
+						uni.showToast({ title: this.isLiked ? '点赞成功' : '取消点赞', icon: 'none' });
+					} else {
+						uni.showToast({ title: '操作失败', icon: 'none' });
+					}
+				}).catch(err => {
+					console.error('点赞失败:', err);
+					uni.showToast({ title: '点赞失败', icon: 'none' });
+				});
+			},
+			toggleCollect() {
+				if (!this.videoId) return;
+				VodApi_vod_collect({ video_id: this.videoId }).then(res => {
+					if (res && res.code === 1) {
+						this.isCollected = !this.isCollected;
+						if (this.isCollected) {
+							this.collectCount = (parseInt(this.collectCount) + 1).toString();
+						} else {
+							this.collectCount = Math.max(0, parseInt(this.collectCount) - 1).toString();
+						}
+						uni.showToast({ title: this.isCollected ? '收藏成功' : '取消收藏', icon: 'none' });
+					} else {
+						uni.showToast({ title: '操作失败', icon: 'none' });
+					}
+				}).catch(err => {
+					console.error('收藏失败:', err);
+					uni.showToast({ title: '收藏失败', icon: 'none' });
 				});
 			}
 		}
@@ -439,6 +541,43 @@
 	.meta-text {
 		font-size: 24rpx;
 		color: #999;
+	}
+
+	.video-actions {
+		display: flex;
+		gap: 60rpx;
+		margin-bottom: 25rpx;
+	}
+
+	.action-item {
+		display: flex;
+		align-items: center;
+		gap: 10rpx;
+	}
+
+	.action-icon {
+		width: 36rpx;
+		height: 36rpx;
+	}
+
+	.action-text {
+		font-size: 26rpx;
+		color: #999;
+	}
+
+	.video-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 15rpx;
+		margin-bottom: 25rpx;
+	}
+
+	.video-tag {
+		padding: 8rpx 20rpx;
+		background-color: rgba(107, 163, 224, 0.2);
+		color: #6BA3E0;
+		font-size: 24rpx;
+		border-radius: 20rpx;
 	}
 
 	.rating-section {
@@ -614,6 +753,13 @@
 
 	.meta-view {
 		font-size: 22rpx;
+		color: #999;
+	}
+
+	.load-more-tip {
+		padding: 30rpx;
+		text-align: center;
+		font-size: 24rpx;
 		color: #999;
 	}
 </style>

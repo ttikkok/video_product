@@ -1,0 +1,182 @@
+<template>
+	<view class="page">
+		<view class="top-nav">
+			<view class="nav-back" @click="goBack">
+				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+			</view>
+			<view class="nav-title">消息详情</view>
+			<view class="nav-placeholder"></view>
+		</view>
+
+		<scroll-view scroll-y class="content">
+			<view v-if="message" class="detail-container">
+				<view class="detail-header">
+					<view class="detail-icon">{{ getCategoryIcon(message.category_id) }}</view>
+					<view class="detail-info">
+						<text class="detail-title">{{ message.title }}</text>
+						<text class="detail-time">{{ formatTime(message.createtime) }}</text>
+					</view>
+				</view>
+
+				<view class="detail-content">
+					<text>{{ message.content || '暂无内容' }}</text>
+				</view>
+			</view>
+		</scroll-view>
+	</view>
+</template>
+
+<script>
+	import { MessageApi_message_details } from '@/api/home.js'
+	export default {
+		data() {
+			return {
+				message: null
+			}
+		},
+		onLoad(options) {
+			if (options.id) {
+				this.loadMessageDetail(options.id)
+			}
+		},
+		methods: {
+			goBack() {
+				uni.navigateBack()
+			},
+			loadMessageDetail(id) {
+				MessageApi_message_details({ id: id }).then(res => {
+					if (res && res.code === 1 && res.data) {
+						this.message = res.data
+					} else {
+						this.loadMockData()
+					}
+				}).catch(err => {
+					console.error('加载消息详情失败', err)
+					this.loadMockData()
+				})
+			},
+			loadMockData() {
+				this.message = {
+					id: 1,
+					category_id: 30,
+					title: '系统消息',
+					content: '亲爱的用户，感谢您使用我们的服务！\n\n平台近期新增了午夜电台功能，您可以在VIP专区体验有声小说服务。\n\n如有任何问题，请随时联系在线客服。\n\n祝您使用愉快！',
+					createtime: Date.now() - 600000
+				}
+			},
+			getCategoryIcon(categoryId) {
+				const icons = {
+					30: '📢',
+					31: '📋'
+				}
+				return icons[categoryId] || '🔔'
+			},
+			formatTime(timestamp) {
+				if (!timestamp) return ''
+				const date = new Date(timestamp)
+				const year = date.getFullYear()
+				const month = String(date.getMonth() + 1).padStart(2, '0')
+				const day = String(date.getDate()).padStart(2, '0')
+				const hours = String(date.getHours()).padStart(2, '0')
+				const minutes = String(date.getMinutes()).padStart(2, '0')
+				return `${year}-${month}-${day} ${hours}:${minutes}`
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.page {
+		min-height: 100vh;
+		background-color: #1a1a2e;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.top-nav {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 20rpx;
+		height: 88rpx;
+		background-color: #16213e;
+		padding-top: var(--status-bar-height, 44px);
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+	}
+
+	.nav-back {
+		width: 60rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.back-icon {
+		width: 40rpx;
+		height: 40rpx;
+	}
+
+	.nav-title {
+		flex: 1;
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #fff;
+		text-align: center;
+	}
+
+	.nav-placeholder {
+		width: 60rpx;
+	}
+
+	.content {
+		flex: 1;
+		padding-top: calc(88rpx + var(--status-bar-height, 44px));
+	}
+
+	.detail-container {
+		padding: 30rpx;
+	}
+
+	.detail-header {
+		display: flex;
+		align-items: flex-start;
+		gap: 20rpx;
+		margin-bottom: 30rpx;
+		padding-bottom: 30rpx;
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+	}
+
+	.detail-icon {
+		font-size: 56rpx;
+		flex-shrink: 0;
+	}
+
+	.detail-info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 10rpx;
+	}
+
+	.detail-title {
+		font-size: 34rpx;
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.detail-time {
+		font-size: 24rpx;
+		color: #999;
+	}
+
+	.detail-content {
+		font-size: 30rpx;
+		color: #ccc;
+		line-height: 2;
+		white-space: pre-wrap;
+	}
+</style>

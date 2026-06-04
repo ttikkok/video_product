@@ -393,7 +393,8 @@
 	}
 
 	.chapter-list {
-		height: calc(100vh - 500rpx - var(--status-bar-height, 44px));
+		height: calc(100vh - 450rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 450rpx - env(safe-area-inset-bottom));
 	}
 
 	.chapter-item {

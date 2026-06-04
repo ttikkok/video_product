@@ -10,28 +10,40 @@
 			</view>
 		</view>
 
-		<view v-if="favorites.length === 0" class="empty-state">
-			<text class="empty-icon">⭐</text>
-			<text class="empty-text">暂无收藏内容</text>
-		</view>
+		<!-- 内容列表 -->
+		<scroll-view scroll-y class="content-list" @scrolltolower="loadMore">
+			<!-- 空状态 -->
+			<u-empty v-if="!loading && favorites.length === 0" :text="'暂无收藏内容'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
-		<scroll-view scroll-y v-else class="content-list">
-			<view v-for="(item, index) in favorites" :key="index" class="content-item" @click="playVideo(item)">
-				<view v-if="isEdit" class="item-checkbox" @click.stop="toggleSelect(index)">
-					<text>{{ item.selected ? '✓' : '' }}</text>
-				</view>
-				<image :src="item.cover" mode="aspectFill" class="item-cover" />
-				<view class="item-info">
-					<text class="item-title">{{ item.title }}</text>
-					<view class="item-tags">
-						<text v-for="(tag, tagIndex) in item.tags" :key="tagIndex" class="item-tag">{{ tag }}</text>
+			<template v-if="favorites.length > 0">
+				<view v-for="(item, index) in favorites" :key="item.id || index" class="content-item" @click="playVideo(item)">
+					<!-- <view v-if="isEdit" class="item-checkbox" @click.stop="toggleSelect(index)">
+						<text>{{ item.selected ? '✓' : '' }}</text>
+					</view> -->
+					<image :src="item.cover_image" mode="aspectFill" class="item-cover" />
+					<view class="item-info">
+						<text class="item-title">{{ item.title }}</text>
+						<view class="item-tags">
+							<text v-for="(tag, tagIndex) in item.tags" :key="tagIndex" class="item-tag">{{ tag }}</text>
+						</view>
+						<text class="item-content">{{ item.content }}</text>
+						<!-- <text class="item-duration">{{ item.duration }}</text> -->
 					</view>
-					<text class="item-duration">{{ item.duration }}</text>
+					<view class="item-delete" v-if="isEdit" @click.stop="deleteItem(index)">
+						<!-- <text>🗑️</text> -->
+						<image src="../../static/images/delecte.png" mode="widthFix" class="delete-icon" />
+					</view>
 				</view>
-				<view class="item-delete" v-if="isEdit" @click.stop="deleteItem(index)">
-					<text>🗑️</text>
-				</view>
-			</view>
+				<!-- 加载更多 -->
+				<u-loadmore 
+					v-if="favorites.length > 0" 
+					:status="loading ? 'loading' : (hasMore ? 'loadmore' : 'nomore')" 
+					loading-text="加载中" 
+					loadmore-text="加载中" 
+					nomore-text="暂无更多数据" 
+					class="py-3" 
+				/>
+			</template>
 		</scroll-view>
 
 		<view v-if="isEdit && selectedCount > 0" class="bottom-bar">
@@ -46,33 +58,17 @@
 </template>
 
 <script>
+	import { VodApi_vod_collect_list, VodApi_vod_collect } from '@/api/home.js'
 	export default {
 		data() {
 			return {
 				isEdit: false,
-				favorites: [
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20video%20cover&image_size=portrait_4_3',
-						title: '高颜值美女私房写真',
-						tags: ['HD', '超清'],
-						duration: '06:32',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20fashion%20video%20cover&image_size=portrait_4_3',
-						title: '性感模特内衣秀',
-						tags: ['模特', '高清'],
-						duration: '08:15',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20bedroom%20video%20cover&image_size=portrait_4_3',
-						title: '美女主播热舞直播精选',
-						tags: ['热舞', '直播'],
-						duration: '00:35:20',
-						selected: false
-					}
-				]
+				favorites: [],
+				loading: false,
+				page: 1,
+				pageSize: 10,
+				total: 0,
+				hasMore: true
 			}
 		},
 		computed: {
@@ -80,7 +76,67 @@
 				return this.favorites.filter(item => item.selected).length
 			}
 		},
+		onLoad() {
+			this.loadFavorites()
+		},
 		methods: {
+			loadMore() {
+				if (this.loading) return
+				if (!this.hasMore) return
+				if (this.favorites.length >= this.total && this.total > 0) {
+					this.hasMore = false
+					return
+				}
+				this.page++
+				this.loadFavorites()
+			},
+			loadFavorites(callback) {
+				this.loading = true
+				VodApi_vod_collect_list({ page: this.page, pagesize: this.pageSize }).then(res => {
+					this.loading = false
+					if (res && res.code === 1 && res.data) {
+						this.total = res.data.total || 0
+						console.log(this.total)
+						const list = res.data.rows || []
+						if (list.length > 0) {
+							const newList = list.map(item => ({
+								id: item.id,
+								cover_image: item.cover_image || '',
+								title: item.title || '',
+								tags: item.tags || [],
+								duration: item.duration || '',
+								video: item.video || '',
+								content: item.content || '',
+								selected: false
+							}))
+							if (this.page === 1) {
+								this.favorites = newList
+							} else {
+								this.favorites = [...this.favorites, ...newList]
+							}
+						}
+						if (list.length < this.pageSize) {
+							this.hasMore = false
+						}
+					} else {
+						if (this.page === 1) {
+							this.favorites = []
+						}
+					}
+					if (typeof callback === 'function') {
+						callback()
+					}
+				}).catch(err => {
+					this.loading = false
+					console.error('加载收藏列表失败:', err)
+					if (this.page === 1) {
+						this.favorites = []
+					}
+					if (typeof callback === 'function') {
+						callback()
+					}
+				})
+			},
 			goBack() {
 				uni.navigateBack()
 			},
@@ -95,15 +151,43 @@
 			},
 			playVideo(item) {
 				if (!this.isEdit) {
-					uni.showToast({ title: item.title, icon: 'none' })
+					uni.navigateTo({
+						url: '/pages/index/play?id=' + item.id +
+							'&title=' + encodeURIComponent(item.title) +
+							'&poster=' + encodeURIComponent(item.cover_image) +
+							'&video=' + encodeURIComponent(item.video || '') +
+							'&duration=' + item.duration
+					})
 				}
 			},
 			deleteItem(index) {
-				this.favorites.splice(index, 1)
+				const item = this.favorites[index]
+				VodApi_vod_collect({ video_id: item.id }).then(res => {
+					if (res && res.code === 1) {
+						this.favorites.splice(index, 1)
+						uni.showToast({ title: '取消收藏成功', icon: 'success' })
+					} else {
+						uni.showToast({ title: '取消收藏失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('取消收藏失败:', err)
+					uni.showToast({ title: '取消收藏失败', icon: 'none' })
+				})
 			},
 			deleteSelected() {
-				this.favorites = this.favorites.filter(item => !item.selected)
-				this.isEdit = false
+				const selectedIds = this.favorites.filter(item => item.selected).map(item => item.id).join(',')
+				VodApi_vod_collect({ video_id: selectedIds }).then(res => {
+					if (res && res.code === 1) {
+						this.favorites = this.favorites.filter(item => !item.selected)
+						this.isEdit = false
+						uni.showToast({ title: '批量取消收藏成功', icon: 'success' })
+					} else {
+						uni.showToast({ title: '批量取消收藏失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('批量取消收藏失败:', err)
+					uni.showToast({ title: '批量取消收藏失败', icon: 'none' })
+				})
 			}
 		}
 	}
@@ -113,8 +197,6 @@
 	.page {
 		min-height: 100vh;
 		background-color: #1a1a2e;
-		display: flex;
-		flex-direction: column;
 	}
 
 	.top-nav {
@@ -165,14 +247,22 @@
 		margin-bottom: 20rpx;
 	}
 
+	.delete-icon {
+		width: 40rpx;
+
+	}
+
 	.empty-text {
 		font-size: 28rpx;
 		color: #999;
 	}
 
 	.content-list {
-		flex: 1;
+		height: calc(100vh - 140rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 140rpx - env(safe-area-inset-bottom));
 		padding: 20rpx;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
 		box-sizing: border-box;
 	}
 
@@ -230,7 +320,7 @@
 	.item-tags {
 		display: flex;
 		gap: 10rpx;
-		margin-bottom: 10rpx;
+		margin-bottom: 20rpx;
 	}
 
 	.item-tag {
@@ -239,6 +329,17 @@
 		background-color: rgba(107, 163, 224, 0.15);
 		padding: 4rpx 10rpx;
 		border-radius: 4rpx;
+	}
+
+	.item-content {
+		font-size: 24rpx;
+		line-height: 36rpx;
+		color: #999;
+		// margin-bottom: 10rpx;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 	}
 
 	.item-duration {
@@ -275,5 +376,12 @@
 		font-size: 28rpx;
 		color: #fff;
 		font-weight: 600;
+	}
+
+	.load-more-tip {
+		padding: 30rpx;
+		text-align: center;
+		font-size: 24rpx;
+		color: #999;
 	}
 </style>
