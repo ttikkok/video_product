@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<!-- 顶部导航 -->
+		<!-- 顶部导航 - 固定 -->
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -9,68 +9,83 @@
 				<text class="title-text">{{ novelTitle }}</text>
 			</view>
 			<view class="nav-actions">
-				<!-- <text class="action-icon">📚</text> -->
 			</view>
 		</view>
 
-		<!-- 小说信息 -->
-		<view class="novel-header">
-			<image :src="currentNovel.cover" mode="aspectFill" class="novel-cover" />
-			<view class="novel-details">
-				<text class="detail-title">{{ currentNovel.title }}</text>
-				<text class="detail-author">作者：{{ currentNovel.author }}</text>
-				<view class="detail-tags">
-					<text v-for="(tag, index) in currentNovel.tags" :key="index" class="detail-tag">{{ tag }}</text>
-				</view>
-				<view class="detail-stats">
-					<view class="detail-stat"><image src="../../static/images/look.png" mode="widthFix" class="stat-icon" />{{ currentNovel.views }}</view>
-					<view class="detail-stat"><image src="../../static/images/shu.png" mode="widthFix" class="stat-icon" />{{ currentNovel.chapters }}章</view>
-				</view>
-			</view>
-		</view>
-
-		<!-- 简介 -->
-		<view class="novel-intro">
-			<view class="intro-header" @click="toggleIntro">
-				<text class="intro-title">简介</text>
-				<text class="intro-toggle">{{ showFullIntro ? '收起' : '展开' }}</text>
-			</view>
-			<view :class="['intro-content', { expanded: showFullIntro }]">
-				<text>{{ currentNovel.intro }}</text>
-			</view>
-		</view>
-
-		<!-- 章节列表 -->
-		<view class="chapter-section">
-			<view class="section-header">
-				<text class="section-title">目录</text>
-				<text class="chapter-count">共{{ chapters.length }}章</text>
-			</view>
-			<scroll-view scroll-y class="chapter-list">
-				<view 
-					v-for="(chapter, index) in chapters" 
-					:key="index"
-					class="chapter-item"
-					@click="selectChapter(index)"
-				>
-					<view class="chapter-info">
-						<text class="chapter-number">第{{ chapter.number }}章</text>
-						<text class="chapter-title">{{ chapter.title }}</text>
+		<!-- 内容区域 -->
+		<scroll-view scroll-y class="content-scroll">
+			<!-- 小说信息 -->
+			<view class="novel-header">
+				<image :src="currentNovel.cover" mode="aspectFill" class="novel-cover" />
+				<view class="novel-details">
+					<text class="detail-title">{{ currentNovel.title }}</text>
+					<text class="detail-author">作者：{{ currentNovel.author }}</text>
+					<view class="detail-tags">
+						<text v-for="(tag, index) in currentNovel.tags" :key="index" class="detail-tag">{{ tag }}</text>
 					</view>
-					<view v-if="chapter.isVip" class="chapter-vip">VIP</view>
+					<view class="detail-stats">
+						<view class="detail-stat"><image src="../../static/images/look.png" mode="widthFix" class="stat-icon" />{{ currentNovel.views }}</view>
+						<view class="detail-stat"><image src="../../static/images/shu.png" mode="widthFix" class="stat-icon" />{{ currentNovel.chapters }}章</view>
+					</view>
+					<view class="detail-actions">
+						<view :class="['action-item', { active: isLiked }]" @click="toggleLike">
+							<image :src="isLiked ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="action-icon" />
+							<text class="action-text">{{ likes }}</text>
+						</view>
+						<view :class="['action-item', { active: isCollected }]" @click="toggleCollect">
+							<image :src="isCollected ? '../../static/images/collect_active.png' : '../../static/images/collect.png'" mode="widthFix" class="action-icon" />
+							<text class="action-text">{{ isCollected ? '已收藏' : '收藏' }}</text>
+						</view>
+					</view>
 				</view>
-			</scroll-view>
-		</view>
+			</view>
+
+			<!-- 简介 - 固定三行省略 -->
+			<view class="novel-intro">
+				<view class="intro-header">
+					<text class="intro-title">简介</text>
+				</view>
+				<view class="intro-content">
+					<text>{{ currentNovel.intro }}</text>
+				</view>
+			</view>
+
+			<!-- 章节列表 -->
+			<view class="chapter-section">
+				<view class="section-header">
+					<text class="section-title">目录</text>
+					<text class="chapter-count">共{{ chapters.length }}章</text>
+				</view>
+				<view v-if="!loading && chapters.length === 0" class="empty-state">
+					<text class="empty-icon">📚</text>
+					<text class="empty-text">暂无章节</text>
+				</view>
+				<view v-else class="chapter-list">
+					<view 
+						v-for="(chapter, index) in chapters" 
+						:key="index"
+						class="chapter-item"
+						@click="selectChapter(index)"
+					>
+						<view class="chapter-info">
+							<text class="chapter-number">第{{ chapter.number }}章</text>
+							<text class="chapter-title">{{ chapter.title }}</text>
+						</view>
+						<view v-if="chapter.isVip" class="chapter-vip">VIP</view>
+					</view>
+				</view>
+			</view>
+		</scroll-view>
 
 		<!-- 阅读内容弹窗 -->
 		<view v-if="showContent" class="content-overlay" @click="closeContent">
 			<view class="content-popup" @click.stop>
 				<view class="popup-header">
-					<text class="popup-title">第{{ currentChapter.number }}章</text>
-					<text class="popup-subtitle">{{ currentChapter.title }}</text>
+					<text class="popup-title">第{{ currentChapter && currentChapter.number || 1 }}章</text>
+					<text class="popup-subtitle">{{ currentChapter && currentChapter.title || '' }}</text>
 				</view>
-				<scroll-view scroll-y class="popup-content">
-					<text class="content-text">{{ currentChapter.content }}</text>
+				<scroll-view scroll-y class="popup-content" :scroll-top="scrollTop">
+					<text class="content-text">{{ currentChapter && currentChapter.content || '' }}</text>
 				</scroll-view>
 				<view class="popup-bottom">
 					<view class="popup-btn" @click="prevChapter">
@@ -89,65 +104,37 @@
 </template>
 
 <script>
+	import { NovelApi_novel_chapter_list_search, NovelApi_novel_collect_add, NovelApi_novel_like_add } from '@/api/home.js'
 	export default {
 		data() {
 			return {
 				novelTitle: '',
 				novelId: null,
-				showFullIntro: false,
-				showContent: false,
 				currentChapterIndex: 0,
-				novels: [
-					{
-						id: 1,
-						title: '极品尤物老师',
-						author: '色即是空',
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20teacher%20portrait%20novel%20cover&image_size=portrait_4_3',
-						tags: ['都市', '师生', '暧昧'],
-						intro: '大四学生林峰在实习期间，遇到了自己高中时期的美女班主任萧雅，从此开启了不一样的人生。萧雅，一个集美貌与智慧于一身的女强人，在学校是学生们心中的女神。林峰本是抱着学习的态度去实习，却没想到会遇到自己的高中班主任。\n\n命运的齿轮就此转动，一场师生之间的禁忌之恋悄然萌芽。从最初的相遇到逐渐了解，从暗生情愫到表白心意，两人的关系在一次次的接触中悄然改变...',
-						views: '125.6萬',
-						chapters: 328,
-						likes: '8562',
-						isVip: true,
-						isFinished: false,
-						category: '都市'
-					},
-					{
-						id: 2,
-						title: '绝色老板娘',
-						author: '寂寞高手',
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20business%20woman%20portrait%20novel%20cover&image_size=portrait_4_3',
-						tags: ['都市', '职场', '情感'],
-						intro: '普通的打工仔李明，无意间发现自己的老板娘竟然是自己的梦中情人，从此走上人生巅峰...',
-						views: '98.3萬',
-						chapters: 256,
-						likes: '7234',
-						isVip: true,
-						isFinished: true,
-						category: '都市'
-					},
-					{
-						id: 3,
-						title: '我的美女总裁',
-						author: '冰火未融',
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20female%20CEO%20portrait%20novel%20cover&image_size=portrait_4_3',
-						tags: ['都市', '总裁', '甜宠'],
-						intro: '一纸婚约，将两个毫不相关的人绑在了一起，冷面女总裁与废物赘婿的爆笑日常...',
-						views: '156.2萬',
-						chapters: 412,
-						likes: '12453',
-						isVip: false,
-						isFinished: false,
-						category: '总裁'
-					}
-				],
-				chapters: []
+				showContent: false,
+				scrollTop: 0,
+				isLiked: false,
+				isCollected: false,
+				likes: 0,
+				currentNovel: {
+					id: 0,
+					title: '',
+					author: '',
+					cover: '',
+					tags: [],
+					intro: '',
+					views: '0',
+					chapters: 0,
+					likes: '0',
+					isVip: false,
+					isFinished: false,
+					category: ''
+				},
+				chapters: [],
+				loading: false
 			}
 		},
 		computed: {
-			currentNovel() {
-				return this.novels.find(n => n.id === this.novelId) || this.novels[0]
-			},
 			currentChapter() {
 				return this.chapters[this.currentChapterIndex] || {}
 			}
@@ -159,10 +146,78 @@
 			if (options.title) {
 				this.novelTitle = decodeURIComponent(options.title)
 			}
-			this.generateChapters()
+			if (options.cover) {
+				this.currentNovel.cover = decodeURIComponent(options.cover)
+			}
+			if (options.author) {
+				this.currentNovel.author = decodeURIComponent(options.author)
+			}
+			if (options.tags) {
+				this.currentNovel.tags = decodeURIComponent(options.tags).split(',')
+			}
+			if (options.intro) {
+				this.currentNovel.intro = decodeURIComponent(options.intro)
+			}
+			if (options.views) {
+				this.currentNovel.views = decodeURIComponent(options.views)
+			}
+			if (options.chapters) {
+				this.currentNovel.chapters = parseInt(options.chapters)
+			}
+			if (options.likes) {
+				this.currentNovel.likes = decodeURIComponent(options.likes)
+				this.likes = parseInt(this.currentNovel.likes) || 0
+			}
+			if (options.isVip === 'true') {
+				this.currentNovel.isVip = true
+			}
+			if (options.isFinished === 'true') {
+				this.currentNovel.isFinished = true
+			}
+			this.loadChapters()
 		},
 		methods: {
-			generateChapters() {
+			loadChapters() {
+				this.loading = true
+				uni.showLoading({
+					title: '加载中...'
+				})
+				NovelApi_novel_chapter_list_search({ novel_id: this.novelId }).then(res => {
+					this.loading = false
+					uni.hideLoading()
+					if (res && res.code === 1 && res.data) {
+						const list = Array.isArray(res.data) ? res.data : (res.data.rows || [])
+						const chapterNumbers = {}
+						this.chapters = list.map((item, index) => {
+							let number = index + 1
+							const match = item.title.match(/第(\d+)章/)
+							if (match) {
+								number = parseInt(match[1])
+							}
+							if (chapterNumbers[number]) {
+								number = Object.keys(chapterNumbers).length + 1
+							}
+							chapterNumbers[number] = true
+							return {
+								id: item.id,
+								number: number,
+								title: item.title.replace(/第\d+章\s*/, '') || '章节',
+								content: item.content || '',
+								isVip: item.is_vip === 1
+							}
+						})
+						this.currentNovel.chapters = this.chapters.length
+					} else {
+						this.generateMockChapters()
+					}
+				}).catch(err => {
+					this.loading = false
+					uni.hideLoading()
+					console.error('加载章节失败:', err)
+					this.generateMockChapters()
+				})
+			},
+			generateMockChapters() {
 				const chapterCount = this.currentNovel.chapters || 50
 				const chapterTitles = [
 					'命运的邂逅', '意外的相遇', '心动的瞬间', '暧昧的开始', '情感的升温',
@@ -176,6 +231,7 @@
 				this.chapters = []
 				for (let i = 0; i < chapterCount; i++) {
 					this.chapters.push({
+						id: i + 1,
 						number: i + 1,
 						title: chapterTitles[i % chapterTitles.length] + (i >= chapterTitles.length ? `（续${Math.floor(i / chapterTitles.length) + 1}）` : ''),
 						content: `第${i + 1}章 ${chapterTitles[i % chapterTitles.length]}\n\n${baseContent}\n\n（未完待续...）`,
@@ -186,16 +242,62 @@
 			goBack() {
 				uni.navigateBack()
 			},
-			toggleIntro() {
-				this.showFullIntro = !this.showFullIntro
-			},
 			selectChapter(index) {
 				this.currentChapterIndex = index
-				uni.navigateTo({
-					url: `/pages/novel/reader?novelId=${this.novelId}&chapterIndex=${index}`
+				this.showContent = true
+			},
+			closeContent() {
+				this.showContent = false
+			},
+			prevChapter() {
+				if (this.currentChapterIndex > 0) {
+					this.currentChapterIndex--
+					this.scrollTop = 0
+				} else {
+					uni.showToast({ title: '已经是第一章', icon: 'none' })
+				}
+			},
+			nextChapter() {
+				if (this.currentChapterIndex < this.chapters.length - 1) {
+					this.currentChapterIndex++
+					this.scrollTop = 0
+				} else {
+					uni.showToast({ title: '已经是最后一章', icon: 'none' })
+				}
+			},
+			toggleLike() {
+				NovelApi_novel_like_add({ novel_id: this.novelId }).then(res => {
+					if (res && res.code === 1) {
+						this.isLiked = !this.isLiked
+						this.likes += this.isLiked ? 1 : -1
+						uni.showToast({ 
+							title: this.isLiked ? '点赞成功' : '取消点赞', 
+							icon: 'none' 
+						})
+					} else {
+						uni.showToast({ title: '操作失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('点赞失败:', err)
+					uni.showToast({ title: '操作失败', icon: 'none' })
 				})
 			},
-
+			toggleCollect() {
+				NovelApi_novel_collect_add({ novel_id: this.novelId }).then(res => {
+					if (res && res.code === 1) {
+						this.isCollected = !this.isCollected
+						uni.showToast({ 
+							title: this.isCollected ? '收藏成功' : '取消收藏', 
+							icon: 'none' 
+						})
+					} else {
+						uni.showToast({ title: '操作失败', icon: 'none' })
+					}
+				}).catch(err => {
+					console.error('收藏失败:', err)
+					uni.showToast({ title: '操作失败', icon: 'none' })
+				})
+			}
 		}
 	}
 </script>
@@ -204,16 +306,20 @@
 	.page {
 		min-height: 100vh;
 		background-color: #1a1a2e;
-		padding-bottom: 120rpx;
 	}
 
-	/* 顶部导航 */
+	/* 顶部导航 - 固定 */
 	.top-nav {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
 		display: flex;
 		align-items: center;
 		background-color: #16213e;
 		padding: 20rpx;
 		gap: 20rpx;
+		z-index: 100;
 	}
 
 	.nav-back {
@@ -248,8 +354,10 @@
 		justify-content: center;
 	}
 
-	.action-icon {
-		font-size: 32rpx;
+	/* 内容区域 */
+	.content-scroll {
+		height: 100vh;
+		padding-top: 100rpx;
 	}
 
 	/* 小说信息 */
@@ -323,7 +431,41 @@
 		flex-shrink: 0;
 	}
 
-	/* 简介 */
+	.detail-actions {
+		display: flex;
+		gap: 30rpx;
+		margin-top: 15rpx;
+	}
+
+	.action-item {
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+		padding: 10rpx 20rpx;
+		background-color: rgba(255, 255, 255, 0.05);
+		border-radius: 30rpx;
+		transition: all 0.2s ease;
+	}
+
+	.action-item.active {
+		background-color: rgba(107, 163, 224, 0.2);
+	}
+
+	.action-icon {
+		width: 32rpx;
+		height: 32rpx;
+	}
+
+	.action-text {
+		font-size: 24rpx;
+		color: #999;
+	}
+
+	.action-item.active .action-text {
+		color: #6BA3E0;
+	}
+
+	/* 简介 - 固定三行省略 */
 	.novel-intro {
 		background-color: #16213e;
 		margin: 0 20rpx 20rpx;
@@ -344,11 +486,6 @@
 		font-weight: 500;
 	}
 
-	.intro-toggle {
-		font-size: 26rpx;
-		color: #6BA3E0;
-	}
-
 	.intro-content {
 		font-size: 26rpx;
 		color: #ccc;
@@ -359,18 +496,13 @@
 		overflow: hidden;
 	}
 
-	.intro-content.expanded {
-		display: block;
-		overflow: visible;
-		-webkit-line-clamp: unset;
-	}
-
 	/* 章节列表 */
 	.chapter-section {
 		background-color: #16213e;
 		margin: 0 20rpx;
 		border-radius: 12rpx;
 		overflow: hidden;
+		margin-bottom: 30rpx;
 	}
 
 	.section-header {
@@ -393,8 +525,6 @@
 	}
 
 	.chapter-list {
-		height: calc(100vh - 450rpx - constant(safe-area-inset-bottom));
-		height: calc(100vh - 450rpx - env(safe-area-inset-bottom));
 	}
 
 	.chapter-item {
@@ -434,51 +564,6 @@
 		border-radius: 4rpx;
 	}
 
-	/* 底部阅读栏 */
-	.bottom-bar {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		background-color: #16213e;
-		padding: 20rpx 30rpx;
-		padding-bottom: calc(20rpx + constant(safe-area-inset-bottom));
-		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
-	}
-
-	.bar-item {
-		display: flex;
-		align-items: center;
-		gap: 10rpx;
-		padding: 15rpx 25rpx;
-		background-color: rgba(255, 255, 255, 0.1);
-		border-radius: 30rpx;
-	}
-
-	.bar-icon {
-		font-size: 28rpx;
-		color: #fff;
-	}
-
-	.bar-text {
-		font-size: 26rpx;
-		color: #fff;
-	}
-
-	.bar-progress {
-		flex: 1;
-		text-align: center;
-	}
-
-	.progress-text {
-		font-size: 26rpx;
-		color: #999;
-	}
-
 	/* 阅读内容弹窗 */
 	.content-overlay {
 		position: fixed;
@@ -486,17 +571,17 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.7);
+		background-color: rgba(0, 0, 0, 0.9);
 		z-index: 1000;
 		display: flex;
-		align-items: flex-end;
+		align-items: flex-start;
+		justify-content: center;
 	}
 
 	.content-popup {
 		width: 100%;
-		height: 85vh;
+		height: 100%;
 		background-color: #1a1a2e;
-		border-radius: 30rpx 30rpx 0 0;
 		display: flex;
 		flex-direction: column;
 	}
@@ -524,6 +609,7 @@
 	.popup-content {
 		flex: 1;
 		padding: 30rpx;
+		height: 0;
 	}
 
 	.content-text {
@@ -531,6 +617,7 @@
 		color: #ddd;
 		line-height: 2;
 		text-align: justify;
+		white-space: pre-wrap;
 	}
 
 	.popup-bottom {
@@ -555,5 +642,57 @@
 	.popup-btn.primary {
 		background-color: #ffd700;
 		color: #000;
+	}
+
+	.loading-overlay {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 60rpx 0;
+	}
+
+	.loading-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 20rpx;
+	}
+
+	.loading-spinner {
+		width: 60rpx;
+		height: 60rpx;
+		border: 4rpx solid rgba(255, 255, 255, 0.2);
+		border-top-color: #ffd700;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.loading-text {
+		font-size: 28rpx;
+		color: #999;
+	}
+
+	.empty-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 80rpx 40rpx;
+	}
+
+	.empty-icon {
+		font-size: 100rpx;
+		margin-bottom: 20rpx;
+	}
+
+	.empty-text {
+		font-size: 28rpx;
+		color: #999;
 	}
 </style>

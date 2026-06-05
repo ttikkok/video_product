@@ -235,12 +235,20 @@
 			},
 			loadSearchList(callback) {
 				this.loading = true
+				if (this.page === 1) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+				}
 				CircleApi_circle_data_list_search({ 
 					page: this.page, 
 					pagesize: this.pageSize,
 					title: this.searchKeyword 
 				}).then(res => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					if (res && res.code === 1 && res.data) {
 						this.total = res.data.total || 0
 						if (res.data.rows && res.data.rows.length > 0) {
@@ -260,6 +268,9 @@
 					}
 				}).catch(err => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					console.error('搜索失败', err)
 					if (typeof callback === 'function') {
 						callback()
@@ -281,12 +292,20 @@
 			},
 			loadPostList(callback) {
 				this.loading = true
+				if (this.page === 1) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+				}
 				let params = { page: this.page, pagesize: this.pageSize }
 				if (this.currentCategoryId !== null && this.currentCategoryId !== undefined) {
 					params.category_id = this.currentCategoryId
 				}
 				CircleApi_circle_data_list(params).then(res => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					if (res && res.code === 1 && res.data) {
 						this.total = res.data.total || 0
 						const rows = res.data.rows || []
@@ -310,6 +329,9 @@
 					}
 				}).catch(err => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					console.error('帖子列表加载失败', err)
 					if (this.page === 1) {
 						this.loadStaticData()

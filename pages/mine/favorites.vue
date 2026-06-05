@@ -92,8 +92,16 @@
 			},
 			loadFavorites(callback) {
 				this.loading = true
+				if (this.page === 1) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+				}
 				VodApi_vod_collect_list({ page: this.page, pagesize: this.pageSize }).then(res => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					if (res && res.code === 1 && res.data) {
 						this.total = res.data.total || 0
 						console.log(this.total)
@@ -128,6 +136,9 @@
 					}
 				}).catch(err => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					console.error('加载收藏列表失败:', err)
 					if (this.page === 1) {
 						this.favorites = []

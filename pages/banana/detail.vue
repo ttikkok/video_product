@@ -87,13 +87,18 @@
 		},
 		methods: {
 			loadPostDetail(circleId) {
+				uni.showLoading({
+					title: '加载中...'
+				})
 				CircleApi_circle_details({ circle_id: circleId }).then(res => {
+					uni.hideLoading()
 					if (res && res.code === 1 && res.data) {
 						this.post = res.data
 						this.isLiked = res.data.is_like === 1
 						this.isCollected = res.data.is_collect === 1
 					}
 				}).catch(err => {
+					uni.hideLoading()
 					console.error('帖子详情加载失败', err)
 				})
 			},

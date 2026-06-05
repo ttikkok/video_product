@@ -49,13 +49,19 @@
 				<!-- <text class="menu-icon">⭐</text> -->
 				<image src="../../static/images/shoucang.png" mode="widthFix" class="menu-icon"></image>
 				<text class="menu-name">我的收藏</text>
-				<text class="menu-count">{{ userInfo.favoritesCount }}部</text>
+				<!-- <text class="menu-count">{{ userInfo.favoritesCount }}部</text> -->
 				<text class="menu-arrow">›</text>
 			</view>
 			<view class="menu-item" @click="goToPage('history')">
 				<image src="../../static/images/img02.png" mode="widthFix" class="menu-icon"></image>
 				<text class="menu-name">观看历史</text>
-				<text class="menu-count">{{ userInfo.historyCount }}部</text>
+				<!-- <text class="menu-count">{{ userInfo.historyCount }}部</text> -->
+				<text class="menu-arrow">›</text>
+			</view>
+			<view class="menu-item" @click="goToPage('bookshelf')">
+				<image src="../../static/images/book.png" mode="widthFix" class="menu-icon"></image>
+				<text class="menu-name">我的书架</text>
+				<!-- <text class="menu-count">{{ userInfo.bookshelfCount }}部</text> -->
 				<text class="menu-arrow">›</text>
 			</view>
 			<!-- <view class="menu-item" @click="goToPage('downloads')">
@@ -157,6 +163,7 @@
 				const routes = {
 					favorites: '/pages/mine/favorites',
 					history: '/pages/mine/history',
+					bookshelf: '/pages/novel/bookshelf',
 					downloads: '/pages/mine/downloads',
 					messages: '/pages/mine/messages',
 					lines: '/pages/mine/lines',

@@ -31,7 +31,7 @@
 			<u-empty v-if="!loading && messages.length === 0" :text="'暂无消息'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<template v-if="messages.length > 0">
-				<view v-for="(msg, index) in messages" :key="msg.id || index" :class="['message-item', { unread: msg.is_read !== 1 }]" @click="openMessage(msg)">
+				<view v-for="(msg, index) in messages" :key="index" :class="['message-item', { unread: msg.is_read !== 1 }]" @click="openMessage(msg)">
 					<view class="msg-icon">{{ getCategoryIcon(msg.category_id) }}</view>
 					<view class="msg-content">
 						<view class="msg-header">
@@ -79,6 +79,9 @@
 				uni.navigateBack()
 			},
 			loadCategoryList() {
+				uni.showLoading({
+					title: '加载中...'
+				})
 				MessageApi_message_type_list().then(res => {
 					if (res && res.code === 1 && res.data && res.data.length > 0) {
 						this.categoryList = res.data
@@ -93,6 +96,7 @@
 					}
 					this.loadMessageList()
 				}).catch(err => {
+					uni.hideLoading()
 					console.error('加载分类失败', err)
 					this.categoryList = [
 						{ id: 30, name: '系统消息', nickname: '系统消息' },
@@ -131,6 +135,7 @@
 				}
 				MessageApi_message_data_list_search(params).then(res => {
 					this.loading = false
+					uni.hideLoading()
 					if (res && res.code === 1 && res.data) {
 						this.total = res.data.total || 0
 						const list = res.data.rows || []
@@ -151,6 +156,7 @@
 					}
 				}).catch(err => {
 					this.loading = false
+					uni.hideLoading()
 					console.error('加载消息列表失败', err)
 					if (this.page === 1) {
 						this.loadMockData()
@@ -203,21 +209,13 @@
 			},
 			formatTime(timestamp) {
 				if (!timestamp) return ''
-				const now = Date.now()
-				const diff = now - timestamp
-				const minute = 60 * 1000
-				const hour = 60 * minute
-				const day = 24 * hour
-
-				if (diff < minute) {
-					return '刚刚'
-				} else if (diff < hour) {
-					return Math.floor(diff / minute) + '分钟前'
-				} else if (diff < day) {
-					return Math.floor(diff / hour) + '小时前'
-				} else {
-					return Math.floor(diff / day) + '天前'
-				}
+				const date = new Date(timestamp)
+				const year = date.getFullYear()
+				const month = String(date.getMonth() + 1).padStart(2, '0')
+				const day = String(date.getDate()).padStart(2, '0')
+				const hours = String(date.getHours()).padStart(2, '0')
+				const minutes = String(date.getMinutes()).padStart(2, '0')
+				return `${month}-${day} ${hours}:${minutes}`
 			},
 			markAllRead() {
 				MessageApi_message_read_all().then(res => {

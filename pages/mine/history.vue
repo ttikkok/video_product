@@ -108,8 +108,16 @@
 			},
 			loadHistory(callback) {
 				this.loading = true
+				if (this.page === 1) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+				}
 				VodApi_vod_history_list({ page: this.page, pagesize: this.pageSize }).then(res => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					if (res && res.code === 1 && res.data) {
 						const list = Array.isArray(res.data) ? res.data : (res.data.rows || res.data.data || [])
 						this.total = res.data.total || list.length
@@ -143,6 +151,9 @@
 					}
 				}).catch(err => {
 					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
+					}
 					console.error('加载观看历史失败:', err)
 					if (typeof callback === 'function') {
 						callback()
@@ -166,7 +177,9 @@
 			},
 			playVideo(item) {
 				if (!this.isEdit) {
-					uni.showToast({ title: item.title, icon: 'none' })
+					uni.navigateTo({
+						url: `/pages/index/play?id=${item.id}&title=${encodeURIComponent(item.title)}&poster=${encodeURIComponent(item.cover)}&video=${encodeURIComponent(item.video)}&duration=${item.duration}`
+					})
 				}
 			},
 			deleteSelected() {

@@ -77,7 +77,7 @@
 				></view>
 			</view>
 		</view>
-		<view class="grid-section">
+		<view v-show="!isLoading" class="grid-section">
 			<view class="grid-container">
 				<view 
 					v-for="(item, index) in gridList" 
@@ -2154,6 +2154,46 @@
 	.empty-hint {
 		font-size: 26rpx;
 		color: #666;
+	}
+
+	.loading-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #1a1a2e;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 999;
+	}
+
+	.loading-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 20rpx;
+	}
+
+	.loading-spinner {
+		width: 60rpx;
+		height: 60rpx;
+		border: 4rpx solid rgba(255, 255, 255, 0.2);
+		border-top-color: #ffd700;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.loading-text {
+		font-size: 28rpx;
+		color: #999;
 	}
 
 	.category-video-card {

@@ -1,16 +1,13 @@
 <template>
 	<view class="page">
-		<!-- 固定顶部 -->
 		<view class="fixed-header">
-			<!-- 顶部搜索栏 -->
 			<view class="search-header">
 				<view class="search-bar">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
-					<input class="search-input" placeholder="搜索小说" />
+					<input class="search-input" placeholder="搜索小说" v-model="searchKeyword" confirm-type="search" @confirm="doSearch" />
 				</view>
 			</view>
 
-			<!-- 分类标签 -->
 			<scroll-view scroll-x class="category-tabs">
 				<view class="tabs">
 					<view 
@@ -19,20 +16,18 @@
 						:class="['tab-item', { active: activeCategory === index }]"
 						@click="switchCategory(index)"
 					>
-						{{ category.name }}
+						{{ category.title }}
 					</view>
 				</view>
 			</scroll-view>
 		</view>
 
-		<!-- 小说列表 -->
 		<scroll-view scroll-y class="novel-list" @scrolltolower="loadMore">
-			<!-- 空状态 -->
 			<u-empty v-if="!loading && novels.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<view v-if="novels.length > 0" class="list-container">
 				<view 
-					v-for="(novel, index) in filteredNovels" 
+					v-for="(novel, index) in novels" 
 					:key="index"
 					class="novel-card"
 					@click="goToRead(novel)"
@@ -55,12 +50,10 @@
 						<text class="novel-intro">{{ novel.intro }}</text>
 						<view class="novel-stats">
 							<view class="stat-text"><image src="../../static/images/look.png" mode="widthFix" class="stat-icon" />{{ novel.views }}</view>
-							<view class="stat-text"><image src="../../static/images/shu.png" mode="widthFix" class="stat-icon" />{{ novel.chapters }}章</view>
-							<view class="stat-text"><image src="../../static/images/dianzan.png" mode="widthFix" class="stat-icon" />{{ novel.likes }}</view>
+							<view class="stat-text"><image src="../../static/images/shu.png" mode="widthFix" class="stat-icon" />{{ novel.chapters }}</view>
 						</view>
 					</view>
 				</view>
-				<!-- 加载更多 -->
 				<u-loadmore 
 					v-if="novels.length > 0" 
 					:status="loading ? 'loading' : (hasMore ? 'loadmore' : 'nomore')" 
@@ -75,22 +68,13 @@
 </template>
 
 <script>
+	import { NovelApi_novel_type_list, NovelApi_novel_data_list_search } from '@/api/home.js'
 	export default {
 		data() {
 			return {
 				activeCategory: 0,
-				categories: [
-					{ id: 0, name: '全部' },
-					{ id: 1, name: '都市' },
-					{ id: 2, name: '玄幻' },
-					{ id: 3, name: '武侠' },
-					{ id: 4, name: '仙侠' },
-					{ id: 5, name: '穿越' },
-					{ id: 6, name: '总裁' },
-					{ id: 7, name: '校园' },
-					{ id: 8, name: '恐怖' },
-					{ id: 9, name: '科幻' }
-				],
+				categories: [],
+				searchKeyword: '',
 				novels: [],
 				page: 1,
 				pageSize: 10,
@@ -99,18 +83,23 @@
 				hasMore: true
 			}
 		},
-		computed: {
-			filteredNovels() {
-				if (this.activeCategory === 0) {
-					return this.novels
-				}
-				return this.novels.filter(novel => novel.category === this.categories[this.activeCategory].name)
-			}
-		},
 		onLoad() {
-			this.loadNovelList()
+			this.loadCategories()
 		},
 		methods: {
+			loadCategories() {
+				NovelApi_novel_type_list({}).then(res => {
+					if (res && res.code === 1 && res.data) {
+						this.categories = [{ id: 0, title: '全部' }, ...res.data]
+						this.loadNovelList()
+					} else {
+						this.categories = [{ id: 0, title: '全部' }]
+					}
+				}).catch(err => {
+					console.error('加载分类失败:', err)
+					this.categories = [{ id: 0, title: '全部' }]
+				})
+			},
 			loadMore() {
 				if (this.loading) return
 				if (!this.hasMore) return
@@ -121,123 +110,95 @@
 				this.page++
 				this.loadNovelList()
 			},
-			loadNovelList(callback) {
+			loadNovelList() {
 				this.loading = true
-				// TODO: 替换为实际的小说列表接口
-				// NovelApi.novel_list({ page: this.page, pagesize: this.pageSize, category_id: this.categories[this.activeCategory].id }).then(res => {
-				// 这里使用模拟数据演示
-				setTimeout(() => {
+				if (this.page === 1) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+				}
+				const params = {
+					page: this.page,
+					pagesize: this.pageSize,
+					type_id: this.categories[this.activeCategory]?.id || 0
+				}
+				if (this.searchKeyword) {
+					params.title = this.searchKeyword
+				}
+				NovelApi_novel_data_list_search(params).then(res => {
 					this.loading = false
-					const mockData = [
-						{
-							id: 1,
-							title: '极品尤物老师',
-							author: '色即是空',
-							cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20teacher%20portrait%20novel%20cover&image_size=portrait_4_3',
-							tags: ['都市', '师生', '暧昧'],
-							intro: '大四学生林峰在实习期间，遇到了自己高中时期的美女班主任萧雅，从此开启了不一样的人生...',
-							views: '125.6萬',
-							chapters: 328,
-							likes: '8562',
-							isVip: true,
-							isFinished: false,
-							category: '都市'
-						},
-						{
-							id: 2,
-							title: '绝色老板娘',
-							author: '寂寞高手',
-							cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20business%20woman%20portrait%20novel%20cover&image_size=portrait_4_3',
-							tags: ['都市', '职场', '情感'],
-							intro: '普通的打工仔李明，无意间发现自己的老板娘竟然是自己的梦中情人，从此走上人生巅峰...',
-							views: '98.3萬',
-							chapters: 256,
-							likes: '7234',
-							isVip: true,
-							isFinished: true,
-							category: '都市'
-						},
-						{
-							id: 3,
-							title: '我的美女总裁',
-							author: '冰火未融',
-							cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20female%20CEO%20portrait%20novel%20cover&image_size=portrait_4_3',
-							tags: ['都市', '总裁', '甜宠'],
-							intro: '一纸婚约，将两个毫不相关的人绑在了一起，冷面女总裁与废物赘婿的爆笑日常...',
-							views: '156.2萬',
-							chapters: 412,
-							likes: '12453',
-							isVip: false,
-							isFinished: false,
-							category: '总裁'
-						},
-						{
-							id: 4,
-							title: '玄幻：开局捡到女神',
-							author: '剑神天下',
-							cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fantasy%20magic%20world%20novel%20cover&image_size=portrait_4_3',
-							tags: ['玄幻', '穿越', '系统'],
-							intro: '林逸穿越到玄幻世界，开局就捡到了一个身受重伤的女神，从此开启修仙之路...',
-							views: '203.5萬',
-							chapters: 589,
-							likes: '18562',
-							isVip: true,
-							isFinished: false,
-							category: '玄幻'
-						},
-						{
-							id: 5,
-							title: '校花的贴身高手',
-							author: '鱼人二代',
-							cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20school%20girl%20portrait%20novel%20cover&image_size=portrait_4_3',
-							tags: ['都市', '校园', '高手'],
-							intro: '雇佣军界的王者回归都市，成为校花的贴身保镖，从此过上了没羞没臊的生活...',
-							views: '456.8萬',
-							chapters: 1024,
-							likes: '45623',
-							isVip: false,
-							isFinished: true,
-							category: '校园'
-						},
-						{
-							id: 6,
-							title: '穿越之绝色王妃',
-							author: '琉璃心',
-							cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20ancient%20chinese%20princess%20novel%20cover&image_size=portrait_4_3',
-							tags: ['穿越', '古言', '宫斗'],
-							intro: '现代女强人穿越成古代不受宠的王妃，且看她如何在后宫翻云覆雨...',
-							views: '178.9萬',
-							chapters: 365,
-							likes: '15632',
-							isVip: true,
-							isFinished: false,
-							category: '穿越'
-						}
-					]
-					this.total = mockData.length
 					if (this.page === 1) {
-						this.novels = mockData
-					} else {
-						this.novels = [...this.novels, ...mockData]
+						uni.hideLoading()
 					}
-					if (mockData.length < this.pageSize) {
+					if (res && res.code === 1 && res.data) {
+						const list = Array.isArray(res.data) ? res.data : (res.data.rows || [])
+						this.total = res.data.total || list.length
+						const novels = list.map(item => ({
+							id: item.id,
+							title: item.title || '',
+							author: item.author || '',
+							cover: item.cover_image || '',
+							tags: item.tags ? (Array.isArray(item.tags) ? item.tags.filter(t => t && t.trim()) : (typeof item.tags === 'string' ? item.tags.split(',').filter(t => t.trim()) : [])) : [],
+							intro: item.content || '',
+							views: item.look_number ? (parseInt(item.look_number) >= 10000 ? (parseInt(item.look_number) / 10000).toFixed(1) + '萬' : item.look_number) : '0',
+							chapters: item.chapter_number || 0,
+							likes: item.like_number || '0',
+							isVip: item.is_vip === 1,
+							isFinished: item.is_finished === 1,
+							isCollect: item.is_collect === 1,
+							isLike: item.is_like === 1,
+							category: item.type_name || ''
+						}))
+						if (this.page === 1) {
+							this.novels = novels
+						} else {
+							this.novels = [...this.novels, ...novels]
+						}
+						if (novels.length < this.pageSize) {
+							this.hasMore = false
+						}
+					} else {
+						this.novels = []
 						this.hasMore = false
 					}
-					if (typeof callback === 'function') {
-						callback()
+				}).catch(err => {
+					this.loading = false
+					if (this.page === 1) {
+						uni.hideLoading()
 					}
-				}, 500)
+					console.error('加载小说列表失败:', err)
+				})
 			},
 			switchCategory(index) {
 				this.activeCategory = index
 				this.page = 1
 				this.total = 0
 				this.novels = []
+				this.hasMore = true
+				this.loadNovelList()
+			},
+			doSearch() {
+				this.page = 1
+				this.total = 0
+				this.novels = []
+				this.hasMore = true
 				this.loadNovelList()
 			},
 			goToRead(novel) {
+				const params = new URLSearchParams()
+				params.append('id', novel.id)
+				params.append('title', novel.title)
+				params.append('cover', novel.cover)
+				params.append('author', novel.author)
+				params.append('tags', (novel.tags || []).join(','))
+				params.append('intro', novel.intro)
+				params.append('views', novel.views)
+				params.append('chapters', novel.chapters)
+				params.append('likes', novel.likes)
+				params.append('isVip', novel.isVip ? 'true' : 'false')
+				params.append('isFinished', novel.isFinished ? 'true' : 'false')
 				uni.navigateTo({
-					url: `/pages/novel/read?id=${novel.id}&title=${encodeURIComponent(novel.title)}`
+					url: `/pages/novel/read?${params.toString()}`
 				})
 			}
 		}
@@ -246,23 +207,20 @@
 
 <style lang="scss" scoped>
 	.page {
-		// min-height: 100vh;
 		background-color: #1a1a2e;
-		// padding-bottom: 98rpx;
 	}
 
-	/* 固定头部 */
 	.fixed-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
-		z-index: 100;
 		background-color: #16213e;
-		padding-top: var(--status-bar-height, 44px);
+		z-index: 100;
+		padding-top: constant(safe-area-inset-top);
+		padding-top: env(safe-area-inset-top);
 	}
 
-	/* 搜索头部 */
 	.search-header {
 		padding: 20rpx;
 	}
@@ -271,7 +229,7 @@
 		display: flex;
 		align-items: center;
 		background-color: rgba(255, 255, 255, 0.1);
-		border-radius: 30rpx;
+		border-radius: 40rpx;
 		padding: 15rpx 25rpx;
 	}
 
@@ -281,50 +239,35 @@
 
 	.search-input {
 		flex: 1;
-		background: transparent;
-		border: none;
-		color: #fff;
+		height: 60rpx;
 		font-size: 28rpx;
+		color: #fff;
 	}
 
-	/* 分类标签 */
 	.category-tabs {
 		white-space: nowrap;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		padding: 15rpx 0;
+		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
 	}
 
 	.tabs {
 		display: inline-flex;
-		gap: 30rpx;
 		padding: 0 20rpx;
 	}
 
 	.tab-item {
-		padding: 20rpx 10rpx;
-		font-size: 28rpx;
+		padding: 10rpx 30rpx;
+		margin-right: 20rpx;
+		border-radius: 30rpx;
+		font-size: 26rpx;
 		color: #999;
-		position: relative;
-		white-space: nowrap;
+		background-color: rgba(255, 255, 255, 0.1);
+		&.active {
+			background-color: #ffd700;
+			color: #000;
+		}
 	}
 
-	.tab-item.active {
-		color: #ffd700;
-		font-weight: 600;
-	}
-
-	.tab-item.active::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 50rpx;
-		height: 4rpx;
-		background-color: #ffd700;
-		border-radius: 2rpx;
-	}
-
-	/* 小说列表 */
 	.novel-list {
 		height: calc(100vh - 200rpx - 98rpx - constant(safe-area-inset-bottom));
 		height: calc(100vh - 200rpx - 98rpx - env(safe-area-inset-bottom));
@@ -339,9 +282,9 @@
 
 	.novel-card {
 		display: flex;
-		background-color: #16213e;
-		border-radius: 16rpx;
 		padding: 20rpx;
+		background-color: #16213e;
+		border-radius: 15rpx;
 		margin-bottom: 20rpx;
 	}
 
@@ -349,10 +292,9 @@
 		position: relative;
 		width: 180rpx;
 		height: 240rpx;
-		border-radius: 12rpx;
-		overflow: hidden;
 		flex-shrink: 0;
-		margin-right: 20rpx;
+		border-radius: 10rpx;
+		overflow: hidden;
 	}
 
 	.cover-image {
@@ -364,41 +306,39 @@
 		position: absolute;
 		top: 10rpx;
 		left: 10rpx;
-		background-color: #ffd700;
-		color: #000;
+		background-color: #e74c3c;
+		color: #fff;
 		font-size: 20rpx;
-		font-weight: bold;
-		padding: 4rpx 12rpx;
-		border-radius: 4rpx;
+		padding: 5rpx 15rpx;
+		border-radius: 5rpx;
 	}
 
 	.finish-badge {
 		position: absolute;
 		top: 10rpx;
 		right: 10rpx;
-		background-color: #2ecc71;
+		background-color: #3498db;
 		color: #fff;
-		font-size: 18rpx;
-		padding: 4rpx 10rpx;
-		border-radius: 4rpx;
+		font-size: 20rpx;
+		padding: 5rpx 15rpx;
+		border-radius: 5rpx;
 	}
 
 	.novel-info {
 		flex: 1;
+		margin-left: 20rpx;
 		display: flex;
 		flex-direction: column;
-		overflow: hidden;
 	}
 
 	.novel-title {
-		font-size: 32rpx;
+		font-size: 30rpx;
+		font-weight: bold;
 		color: #fff;
-		font-weight: 600;
-		margin-bottom: 8rpx;
-		display: -webkit-box;
-		-webkit-line-clamp: 1;
-		-webkit-box-orient: vertical;
+		margin-bottom: 10rpx;
 		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.novel-author {
@@ -409,56 +349,49 @@
 
 	.novel-tags {
 		display: flex;
-		gap: 10rpx;
 		flex-wrap: wrap;
 		margin-bottom: 10rpx;
 	}
 
 	.novel-tag {
-		font-size: 20rpx;
+		background-color: rgba(107, 163, 224, 0.2);
 		color: #6BA3E0;
-		background-color: rgba(107, 163, 224, 0.15);
-		padding: 4rpx 12rpx;
-		border-radius: 4rpx;
+		font-size: 22rpx;
+		padding: 5rpx 12rpx;
+		border-radius: 5rpx;
+		margin-right: 10rpx;
+		margin-bottom: 5rpx;
 	}
 
 	.novel-intro {
+		flex: 1;
 		font-size: 24rpx;
-		color: #ccc;
+		color: #666;
 		line-height: 1.5;
-		margin-bottom: 10rpx;
+		overflow: hidden;
+		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
-		overflow: hidden;
 	}
 
 	.novel-stats {
 		display: flex;
-		gap: 20rpx;
-		margin-top: auto;
-		flex-wrap: nowrap;
+		// justify-content: space-between;
+		margin-top: 15rpx;
+		gap: 30rpx;
 	}
 
 	.stat-text {
-		font-size: 22rpx;
-		color: #999;
-		display: inline-flex;
+		display: flex;
 		align-items: center;
-		white-space: nowrap;
+		font-size: 22rpx;
+		color: #666;
 	}
 
 	.stat-icon {
-		width: 32rpx;
-		height: 32rpx;
-		margin-right: 6rpx;
-		flex-shrink: 0;
-	}
-
-	.load-more-tip {
-		padding: 30rpx;
-		text-align: center;
-		font-size: 24rpx;
-		color: #999;
+		width: 28rpx;
+		height: 28rpx;
+		margin-right: 5rpx;
 	}
 </style>

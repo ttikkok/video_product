@@ -87,7 +87,7 @@
 			}
 		},
 		{
-			"path": "pages/novel/reader",
+			"path": "pages/novel/bookshelf",
 			"style": {
 				"navigationBarTitleText": "",
 				"navigationBarBackgroundColor": "#16213e",
@@ -95,6 +95,15 @@
 				"navigationStyle": "custom"
 			}
 		},
+		// {
+		// 	"path": "pages/novel/reader",
+		// 	"style": {
+		// 		"navigationBarTitleText": "",
+		// 		"navigationBarBackgroundColor": "#16213e",
+		// 		"navigationBarTextStyle": "white",
+		// 		"navigationStyle": "custom"
+		// 	}
+		// },
 		{
 			"path": "pages/vip/index",
 			"style": {

@@ -53,14 +53,14 @@ export function IndexIndex_list_data_Refresh(params) {
  * CircleApi/circle_data_list
  */
 export function CircleApi_circle_data_list(params) {
-	return http.get("CircleApi/circle_data_list", params);
+	return http.post("CircleApi/circle_data_list", params);
 }
 
 /**
  * CircleApi/circle_details
  */
 export function CircleApi_circle_details(params) {
-	return http.get("CircleApi/circle_details", params);
+	return http.post("CircleApi/circle_details", params);
 }
 
 /**
@@ -74,7 +74,7 @@ export function CircleApi_circle_type_list(params) {
  * CircleApi/circle_data_list_search
  */
 export function CircleApi_circle_data_list_search(params) {
-	return http.get("CircleApi/circle_data_list_search", params);
+	return http.post("CircleApi/circle_data_list_search", params);
 }
 
 /**
@@ -106,10 +106,31 @@ export function VodApi_vod_type_list(params) {
 }
 
 /**
+ * VodApi/vod_data_list
+ */
+export function VodApi_vod_data_list(params) {
+	return http.post("VodApi/vod_data_list", params);
+}
+
+/**
  * VodApi/vod_data_list_search
  */
 export function VodApi_vod_data_list_search(params) {
 	return http.post("VodApi/vod_data_list_search", params);
+}
+
+/**
+ * VodApi/vod_category_tags_list
+ */
+export function VodApi_vod_category_tags_list(params) {
+	return http.post("VodApi/vod_category_tags_list", params);
+}
+
+/**
+ * VodApi/vod_data_type_search
+ */
+export function VodApi_vod_data_type_search(params) {
+	return http.post("VodApi/vod_data_type_search", params);
 }
 
 /**
@@ -144,14 +165,14 @@ export function VodApi_vod_history_list(params) {
  * MessageApi/message_type_list
  */
 export function MessageApi_message_type_list(params) {
-	return http.get("MessageApi/message_type_list", params);
+	return http.post("MessageApi/message_type_list", params);
 }
 
 /**
  * MessageApi/message_data_list_search
  */
 export function MessageApi_message_data_list_search(params) {
-	return http.get("MessageApi/message_data_list_search", params);
+	return http.post("MessageApi/message_data_list_search", params);
 }
 
 /**
@@ -166,4 +187,46 @@ export function MessageApi_message_details(params) {
  */
 export function MessageApi_message_read_all(params) {
 	return http.post("MessageApi/message_read_all", params);
+}
+
+/**
+ * NovelApi/novel_type_list
+ */
+export function NovelApi_novel_type_list(params) {
+	return http.post("NovelApi/novel_type_list", params);
+}
+
+/**
+ * NovelApi/novel_data_list_search
+ */
+export function NovelApi_novel_data_list_search(params) {
+	return http.post("NovelApi/novel_data_list_search", params);
+}
+
+/**
+ * NovelApi/novel_chapter_list_search
+ */
+export function NovelApi_novel_chapter_list_search(params) {
+	return http.post("NovelApi/novel_chapter_list_search", params);
+}
+
+/**
+ * NovelApi/novel_collect_add
+ */
+export function NovelApi_novel_collect_add(params) {
+	return http.post("NovelApi/novel_collect_add", params);
+}
+
+/**
+ * NovelApi/novel_like_add
+ */
+export function NovelApi_novel_like_add(params) {
+	return http.post("NovelApi/novel_like_add", params);
+}
+
+/**
+ * NovelApi/novel_collect_list
+ */
+export function NovelApi_novel_collect_list(params) {
+	return http.post("NovelApi/novel_collect_list", params);
 }
