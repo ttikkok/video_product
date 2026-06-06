@@ -5,8 +5,10 @@
 	export default {
 		onLaunch: function() {
 			this.autoLogin()
+			this.setPageTitle()
 		},
 		onShow: function() {
+			this.setPageTitle()
 			// uni.request({  
 			// 	url: config.baseApiOrg + 'app/index/logo', // url地址  
 			// 	method: 'GET',
@@ -51,6 +53,13 @@
 			// console.log('App Hide')
 		},
 		methods: {
+			setPageTitle() {
+				//#ifdef H5
+				if (typeof window !== 'undefined' && window.document) {
+					window.document.title = '视频平台'
+				}
+				//#endif
+			},
 			autoLogin() {
 				// 检查是否已经登录成功，如果有token则不需要重复登录
 				let token = uni.getStorageSync('token')

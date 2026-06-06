@@ -73,7 +73,7 @@
 		data() {
 			return {
 				activeCategory: 0,
-				categories: [],
+				categories: [{ id: 0, title: '全部' }],
 				searchKeyword: '',
 				novels: [],
 				page: 1,
@@ -85,19 +85,16 @@
 		},
 		onLoad() {
 			this.loadCategories()
+			this.loadNovelList()
 		},
 		methods: {
 			loadCategories() {
 				NovelApi_novel_type_list({}).then(res => {
 					if (res && res.code === 1 && res.data) {
 						this.categories = [{ id: 0, title: '全部' }, ...res.data]
-						this.loadNovelList()
-					} else {
-						this.categories = [{ id: 0, title: '全部' }]
 					}
 				}).catch(err => {
 					console.error('加载分类失败:', err)
-					this.categories = [{ id: 0, title: '全部' }]
 				})
 			},
 			loadMore() {
@@ -185,20 +182,8 @@
 				this.loadNovelList()
 			},
 			goToRead(novel) {
-				const params = new URLSearchParams()
-				params.append('id', novel.id)
-				params.append('title', novel.title)
-				params.append('cover', novel.cover)
-				params.append('author', novel.author)
-				params.append('tags', (novel.tags || []).join(','))
-				params.append('intro', novel.intro)
-				params.append('views', novel.views)
-				params.append('chapters', novel.chapters)
-				params.append('likes', novel.likes)
-				params.append('isVip', novel.isVip ? 'true' : 'false')
-				params.append('isFinished', novel.isFinished ? 'true' : 'false')
 				uni.navigateTo({
-					url: `/pages/novel/read?${params.toString()}`
+					url: `/pages/novel/read?id=${novel.id}`
 				})
 			}
 		}
@@ -222,14 +207,20 @@
 	}
 
 	.search-header {
-		padding: 20rpx;
+		background-color: #16213e;
+		padding: 20rpx 30rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 20rpx;
 	}
 
 	.search-bar {
+		flex: 1;
 		display: flex;
 		align-items: center;
 		background-color: rgba(255, 255, 255, 0.1);
-		border-radius: 40rpx;
+		border-radius: 30rpx;
 		padding: 15rpx 25rpx;
 	}
 
@@ -239,33 +230,47 @@
 
 	.search-input {
 		flex: 1;
-		height: 60rpx;
-		font-size: 28rpx;
+		background: transparent;
+		border: none;
 		color: #fff;
+		font-size: 28rpx;
 	}
 
 	.category-tabs {
+		background-color: #16213e;
 		white-space: nowrap;
-		padding: 15rpx 0;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 	}
 
 	.tabs {
 		display: inline-flex;
+		gap: 40rpx;
 		padding: 0 20rpx;
 	}
 
 	.tab-item {
-		padding: 10rpx 30rpx;
-		margin-right: 20rpx;
-		border-radius: 30rpx;
-		font-size: 26rpx;
+		padding: 20rpx 10rpx;
+		font-size: 30rpx;
 		color: #999;
-		background-color: rgba(255, 255, 255, 0.1);
-		&.active {
-			background-color: #ffd700;
-			color: #000;
-		}
+		position: relative;
+		white-space: nowrap;
+	}
+
+	.tab-item.active {
+		color: #ffd700;
+		font-weight: 600;
+	}
+
+	.tab-item.active::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 40rpx;
+		height: 4rpx;
+		background-color: #ffd700;
+		border-radius: 2rpx;
 	}
 
 	.novel-list {

@@ -22,10 +22,24 @@ export function IndexPopup_window(params) {
 }
 
 /**
- * register_login
+ * UserApi/register_login
  */
 export function register_login(params) {
 	return http.post("UserApi/register_login", params);
+}
+
+/**
+ * UserApi/bind_mobile
+ */
+export function UserApi_bind_mobile(params) {
+	return http.post("UserApi/bind_mobile", params);
+}
+
+/**
+ * AdvertiseApi/advertise_list
+ */
+export function AdvertiseApi_advertise_list(params) {
+	return http.get("AdvertiseApi/advertise_list", params);
 }
 
 /**
@@ -229,4 +243,11 @@ export function NovelApi_novel_like_add(params) {
  */
 export function NovelApi_novel_collect_list(params) {
 	return http.post("NovelApi/novel_collect_list", params);
+}
+
+/**
+ * NovelApi/novel_details
+ */
+export function NovelApi_novel_details(params) {
+	return http.post("NovelApi/novel_details", params);
 }

@@ -232,12 +232,17 @@
 		min-height: 100vh;
 		background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
 		padding-bottom: 266rpx;
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
+		padding-top: calc(120rpx + constant(safe-area-inset-top));
+		padding-top: calc(120rpx + env(safe-area-inset-top));
 	}
 
 	/* 顶部导航 */
 	.top-nav {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

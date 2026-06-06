@@ -104,7 +104,7 @@
 </template>
 
 <script>
-	import { NovelApi_novel_chapter_list_search, NovelApi_novel_collect_add, NovelApi_novel_like_add } from '@/api/home.js'
+	import { NovelApi_novel_chapter_list_search, NovelApi_novel_collect_add, NovelApi_novel_like_add, NovelApi_novel_details } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -142,41 +142,40 @@
 		onLoad(options) {
 			if (options.id) {
 				this.novelId = parseInt(options.id)
-			}
-			if (options.title) {
-				this.novelTitle = decodeURIComponent(options.title)
-			}
-			if (options.cover) {
-				this.currentNovel.cover = decodeURIComponent(options.cover)
-			}
-			if (options.author) {
-				this.currentNovel.author = decodeURIComponent(options.author)
-			}
-			if (options.tags) {
-				this.currentNovel.tags = decodeURIComponent(options.tags).split(',')
-			}
-			if (options.intro) {
-				this.currentNovel.intro = decodeURIComponent(options.intro)
-			}
-			if (options.views) {
-				this.currentNovel.views = decodeURIComponent(options.views)
-			}
-			if (options.chapters) {
-				this.currentNovel.chapters = parseInt(options.chapters)
-			}
-			if (options.likes) {
-				this.currentNovel.likes = decodeURIComponent(options.likes)
-				this.likes = parseInt(this.currentNovel.likes) || 0
-			}
-			if (options.isVip === 'true') {
-				this.currentNovel.isVip = true
-			}
-			if (options.isFinished === 'true') {
-				this.currentNovel.isFinished = true
+				this.loadNovelDetail()
 			}
 			this.loadChapters()
 		},
 		methods: {
+			loadNovelDetail() {
+				uni.showLoading({
+					title: '加载中...'
+				})
+				NovelApi_novel_details({ novel_id: this.novelId }).then(res => {
+					uni.hideLoading()
+					if (res && res.code === 1 && res.data) {
+						const data = res.data
+						this.novelTitle = data.title || ''
+						this.currentNovel.id = data.id || 0
+						this.currentNovel.title = data.title || ''
+						this.currentNovel.author = data.author || ''
+						this.currentNovel.cover = data.cover_image || ''
+						this.currentNovel.tags = data.tags ? (Array.isArray(data.tags) ? data.tags.filter(t => t && t.trim()) : (typeof data.tags === 'string' ? data.tags.split(',').filter(t => t.trim()) : [])) : []
+						this.currentNovel.intro = data.content || ''
+						this.currentNovel.views = data.look_number ? (parseInt(data.look_number) >= 10000 ? (parseInt(data.look_number) / 10000).toFixed(1) + '萬' : data.look_number) : '0'
+						this.currentNovel.likes = data.like_number || '0'
+						this.likes = parseInt(this.currentNovel.likes) || 0
+						this.currentNovel.isVip = data.is_vip === 1
+						this.currentNovel.isFinished = data.is_finished === 1
+						this.currentNovel.category = data.type_name || ''
+						this.isLiked = data.is_like === 1
+						this.isCollected = data.is_collect === 1
+					}
+				}).catch(err => {
+					uni.hideLoading()
+					console.error('加载小说详情失败:', err)
+				})
+			},
 			loadChapters() {
 				this.loading = true
 				uni.showLoading({
@@ -314,36 +313,18 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		display: flex;
-		align-items: center;
-		background-color: #16213e;
-		padding: 20rpx;
-		gap: 20rpx;
 		z-index: 100;
 	}
 
-	.nav-back {
-		width: 60rpx;
-		height: 60rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.back-icon {
-		width: 40rpx;
-		height: 40rpx;
-	}
-
 	.nav-title {
-		flex: 1;
-		text-align: center;
+		font-size: 34rpx;
+		font-weight: 600;
 	}
 
 	.title-text {
-		font-size: 32rpx;
+		font-size: 34rpx;
 		color: #fff;
-		font-weight: 500;
+		font-weight: 600;
 	}
 
 	.nav-actions {

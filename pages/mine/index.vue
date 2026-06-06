@@ -145,9 +145,17 @@
 				this.deviceId = deviceId.slice(-16)
 			},
 			checkBindStatus() {
-				this.isBound = uni.getStorageSync('isBound') === 'true'
-				if (this.isBound) {
-					this.userInfo.name = '已绑定用户'
+				const userinfo = uni.getStorageSync('userinfo')
+				if (userinfo) {
+					try {
+						const info = JSON.parse(userinfo)
+						if (info.mobile) {
+							this.isBound = true
+							this.userInfo.name = '已绑定用户'
+						}
+					} catch (e) {
+						console.error('解析userinfo失败', e)
+					}
 				}
 			},
 			goToBindAccount() {
@@ -197,11 +205,16 @@
 		min-height: 100vh;
 		background-color: #1a1a2e;
 		padding-bottom: 120rpx;
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
+		padding-top: calc(120rpx + constant(safe-area-inset-top));
+		padding-top: calc(120rpx + env(safe-area-inset-top));
 	}
 
 	.top-nav {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -209,7 +222,6 @@
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
 		background-color: #16213e;
-		position: relative;
 	}
 
 	.nav-title {

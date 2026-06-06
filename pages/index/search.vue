@@ -63,20 +63,23 @@
 			<template v-if="searchResults.length > 0">
 				<view v-for="(item, index) in searchResults" :key="index" class="content-item" @click="playVideo(item)">
 					<view class="item-cover-wrap">
-						<image :src="item.cover" mode="aspectFill" class="item-cover" />
-						<text class="item-duration">{{ item.duration }}</text>
-						<view class="item-badge" v-if="item.badge">
-							<text>{{ item.badge }}</text>
+						<view class="item-title-overlay">
+							<text class="item-title">{{ item.title }}</text>
 						</view>
+						<image :src="item.cover" mode="aspectFill" class="cover-image" />
+						<view class="video-overlay">
+							<view class="play-icon">▶</view>
+						</view>
+						<text class="play-count">{{ item.playCount }}</text>
+						<text class="video-duration">{{ item.duration }}</text>
+						<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
 					</view>
-					<view class="item-info">
-						<text class="item-title">{{ item.title }}</text>
-						<view class="item-meta">
-							<text class="item-views">{{ item.views }}</text>
-							<text class="item-separator">·</text>
-							<text class="item-tags">{{ item.tags }}</text>
+					<view class="item-footer">
+						<text class="time-text">{{ formatTime(item.createtime) }} 发布</text>
+						<view class="item-like">
+							<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
+							<text class="like-text">{{ item.likeNumber || 0 }}</text>
 						</view>
-						<text class="item-code">{{ item.code }}</text>
 					</view>
 				</view>
 				<u-loadmore 
@@ -97,7 +100,11 @@
 	export default {
 		data() {
 			return {
-				virtualTags: [],
+				virtualTags: [
+					{ other_id: -1, name: '播放最多' },
+					{ other_id: -2, name: '最近添加' },
+					{ other_id: -3, name: '最高评分' }
+				],
 				tags: [],
 				selectedVirtualTag: -1,
 				selectedCategory: 0,
@@ -123,14 +130,11 @@
 		},
 		onLoad() {
 			this.loadCategories()
+			this.loadVideoList()
 		},
 		methods: {
 			loadCategories() {
-				uni.showLoading({
-					title: '加载中...'
-				})
 				VodApi_vod_category_tags_list({}).then(res => {
-					uni.hideLoading()
 					if (res && res.code === 1 && res.data) {
 						const data = res.data.data || res.data
 						this.virtualTags = data.virtual_tags || []
@@ -138,27 +142,9 @@
 						if (this.virtualTags.length > 0) {
 							this.selectedVirtualTag = this.virtualTags[0].other_id
 						}
-					} else {
-						this.virtualTags = [
-							{ other_id: -1, name: '播放最多' },
-							{ other_id: -2, name: '最近添加' },
-							{ other_id: -3, name: '最高评分' }
-						]
-						this.tags = []
-						this.selectedVirtualTag = -1
 					}
-					this.loadVideoList()
 				}).catch(err => {
-					uni.hideLoading()
 					console.error('加载分类失败:', err)
-					this.virtualTags = [
-						{ other_id: -1, name: '播放最多' },
-						{ other_id: -2, name: '最近添加' },
-						{ other_id: -3, name: '最高评分' }
-					]
-					this.tags = []
-					this.selectedVirtualTag = -1
-					this.loadVideoList()
 				})
 			},
 			loadVideoList() {
@@ -189,10 +175,11 @@
 							cover: item.cover_image || '',
 							title: item.title || '',
 							duration: item.duration || '00:00',
-							views: this.formatNumber(item.look_number) || '0',
-							tags: (item.tags || []).join(' ') || '',
-							code: '',
-							badge: item.is_free === 0 ? 'VIP' : null,
+							playCount: this.formatNumber(item.look_number) || '0',
+							createtime: item.createtime || '',
+							likeNumber: item.like_number || 0,
+							is_free: item.is_free,
+							is_like: item.is_like,
 							video: item.video || ''
 						}))
 						if (this.page === 1) {
@@ -234,6 +221,15 @@
 					return (n / 10000).toFixed(1) + '萬'
 				}
 				return num.toString()
+			},
+			formatTime(timestamp) {
+				if (!timestamp) return ''
+				const date = new Date(timestamp)
+				const month = String(date.getMonth() + 1).padStart(2, '0')
+				const day = String(date.getDate()).padStart(2, '0')
+				const hours = String(date.getHours()).padStart(2, '0')
+				const minutes = String(date.getMinutes()).padStart(2, '0')
+				return `${month}-${day} ${hours}:${minutes}`
 			},
 			goBack() {
 				uni.navigateBack()
@@ -405,91 +401,131 @@
 	}
 
 	.content-item {
-		display: flex;
 		background-color: #16213e;
-		border-radius: 20rpx;
-		padding: 20rpx;
+		border-radius: 16rpx;
+		overflow: hidden;
 		margin-bottom: 20rpx;
 	}
 
 	.item-cover-wrap {
 		position: relative;
-		width: 200rpx;
-		height: 140rpx;
-		flex-shrink: 0;
+		width: 100%;
+		height: 370rpx;
 	}
 
-	.item-cover {
+	.cover-image {
 		width: 100%;
 		height: 100%;
-		border-radius: 10rpx;
 	}
 
-	.item-duration {
+	.item-title-overlay {
 		position: absolute;
-		bottom: 5rpx;
-		right: 5rpx;
-		background-color: rgba(0, 0, 0, 0.7);
-		padding: 2rpx 8rpx;
-		border-radius: 4rpx;
-		font-size: 20rpx;
-		color: #fff;
-	}
-
-	.item-badge {
-		position: absolute;
-		top: 5rpx;
-		left: 5rpx;
-		background-color: #ffd700;
-		padding: 2rpx 8rpx;
-		border-radius: 4rpx;
-		font-size: 20rpx;
-		color: #000;
-		font-weight: bold;
-	}
-
-	.item-info {
-		flex: 1;
-		padding-left: 20rpx;
+		top: 0;
+		left: 0;
+		right: 0;
+		padding: 20rpx 24rpx;
 		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
+		align-items: center;
+		gap: 12rpx;
+		background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+		z-index: 10;
 	}
 
 	.item-title {
-		font-size: 28rpx;
+		font-size: 30rpx;
 		color: #fff;
-		font-weight: bold;
+		font-weight: 600;
+		line-height: 1.4;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		white-space: nowrap;
+		flex: 1;
 	}
 
-	.item-meta {
+	.video-overlay {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 80rpx;
+		height: 80rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.play-icon {
+		color: #fff;
+		font-size: 32rpx;
+		margin-left: 5rpx;
+	}
+
+	.play-count {
+		position: absolute;
+		bottom: 10rpx;
+		left: 15rpx;
+		font-size: 22rpx;
+		color: rgba(255, 255, 255, 0.9);
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 4rpx 12rpx;
+		border-radius: 8rpx;
+	}
+
+	.video-duration {
+		position: absolute;
+		bottom: 10rpx;
+		right: 15rpx;
+		font-size: 22rpx;
+		color: rgba(255, 255, 255, 0.9);
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 4rpx 12rpx;
+		border-radius: 8rpx;
+	}
+
+	.vip-badge {
+		position: absolute;
+		top: 10rpx;
+		right: 10rpx;
+		font-size: 22rpx;
+		color: #fff;
+		background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%);
+		padding: 6rpx 16rpx;
+		border-radius: 8rpx;
+		font-weight: 700;
+		box-shadow: 0 4rpx 12rpx rgba(255, 69, 0, 0.5);
+		z-index: 10;
+	}
+
+	.item-footer {
+		padding: 16rpx 20rpx;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.time-text {
+		font-size: 26rpx;
+		color: #999;
+	}
+
+	.item-like {
 		display: flex;
 		align-items: center;
 		gap: 10rpx;
 	}
 
-	.item-views {
-		font-size: 22rpx;
-		color: #666;
+	.like-icon {
+		width: 36rpx;
+		height: 36rpx;
 	}
 
-	.item-separator {
-		font-size: 22rpx;
-		color: #666;
-	}
-
-	.item-tags {
-		font-size: 22rpx;
-		color: #6BA3E0;
-	}
-
-	.item-code {
-		font-size: 20rpx;
-		color: #666;
-		font-family: monospace;
+	.like-text {
+		font-size: 26rpx;
+		color: #999;
 	}
 
 	.empty-state {

@@ -60,9 +60,12 @@
 	export default {
 		data() {
 			return {
-				categoryList: [],
+				categoryList: [
+					{ id: 30, name: '系统消息', nickname: '系统消息' },
+					{ id: 31, name: '订单消息', nickname: '订单消息' }
+				],
 				activeCategory: 0,
-				currentCategoryId: null,
+				currentCategoryId: 30,
 				messages: [],
 				page: 1,
 				pageSize: 10,
@@ -73,37 +76,20 @@
 		},
 		onLoad() {
 			this.loadCategoryList()
+			this.loadMessageList()
 		},
 		methods: {
 			goBack() {
 				uni.navigateBack()
 			},
 			loadCategoryList() {
-				uni.showLoading({
-					title: '加载中...'
-				})
 				MessageApi_message_type_list().then(res => {
 					if (res && res.code === 1 && res.data && res.data.length > 0) {
 						this.categoryList = res.data
-					} else {
-						this.categoryList = [
-							{ id: 30, name: '系统消息', nickname: '系统消息' },
-							{ id: 31, name: '订单消息', nickname: '订单消息' }
-						]
+						this.currentCategoryId = res.data[0].id
 					}
-					if (this.categoryList.length > 0) {
-						this.currentCategoryId = this.categoryList[0].id
-					}
-					this.loadMessageList()
 				}).catch(err => {
-					uni.hideLoading()
 					console.error('加载分类失败', err)
-					this.categoryList = [
-						{ id: 30, name: '系统消息', nickname: '系统消息' },
-						{ id: 31, name: '订单消息', nickname: '订单消息' }
-					]
-					this.currentCategoryId = this.categoryList[0].id
-					this.loadMessageList()
 				})
 			},
 			switchCategory(index) {

@@ -95,7 +95,7 @@
     "locale" : "en",
     "fallbackLocale" : "en",
     "h5" : {
-        "title" : "home",
+        "title" : "视频平台",
         "router" : {
             "mode" : "hash",
             "base" : ""

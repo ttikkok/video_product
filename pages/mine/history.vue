@@ -196,40 +196,6 @@
 		background-color: #1a1a2e;
 	}
 
-	.top-nav {
-		display: flex;
-		align-items: center;
-		padding: 30rpx 20rpx;
-		padding-top: calc(30rpx + constant(safe-area-inset-top));
-		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
-	}
-
-	.nav-back {
-		width: 60rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.back-icon {
-		width: 40rpx;
-		height: 40rpx;
-	}
-
-	.nav-title {
-		flex: 1;
-		font-size: 32rpx;
-		color: #fff;
-		font-weight: 600;
-		text-align: center;
-	}
-
-	.nav-edit {
-		font-size: 28rpx;
-		color: #6BA3E0;
-	}
-
 	.time-filter {
 		display: flex;
 		gap: 20rpx;

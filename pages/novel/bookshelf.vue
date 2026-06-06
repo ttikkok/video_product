@@ -119,7 +119,7 @@
 			},
 			goToRead(novel) {
 				uni.navigateTo({
-					url: `/pages/novel/read?novel=${encodeURIComponent(JSON.stringify(novel))}`
+					url: `/pages/novel/read?id=${novel.id}`
 				})
 			}
 		}
@@ -135,35 +135,17 @@
 	}
 
 	.top-nav {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 20rpx 30rpx;
-		background-color: #1a1a2e;
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
-		padding-top: calc(20rpx + constant(safe-area-inset-top));
-		padding-top: calc(20rpx + env(safe-area-inset-top));
-	}
-
-	.nav-back {
-		width: 60rpx;
-		height: 60rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.back-icon {
-		width: 40rpx;
+		background-color: #1a1a2e;
 	}
 
 	.nav-title {
-		font-size: 32rpx;
-		font-weight: bold;
+		font-size: 34rpx;
+		font-weight: 600;
 		color: #fff;
 	}
 

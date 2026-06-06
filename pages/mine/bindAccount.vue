@@ -4,28 +4,11 @@
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
 			</view>
-			<view class="nav-title">绑定账号</view>
+			<view class="nav-title">绑定手机号</view>
 			<view class="nav-placeholder"></view>
 		</view>
 
-		<view class="tabs">
-			<view 
-				:class="['tab-item', { active: activeTab === 0 }]" 
-				@click="activeTab = 0"
-			>
-				<text>手机号码绑定</text>
-				<view v-if="activeTab === 0" class="tab-indicator"></view>
-			</view>
-			<view 
-				:class="['tab-item', { active: activeTab === 1 }]" 
-				@click="activeTab = 1"
-			>
-				<text>用户名绑定</text>
-				<view v-if="activeTab === 1" class="tab-indicator"></view>
-			</view>
-		</view>
-
-		<view v-if="activeTab === 0" class="form-section">
+		<view v-if="!hasBound" class="form-section">
 			<view class="phone-input-wrap">
 				<view class="country-code">
 					<text>+86</text>
@@ -39,152 +22,86 @@
 				/>
 			</view>
 
-			<view class="code-input-wrap">
-				<input 
-					v-model="code" 
-					class="code-input" 
-					type="number" 
-					placeholder="请输入验证码"
-					maxlength="6"
-				/>
-				<view 
-					:class="['get-code-btn', { disabled: !phone || countdown > 0 }]" 
-					@click="getCode"
-				>
-					<text>{{ countdown > 0 ? countdown + '秒' : '获取验证码' }}</text>
-				</view>
-			</view>
-
 			<view 
-				:class="['bind-btn', { disabled: !phone || !code }]" 
+				:class="['bind-btn', { disabled: !phone || phone.length !== 11 }]" 
 				@click="bindPhone"
 			>
-				<text>绑定手机号</text>
-			</view>
-
-			<view class="login-link" @click="goToLogin">
-				<text>已有账号？直接登录</text>
+				<text>确认绑定</text>
 			</view>
 		</view>
 
-		<view v-else class="form-section">
-			<input 
-				v-model="username" 
-				class="form-input" 
-				placeholder="请输入用户名"
-			/>
-			<input 
-				v-model="password" 
-				class="form-input" 
-				type="password" 
-				placeholder="请输入密码"
-			/>
-			<input 
-				v-model="confirmPassword" 
-				class="form-input" 
-				type="password" 
-				placeholder="请确认密码"
-			/>
-
-			<view 
-				:class="['bind-btn', { disabled: !username || !password || !confirmPassword }]" 
-				@click="bindUsername"
-			>
-				<text>绑定用户名</text>
-			</view>
-
-			<view class="login-link" @click="goToLogin">
-				<text>已有账号？直接登录</text>
-			</view>
+		<view v-else class="bound-success">
+			<view class="success-icon">✓</view>
+			<text class="success-title">绑定成功</text>
+			<text class="success-phone">已绑定手机号：{{ userMobile }}</text>
+			<text class="success-tip">手机号绑定后不支持修改</text>
 		</view>
 
-		<view class="note">
-			<text>备注：如您不方便使用手机号码注册绑定，可选择用户名绑定</text>
-		</view>
 	</view>
 </template>
 
 <script>
+	import { UserApi_bind_mobile } from '@/api/home.js'
 	export default {
 		data() {
 			return {
-				activeTab: 0,
 				phone: '',
-				code: '',
-				countdown: 0,
-				username: '',
-				password: '',
-				confirmPassword: ''
+				hasBound: false,
+				userMobile: ''
 			}
 		},
+		onLoad() {
+			this.checkBindStatus()
+		},
 		methods: {
+			checkBindStatus() {
+				const userinfo = uni.getStorageSync('userinfo')
+				if (userinfo) {
+					try {
+						const info = JSON.parse(userinfo)
+						if (info.mobile) {
+							this.hasBound = true
+							this.userMobile = info.mobile
+						}
+					} catch (e) {
+						console.error('解析userinfo失败', e)
+					}
+				}
+			},
 			goBack() {
 				uni.navigateBack()
-			},
-			getCode() {
-				if (!this.phone || this.phone.length !== 11) {
-					uni.showToast({ title: '请输入正确的手机号', icon: 'none' })
-					return
-				}
-				if (this.countdown > 0) return
-
-				this.countdown = 60
-				uni.showToast({ title: '验证码已发送', icon: 'success' })
-
-				const timer = setInterval(() => {
-					this.countdown--
-					if (this.countdown <= 0) {
-						clearInterval(timer)
-					}
-				}, 1000)
 			},
 			bindPhone() {
 				if (!this.phone || this.phone.length !== 11) {
 					uni.showToast({ title: '请输入正确的手机号', icon: 'none' })
 					return
 				}
-				if (!this.code || this.code.length !== 6) {
-					uni.showToast({ title: '请输入6位验证码', icon: 'none' })
-					return
-				}
 
 				uni.showLoading({ title: '绑定中...' })
-				setTimeout(() => {
+				UserApi_bind_mobile({ mobile: this.phone }).then(res => {
 					uni.hideLoading()
-					uni.setStorageSync('isBound', 'true')
-					uni.showToast({ title: '绑定成功', icon: 'success' })
-					setTimeout(() => {
-						uni.navigateBack()
-					}, 1500)
-				}, 1000)
-			},
-			bindUsername() {
-				if (!this.username) {
-					uni.showToast({ title: '请输入用户名', icon: 'none' })
-					return
-				}
-				if (!this.password || this.password.length < 6) {
-					uni.showToast({ title: '密码至少6位', icon: 'none' })
-					return
-				}
-				if (this.password !== this.confirmPassword) {
-					uni.showToast({ title: '两次输入密码不一致', icon: 'none' })
-					return
-				}
-
-				uni.showLoading({ title: '绑定中...' })
-				setTimeout(() => {
+					if (res && res.code === 1) {
+						uni.showToast({ title: '绑定成功', icon: 'success' })
+						this.hasBound = true
+						this.userMobile = this.phone
+						uni.setStorageSync('isBound', 'true')
+						const userinfo = uni.getStorageSync('userinfo')
+						if (userinfo) {
+							try {
+								const info = JSON.parse(userinfo)
+								info.mobile = this.phone
+								uni.setStorageSync('userinfo', JSON.stringify(info))
+							} catch (e) {
+								console.error('更新userinfo失败', e)
+							}
+						}
+					} else {
+						uni.showToast({ title: res && res.msg || '绑定失败', icon: 'none' })
+					}
+				}).catch(err => {
 					uni.hideLoading()
-					uni.setStorageSync('isBound', 'true')
-					uni.showToast({ title: '绑定成功', icon: 'success' })
-					setTimeout(() => {
-						uni.navigateBack()
-					}, 1500)
-				}, 1000)
-			},
-			goToLogin() {
-				uni.navigateTo({
-					url: '/pages/mine/login'
+					console.error('绑定失败', err)
+					uni.showToast({ title: '绑定失败', icon: 'none' })
 				})
 			}
 		}
@@ -233,41 +150,6 @@
 		width: 60rpx;
 	}
 
-	.tabs {
-		display: flex;
-		background-color: #16213e;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
-	}
-
-	.tab-item {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 30rpx 0;
-		position: relative;
-	}
-
-	.tab-item text {
-		font-size: 28rpx;
-		color: #999;
-	}
-
-	.tab-item.active text {
-		color: #ffd700;
-	}
-
-	.tab-indicator {
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 80rpx;
-		height: 4rpx;
-		background-color: #ffd700;
-		border-radius: 2rpx;
-	}
-
 	.form-section {
 		padding: 40rpx 30rpx;
 	}
@@ -279,7 +161,7 @@
 		border: 1rpx solid rgba(255, 255, 255, 0.1);
 		border-radius: 10rpx;
 		padding: 0 20rpx;
-		margin-bottom: 25rpx;
+		margin-bottom: 40rpx;
 	}
 
 	.country-code {
@@ -306,69 +188,11 @@
 		color: #666;
 	}
 
-	.code-input-wrap {
-		display: flex;
-		gap: 20rpx;
-		margin-bottom: 40rpx;
-	}
-
-	.code-input {
-		flex: 1;
-		height: 80rpx;
-		line-height: 80rpx;
-		background-color: #1a2744;
-		border: 1rpx solid rgba(255, 255, 255, 0.1);
-		border-radius: 10rpx;
-		padding: 0 20rpx;
-		font-size: 28rpx;
-		color: #fff;
-	}
-
-	.code-input::placeholder {
-		color: #888;
-	}
-
-	.get-code-btn {
-		background-color: rgba(255, 215, 0, 0.2);
-		padding: 16rpx 30rpx;
-		border-radius: 10rpx;
-	}
-
-	.get-code-btn.disabled {
-		background-color: rgba(255, 255, 255, 0.1);
-	}
-
-	.get-code-btn text {
-		font-size: 26rpx;
-		color: #ffd700;
-	}
-
-	.get-code-btn.disabled text {
-		color: #666;
-	}
-
-	.form-input {
-		height: 80rpx;
-		line-height: 80rpx;
-		background-color: #1a2744;
-		border: 1rpx solid rgba(255, 255, 255, 0.1);
-		border-radius: 10rpx;
-		padding: 0 20rpx;
-		font-size: 28rpx;
-		color: #fff;
-		margin-bottom: 25rpx;
-	}
-
-	.form-input::placeholder {
-		color: #888;
-	}
-
 	.bind-btn {
 		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
 		padding: 16rpx;
 		border-radius: 10rpx;
 		text-align: center;
-		margin-bottom: 30rpx;
 	}
 
 	.bind-btn.disabled {
@@ -382,6 +206,45 @@
 	}
 
 	.bind-btn.disabled text {
+		color: #666;
+	}
+
+	.bound-success {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 100rpx 30rpx;
+	}
+
+	.success-icon {
+		width: 120rpx;
+		height: 120rpx;
+		border-radius: 50%;
+		background-color: #27ae60;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 60rpx;
+		color: #fff;
+		margin-bottom: 30rpx;
+	}
+
+	.success-title {
+		font-size: 36rpx;
+		color: #fff;
+		font-weight: 600;
+		margin-bottom: 20rpx;
+	}
+
+	.success-phone {
+		font-size: 28rpx;
+		color: #999;
+		margin-bottom: 10rpx;
+	}
+
+	.success-tip {
+		font-size: 24rpx;
 		color: #666;
 	}
 

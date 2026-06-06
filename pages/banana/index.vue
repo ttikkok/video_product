@@ -15,6 +15,9 @@
 					/>
 					<view v-if="searchKeyword" class="search-clear" @click="clearSearch">✕</view>
 				</view>
+				<view class="search-actions">
+					<image src="../../static/images/tongzhi.png" mode="widthFix" class="action-icon" @click="goToMessages" />
+				</view>
 			</view>
 
 			<!-- 标签导航 -->
@@ -38,22 +41,27 @@
 			<u-empty v-if="!loading && postList.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<template v-if="postList.length > 0">
-				<view v-for="(post, index) in postList" :key="index" class="post-card" @click="goToDetail(post)">
+				<view v-for="(post, index) in postList" :key="index" class="post-card">
+					<view v-if="post.is_advertise" class="advertise-card" @click="openAdvertiseUrl(post.url)">
+						<image :src="post.image || post.cover_image" mode="widthFix" class="advertise-image" />
+					</view>
+					<view v-else @click="goToDetail(post)">
 				<!-- 帖子内容 -->
 				<view class="post-content">
 					<text>{{ post.title }}</text>
 				</view>
 
-				<!-- 视频封面（列表页只显示封面，不加载视频） -->
-				<view v-if="post.video" class="post-media video-cover">
-					<image 
-						:src="post.images && post.images.length > 0 ? post.images[0] : post.cover_image" 
-						mode="aspectFill" 
-						class="cover-image" 
+				<!-- 视频直接加载 -->
+				<view v-if="post.video" class="post-media video-container">
+					<video 
+						:src="post.video" 
+						class="video-player" 
+						:poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
+						:duration="post.duration"
+						controls
+						show-center-play-btn
+						enable-progress-gesture
 					/>
-					<view class="play-icon">
-						<text>▶</text>
-					</view>
 					<text v-if="post.duration" class="video-duration">{{ post.duration }}</text>
 				</view>
 				<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
@@ -62,11 +70,12 @@
 						:key="imgIndex" 
 						:src="img" 
 						mode="aspectFill" 
-						:class="['grid-image', { 'big': post.images.length === 2 && imgIndex === 0 }]" 
+						class="grid-image"
+						@click.stop="previewImage(post.images, imgIndex)"
 					/>
 				</view>
 				<view v-else-if="post.images && post.images.length === 1" class="post-media single-image">
-					<image :src="post.images[0]" mode="aspectFill" class="media-image" />
+					<image :src="post.images[0]" mode="aspectFill" class="media-image" @click.stop="previewImage(post.images, 0)" />
 				</view>
 
 				<!-- 帖子标签 -->
@@ -132,7 +141,8 @@
 						<text>{{ post.bottomReply.content }}</text>
 					</view>
 				</view> -->
-			</view>
+					</view>
+				</view>
 			</template>
 			<!-- 加载更多 -->
 			<u-loadmore 
@@ -144,11 +154,29 @@
 				class="py-3" 
 			/>
 		</scroll-view>
+
+		<!-- 图片预览遮罩 -->
+		<view v-if="showPreview" class="preview-overlay" @click="closePreview">
+			<view class="preview-header">
+				<text class="preview-close" @click="closePreview">✕</text>
+				<text class="preview-index">{{ currentPreviewIndex + 1 }}/{{ previewImages.length }}</text>
+			</view>
+			<swiper 
+				class="preview-swiper" 
+				:current="currentPreviewIndex" 
+				@change="onPreviewChange"
+				@click.stop
+			>
+				<swiper-item v-for="(img, index) in previewImages" :key="index">
+					<image :src="img" mode="aspectFit" class="preview-image" />
+				</swiper-item>
+			</swiper>
+		</view>
 	</view>
 </template>
 
 <script>
-	import { CircleApi_circle_data_list, CircleApi_circle_type_list, CircleApi_circle_data_list_search, CircleApi_circle_like, CircleApi_circle_collect } from '@/api/home.js'
+	import { CircleApi_circle_data_list, CircleApi_circle_type_list, CircleApi_circle_data_list_search, CircleApi_circle_like, CircleApi_circle_collect, AdvertiseApi_advertise_list } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -161,11 +189,17 @@
 				total: 0,
 				loading: false,
 				searchKeyword: '',
-				hasMore: true
+				hasMore: true,
+				showPreview: false,
+				previewImages: [],
+				currentPreviewIndex: 0,
+				advertiseList: []
 			}
 		},
 		onLoad() {
 			this.loadCategoryList()
+			this.loadAdvertiseList()
+			this.loadPostList()
 		},
 		methods: {
 			loadMore() {
@@ -182,6 +216,45 @@
 					this.loadPostList()
 				}
 			},
+			loadAdvertiseList() {
+				AdvertiseApi_advertise_list({ name: '朋友圈广告位' }).then(res => {
+					if (res && res.code === 1 && res.data && res.data.length > 0) {
+						this.advertiseList = res.data
+					}
+				}).catch(err => {
+					console.error('广告列表加载失败', err)
+				})
+			},
+			insertAdvertise(list) {
+				if (!this.advertiseList || this.advertiseList.length === 0) {
+					return list
+				}
+				const result = []
+				let advertiseIndex = 0
+				const advertiseCount = this.advertiseList.length
+				list.forEach((item, index) => {
+					result.push(item)
+					if ((index + 1) % 3 === 0) {
+						result.push({
+							...this.advertiseList[advertiseIndex % advertiseCount],
+							is_advertise: true,
+							ad_index: advertiseIndex
+						})
+						advertiseIndex++
+					}
+				})
+				return result
+			},
+			openAdvertiseUrl(url) {
+				if (url) {
+					plus.runtime.openURL(url, function(res) {
+						console.log('打开链接成功', res)
+					}, function(err) {
+						console.error('打开链接失败', err)
+						uni.showToast({ title: '打开链接失败', icon: 'none' })
+					})
+				}
+			},
 			loadCategoryList() {
 				CircleApi_circle_type_list().then(res => {
 					if (res && res.code === 1 && res.data && res.data.length > 0) {
@@ -194,7 +267,6 @@
 							{ id: 3, name: '话题' }
 						]
 					}
-					this.loadPostList()
 				}).catch(err => {
 					console.error('分类列表加载失败', err)
 					this.categoryList = [
@@ -203,7 +275,6 @@
 						{ id: 2, name: '图片' },
 						{ id: 3, name: '话题' }
 					]
-					this.loadPostList()
 				})
 			},
 			switchNavTab(index) {
@@ -290,6 +361,24 @@
 					})
 				}
 			},
+			goToMessages() {
+				uni.navigateTo({
+					url: '/pages/mine/messages'
+				})
+			},
+			previewImage(images, index) {
+				this.previewImages = images
+				this.currentPreviewIndex = index
+				this.showPreview = true
+			},
+			closePreview() {
+				this.showPreview = false
+				this.previewImages = []
+				this.currentPreviewIndex = 0
+			},
+			onPreviewChange(e) {
+				this.currentPreviewIndex = e.detail.current
+			},
 			loadPostList(callback) {
 				this.loading = true
 				if (this.page === 1) {
@@ -311,9 +400,10 @@
 						const rows = res.data.rows || []
 						if (rows.length > 0) {
 							if (this.page === 1) {
-								this.postList = rows
+								this.postList = this.insertAdvertise(rows)
 							} else {
-								this.postList = [...this.postList, ...rows]
+								const newRows = this.insertAdvertise(rows)
+								this.postList = [...this.postList, ...newRows]
 							}
 						}
 						if (rows.length < this.pageSize) {
@@ -443,15 +533,27 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		gap: 20rpx;
 	}
 
 	.search-bar {
-		width: 100%;
+		flex: 1;
 		display: flex;
 		align-items: center;
 		background-color: rgba(255, 255, 255, 0.1);
 		border-radius: 30rpx;
 		padding: 15rpx 25rpx;
+	}
+
+	.search-actions {
+		display: flex;
+		align-items: center;
+		gap: 20rpx;
+	}
+
+	.action-icon {
+		width: 48rpx;
+		height: 48rpx;
 	}
 
 	.search-icon {
@@ -674,7 +776,7 @@
 	.post-media {
 		position: relative;
 		margin-bottom: 15rpx;
-		border-radius: 12rpx;
+		// border-radius: 12rpx;
 		overflow: hidden;
 	}
 
@@ -716,36 +818,14 @@
 		height: 400rpx;
 	}
 
-	.video-cover {
+	.video-container {
+		position: relative;
+		width: 100%;
+	}
+
+	.video-player {
 		width: 100%;
 		height: 400rpx;
-	}
-
-	.video-cover .cover-image {
-		width: 100%;
-		height: 100%;
-		display: block;
-	}
-
-	.play-icon {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 100rpx;
-		height: 100rpx;
-		background-color: rgba(0, 0, 0, 0.6);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-	}
-
-	.play-icon text {
-		color: #fff;
-		font-size: 36rpx;
-		margin-left: 6rpx;
 	}
 
 	.video-duration {
@@ -757,6 +837,7 @@
 		border-radius: 6rpx;
 		font-size: 24rpx;
 		color: #fff;
+		z-index: 10;
 	}
 
 	.images-grid {
@@ -767,12 +848,7 @@
 
 	.grid-image {
 		width: 100%;
-		height: 200rpx;
-	}
-
-	.grid-image.big {
-		grid-row: span 2;
-		height: 404rpx;
+		height: 220rpx;
 	}
 
 	.single-image .media-image {
@@ -912,5 +988,61 @@
 		text-align: center;
 		font-size: 24rpx;
 		color: #999;
+	}
+
+	/* 图片预览 */
+	.preview-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.95);
+		z-index: 1000;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.preview-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20rpx 30rpx;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
+	.preview-close {
+		font-size: 48rpx;
+		color: #fff;
+		line-height: 1;
+	}
+
+	.preview-index {
+		font-size: 28rpx;
+		color: rgba(255, 255, 255, 0.8);
+	}
+
+	.preview-swiper {
+		flex: 1;
+		width: 100%;
+	}
+
+	.preview-image {
+		width: 100%;
+		height: 100%;
+	}
+
+	.advertise-card {
+		background-color: #1a1a2e;
+		border-radius: 12rpx;
+		overflow: hidden;
+		margin-bottom: 15rpx;
+	}
+
+	.advertise-image {
+		width: 100%;
+		height: 80rpx;
+		display: block;
 	}
 </style>

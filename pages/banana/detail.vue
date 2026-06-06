@@ -33,11 +33,12 @@
 					:key="imgIndex" 
 					:src="img" 
 					mode="aspectFill" 
-					:class="['grid-image', { 'big': post.images.length === 2 && imgIndex === 0 }]" 
+					class="grid-image"
+					@click.stop="previewImage(post.images, imgIndex)"
 				/>
 			</view>
 			<view v-else-if="post.images && post.images.length === 1" class="post-media single-image">
-				<image :src="post.images[0]" mode="aspectFill" class="media-image" />
+				<image :src="post.images[0]" mode="aspectFill" class="media-image" @click.stop="previewImage(post.images, 0)" />
 			</view>
 
 			<!-- 帖子标签 -->
@@ -62,6 +63,24 @@
 				</view>
 			</view>
 		</scroll-view>
+
+		<!-- 图片预览遮罩 -->
+		<view v-if="showPreview" class="preview-overlay" @click="closePreview">
+			<view class="preview-header">
+				<text class="preview-close" @click="closePreview">✕</text>
+				<text class="preview-index">{{ currentPreviewIndex + 1 }}/{{ previewImages.length }}</text>
+			</view>
+			<swiper 
+				class="preview-swiper" 
+				:current="currentPreviewIndex" 
+				@change="onPreviewChange"
+				@click.stop
+			>
+				<swiper-item v-for="(img, index) in previewImages" :key="index">
+					<image :src="img" mode="aspectFit" class="preview-image" />
+				</swiper-item>
+			</swiper>
+		</view>
 	</view>
 </template>
 
@@ -72,7 +91,10 @@
 			return {
 				post: {},
 				isLiked: false,
-				isCollected: false
+				isCollected: false,
+				showPreview: false,
+				previewImages: [],
+				currentPreviewIndex: 0
 			}
 		},
 		onLoad(options) {
@@ -143,6 +165,19 @@
 					console.error('收藏失败', err)
 					uni.showToast({ title: '操作失败', icon: 'none' })
 				})
+			},
+			previewImage(images, index) {
+				this.previewImages = images
+				this.currentPreviewIndex = index
+				this.showPreview = true
+			},
+			closePreview() {
+				this.showPreview = false
+				this.previewImages = []
+				this.currentPreviewIndex = 0
+			},
+			onPreviewChange(e) {
+				this.currentPreviewIndex = e.detail.current
 			}
 		}
 	}
@@ -299,13 +334,8 @@
 
 	.grid-image {
 		width: 100%;
-		height: 200rpx;
-		border-radius: 8rpx;
-	}
-
-	.grid-image.big {
-		grid-row: span 2;
-		height: 404rpx;
+		height: 220rpx;
+		// border-radius: 8rpx;
 	}
 
 	.single-image {
@@ -423,5 +453,48 @@
 
 	.action-item.active .action-text {
 		color: #ffd700;
+	}
+
+	/* 图片预览 */
+	.preview-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.95);
+		z-index: 1000;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.preview-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20rpx 30rpx;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
+	.preview-close {
+		font-size: 48rpx;
+		color: #fff;
+		line-height: 1;
+	}
+
+	.preview-index {
+		font-size: 28rpx;
+		color: rgba(255, 255, 255, 0.8);
+	}
+
+	.preview-swiper {
+		flex: 1;
+		width: 100%;
+	}
+
+	.preview-image {
+		width: 100%;
+		height: 100%;
 	}
 </style>
