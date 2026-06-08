@@ -119,14 +119,14 @@
 				isBound: false,
 				deviceId: '',
 				userInfo: {
-					avatar: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=avatar%20portrait%20icon&image_size=square',
-					name: '游客用户',
-					vipTag: '普通会员',
+					avatar: '',
+					name: '',
+					vipTag: '',
 					vipTime: '',
-					favoritesCount: 12,
-					historyCount: 56,
-					downloadCount: 8,
-					unreadMessages: 3
+					favoritesCount: 0,
+					historyCount: 0,
+					downloadCount: 0,
+					unreadMessages: 0
 				},
 				cacheSize: '23.5MB'
 			}

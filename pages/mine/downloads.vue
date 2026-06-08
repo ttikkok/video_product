@@ -77,44 +77,7 @@
 		data() {
 			return {
 				isEdit: false,
-				downloads: [
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20video%20cover&image_size=portrait_4_3',
-						title: '高颜值美女私房写真',
-						progress: 75,
-						size: '256MB',
-						status: 'downloading',
-						statusText: '下载中',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20fashion%20video%20cover&image_size=portrait_4_3',
-						title: '性感模特内衣秀',
-						progress: 45,
-						size: '189MB',
-						status: 'downloading',
-						statusText: '下载中',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20bedroom%20video%20cover&image_size=portrait_4_3',
-						title: '美女主播热舞直播精选',
-						progress: 0,
-						size: '1.2GB',
-						status: 'paused',
-						statusText: '已暂停',
-						selected: false
-					},
-					{
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=portrait_4_3',
-						title: '【秦雄全国探花】大神回复',
-						progress: 100,
-						size: '856MB',
-						status: 'completed',
-						statusText: '已完成',
-						selected: false
-					}
-				]
+				downloads: []
 			}
 		},
 		computed: {

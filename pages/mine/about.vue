@@ -8,7 +8,7 @@
 		</view>
 
 		<view class="about-header">
-			<image src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=app%20logo%20icon&image_size=square" mode="aspectFit" class="app-logo" />
+			<view class="app-logo-placeholder"></view>
 			<text class="app-name">好色先生</text>
 			<text class="app-version">版本 2.5.8</text>
 		</view>

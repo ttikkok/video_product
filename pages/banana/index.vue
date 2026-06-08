@@ -41,9 +41,9 @@
 			<u-empty v-if="!loading && postList.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<template v-if="postList.length > 0">
-				<view v-for="(post, index) in postList" :key="index" class="post-card">
+				<view v-for="(post, index) in postList" :key="index" class="post-page">
 					<view v-if="post.is_advertise" class="advertise-card" @click="openAdvertiseUrl(post.url)">
-						<image :src="post.image || post.cover_image" mode="widthFix" class="advertise-image" />
+						<image :src="post.image || post.cover_image" mode="aspectFill" class="advertise-image" />
 					</view>
 					<view v-else @click="goToDetail(post)">
 				<!-- 帖子内容 -->
@@ -432,38 +432,8 @@
 				})
 			},
 			loadStaticData() {
-				this.postList = [
-					{
-						id: 1,
-						title: '互联网现在发展很快',
-						tags: ['互联网', '计算机'],
-						video: '',
-						images: [
-							'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic&image_size=square'
-						],
-						look_number: 12,
-						like_number: 1,
-						collect_number: 0,
-						is_like: 0,
-						is_collect: 0
-					},
-					{
-						id: 2,
-						title: '今天天气真好',
-						tags: ['日常', '生活'],
-						video: '',
-						images: [
-							'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20landscape%20nature&image_size=portrait_4_3',
-							'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20sky%20clouds&image_size=portrait_4_3'
-						],
-						look_number: 89,
-						like_number: 12,
-						collect_number: 3,
-						is_like: 0,
-						is_collect: 0
-					}
-				]
-				this.total = 2
+				this.postList = []
+				this.total = 0
 			},
 			toggleLike(post) {
 				CircleApi_circle_like({ circle_id: post.id }).then(res => {
@@ -759,6 +729,10 @@
 		background-color: rgba(107, 163, 224, 0.2);
 		color: #6BA3E0;
 	}
+	.post-page {
+		width: 100%;
+		padding: 20rpx 20rpx 0 20rpx;
+	}
 
 	/* 帖子内容 */
 	.post-content {
@@ -1035,14 +1009,15 @@
 
 	.advertise-card {
 		background-color: #1a1a2e;
-		border-radius: 12rpx;
+		padding: 20rpx 0;
+		// border-radius: 12rpx;
 		overflow: hidden;
-		margin-bottom: 15rpx;
+		// margin-bottom: 15rpx;
 	}
 
 	.advertise-image {
 		width: 100%;
-		height: 80rpx;
+		height: 200rpx;
 		display: block;
 	}
 </style>

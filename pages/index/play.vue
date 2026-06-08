@@ -33,17 +33,7 @@
 			</view>
 		</view>
 
-		<!-- 广告位 -->
-		<view class="ad-section">
-			<view class="ad-banner">
-				<image 
-					src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=video%20ad%20banner%20promotion&image_size=landscape_16_9" 
-					mode="aspectFill" 
-					class="ad-image"
-				/>
-				<view class="ad-label">广告</view>
-			</view>
-		</view>
+		
 
 		<!-- 视频信息 -->
 		<view class="video-info">
@@ -113,7 +103,7 @@
 				>
 					<view class="video-cover">
 						<image 
-							:src="item.cover_image || item.poster || 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20video%20thumbnail&image_size=portrait_4_3'" 
+							:src="item.cover_image || item.poster" 
 							mode="aspectFill" 
 							class="cover-image"
 					/>
@@ -145,14 +135,14 @@
 			return {
 				videoId: '',
 				videoSrc: '',
-				videoPoster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20video%20poster%20cover&image_size=landscape_16_9',
-				videoTitle: '【极品探花】顶级外围女神颜值爆表，极品长腿酒店约会',
-				videoCode: 'FSDSS-789',
-				videoDuration: '01:12:45',
-				videoViews: '18.6萬',
-				videoDesc: '精彩内容简介，视频相关介绍信息，本视频包含精彩剧情，不容错过...',
-				ratingPercent: 95,
-				isFree: 1,
+				videoPoster: '',
+				videoTitle: '',
+				videoCode: '',
+				videoDuration: '',
+				videoViews: '',
+				videoDesc: '',
+				ratingPercent: 0,
+				isFree: 0,
 				isMember: false,
 				playTime: 0,
 				hasShownVipModal: false,
@@ -238,58 +228,9 @@
 			},
 			loadRecommendList() {
 				this.recommendLoading = true
-				// TODO: 替换为实际的相关推荐接口
-				// VodApi.vod_recommend_list({ page: this.recommendPage, pagesize: this.recommendPageSize, video_id: this.videoId }).then(res => {
-				// 这里使用模拟数据演示
-				setTimeout(() => {
-					this.recommendLoading = false
-					const mockData = [
-						{
-							id: 1,
-							title: '【太子极品探花】现代版黑裙少妇，穿上情趣装沙发上干后猛...',
-							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20pink%20dress%20video%20thumbnail&image_size=portrait_4_3',
-							duration: '00:42:40',
-							views: '2.0萬'
-						},
-						{
-							id: 2,
-							title: '【北寻花】高颜值长相甜美萌妹啪啪，连喘情绪超带感口交后入猛...',
-							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20sofa%20video%20thumbnail&image_size=portrait_4_3',
-							duration: '00:25:12',
-							views: '2.5萬'
-						},
-						{
-							id: 3,
-							title: '素人打野毒浓探花老嫖带你探外围，完美视角拍摄起来超浪...',
-							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=couple%20sofa%20intimate%20video%20thumbnail&image_size=portrait_4_3',
-							duration: '01:16:05',
-							views: '3.7萬'
-						},
-						{
-							id: 4,
-							title: '【富二代约会】重金约网红嫩模，颜值身材在线',
-							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20living%20room%20video%20thumbnail&image_size=portrait_4_3',
-							duration: '00:55:30',
-							views: '25.3萬'
-						},
-						{
-							id: 5,
-							title: '【国产精品】人妻少妇寂寞难耐',
-							poster: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20wife%20domestic%20video%20thumbnail&image_size=portrait_4_3',
-							duration: '01:08:20',
-							views: '32.1萬'
-						}
-					]
-					this.recommendTotal = mockData.length
-					if (this.recommendPage === 1) {
-						this.recommendList = mockData
-					} else {
-						this.recommendList = [...this.recommendList, ...mockData]
-					}
-					if (mockData.length < this.recommendPageSize) {
-						this.recommendHasMore = false
-					}
-				}, 500)
+				this.recommendLoading = false
+				this.recommendTotal = 0
+				this.recommendHasMore = false
 			},
 			onPlay() {
 				console.log('视频开始播放');

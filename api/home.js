@@ -39,7 +39,7 @@ export function UserApi_bind_mobile(params) {
  * AdvertiseApi/advertise_list
  */
 export function AdvertiseApi_advertise_list(params) {
-	return http.get("AdvertiseApi/advertise_list", params);
+	return http.post("AdvertiseApi/advertise_list", params);
 }
 
 /**

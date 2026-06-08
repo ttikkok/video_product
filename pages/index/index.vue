@@ -50,290 +50,296 @@
 
 		<view v-if="!showCategoryList">
 			<view class="banner-section">
-			<swiper 
-				class="banner-swiper"
-				:indicator-dots="false"
-				:autoplay="true"
-				:interval="4000"
-				:circular="true"
-				@change="onSwiperChange"
-				@click="handleBannerClick(bannerList[currentBanner])"
-			>
-				<swiper-item v-for="(item, index) in bannerList" :key="index">
-					<view class="banner-item">
-						<image :src="item.image" mode="aspectFill" class="banner-image" />
-						<view class="banner-overlay"></view>
-						<view class="banner-info">
-							<text class="banner-title">{{ item.title }}</text>
-							<text class="banner-desc">{{ item.desc }}</text>
-						</view>
-					</view>
-				</swiper-item>
-			</swiper>
-			<view class="banner-indicators">
-				<view 
-					v-for="(_, index) in bannerList" 
-					:key="index"
-					:class="['indicator-dot', { active: currentBanner === index }]"
-				></view>
-			</view>
-		</view>
-		<view v-show="!isLoading" class="grid-section">
-			<view class="grid-container">
-				<view 
-					v-for="(item, index) in gridList" 
-					:key="index" 
-					class="grid-item"
-					@click="handleGridClick(item)"
+				<swiper 
+					class="banner-swiper"
+					:indicator-dots="false"
+					:autoplay="true"
+					:interval="4000"
+					:circular="true"
+					@change="onSwiperChange"
+					@click="handleBannerClick(bannerList[currentBanner])"
 				>
-					<view class="grid-icon">
-						<image :src="item.image" mode="aspectFill" class="grid-image" />
-					</view>
-					<text class="grid-name">{{ item.name }}</text>
+					<swiper-item v-for="(item, index) in bannerList" :key="index">
+						<view class="banner-item">
+							<image :src="item.image" mode="aspectFill" class="banner-image" />
+							<view class="banner-overlay"></view>
+							<view class="banner-info">
+								<text class="banner-title">{{ item.title }}</text>
+								<text class="banner-desc">{{ item.desc }}</text>
+							</view>
+						</view>
+					</swiper-item>
+				</swiper>
+				<view class="banner-indicators">
+					<view 
+						v-for="(_, index) in bannerList" 
+						:key="index"
+						:class="['indicator-dot', { active: currentBanner === index }]"
+					></view>
 				</view>
 			</view>
-		</view>
 
-		<view v-if="squareAd" class="square-ad" @click="handleSquareAdClick">
-			<image :src="squareAd.image" mode="aspectFill" class="square-ad-image" />
-		</view>
+			<view v-show="!isLoading" class="grid-section">
+				<view class="grid-container">
+					<view 
+						v-for="(item, index) in gridList" 
+						:key="index" 
+						class="grid-item"
+						@click="handleGridClick(item)"
+					>
+						<view class="grid-icon">
+							<image :src="item.image" mode="aspectFill" class="grid-image" />
+						</view>
+						<text class="grid-name">{{ item.name }}</text>
+					</view>
+				</view>
+			</view>
 
-		<view class="video-section" v-for="(module, moduleIndex) in videoModules" :key="module.id">
-			<view class="section-header">
-				<view class="header-left">
-					<view class="title-badge"></view>
-					<text class="section-title">{{ module.nickname }}</text>
+			<view v-if="squareAd" class="square-ad" @click="handleSquareAdClick">
+				<image :src="squareAd.image" mode="aspectFill" class="square-ad-image" />
+			</view>
+
+			<view class="video-section" v-for="(module, moduleIndex) in videoModules" :key="module.id">
+				<view v-if="module.is_advertise" class="home-advertise-card" @click="openHomeAdvertiseUrl(module.url)">
+					<image :src="module.image || module.cover_image" mode="aspectFill" class="home-advertise-image" />
 				</view>
-				<view v-if="moduleIndex !== 0" class="header-right" @click="handleModuleMore(module.id)">
-					<text class="more-text">更多</text>
-					<text class="more-arrow">›</text>
+				<view v-else>
+					<view class="section-header">
+						<view class="header-left">
+							<view class="title-badge"></view>
+							<text class="section-title">{{ module.nickname }}</text>
+						</view>
+						<view v-if="moduleIndex !== 0" class="header-right" @click="handleModuleMore(module.id)">
+							<text class="more-text">更多</text>
+							<text class="more-arrow">›</text>
+						</view>
+					</view>
+					<view class="video-container" v-if="moduleIndex === 0" :key="module.refreshKey">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="video-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="video-cover">
+								<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
+								<view class="video-overlay">
+									<view class="play-icon">▶</view>
+								</view>
+								<text class="play-count">{{ video.playCount }}</text>
+								<text class="video-duration">{{ video.duration }}</text>
+								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+							</view>
+							<view class="video-title-row">
+								<text class="video-title">{{ video.title }}</text>
+							</view>
+							<view class="video-tags">
+								<text 
+									v-for="(tag, tagIndex) in video.tags" 
+									:key="tagIndex" 
+									class="video-tag"
+								>{{ tag }}</text>
+							</view>
+						</view>
+					</view>
+					<scroll-view v-if="moduleIndex === 1" scroll-x class="horizontal-scroll-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="horizontal-video-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="video-cover">
+								<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
+								<view class="video-overlay">
+									<view class="play-icon">▶</view>
+								</view>
+								<text class="play-count">{{ video.playCount }}</text>
+								<text class="video-duration">{{ video.duration }}</text>
+								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+							</view>
+							<view class="video-title-row">
+								<text class="video-title">{{ video.title }}</text>
+							</view>
+							<view class="video-tags">
+								<text 
+									v-for="(tag, tagIndex) in video.tags" 
+									:key="tagIndex" 
+									class="video-tag"
+								>{{ tag }}</text>
+							</view>
+						</view>
+					</scroll-view>
+					<view v-if="moduleIndex === 2" class="left-image-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="left-image-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="left-video-cover">
+								<image :src="video.cover_image" mode="aspectFill" class="left-cover-image" />
+								<view class="left-video-overlay">
+									<view class="left-play-icon">▶</view>
+								</view>
+								<text class="left-play-count">{{ video.playCount }}</text>
+								<text class="left-video-duration">{{ video.duration }}</text>
+								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+							</view>
+							<view class="left-video-info">
+								<view class="left-video-title-row">
+									<text class="left-video-title">{{ video.title }}</text>
+								</view>
+								<view class="left-video-tags">
+									<text 
+										v-for="(tag, tagIndex) in video.tags" 
+										:key="tagIndex" 
+										class="left-video-tag"
+									>{{ tag }}</text>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view v-if="moduleIndex === 3" class="three-column-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="three-column-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="rank-number">{{ index + 1 }}</view>
+							<view class="three-video-cover">
+								<image :src="video.cover_image" mode="aspectFill" class="three-cover-image" />
+								<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
+							</view>
+							<view class="three-video-info">
+								<view class="three-video-title-row">
+									<text class="three-video-title">{{ video.title }}</text>
+								</view>
+								<text class="three-video-count">{{ video.playCount }}次</text>
+							</view>
+						</view>
+					</view>
+					<view v-if="moduleIndex === 4" class="big-card-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="big-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="big-video-cover">
+								<image :src="video.cover_image" mode="aspectFill" class="big-cover-image" />
+								<view class="big-video-overlay">
+									<view class="big-play-icon">▶</view>
+								</view>
+								<text class="big-play-count">{{ video.playCount }}</text>
+								<text class="big-video-duration">{{ video.duration }}</text>
+								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+							</view>
+							<view class="big-video-info">
+								<view class="big-video-title-row">
+									<text class="big-video-title">{{ video.title }}</text>
+								</view>
+								<view class="big-video-meta">
+									<text class="meta-item">评分 {{ video.score }}</text>
+									<text class="meta-item">|</text>
+									<text class="meta-item">{{ video.likeNumber }} 点赞</text>
+								</view>
+								<view class="big-video-tags">
+									<text 
+										v-for="(tag, tagIndex) in video.tags.slice(0, 3)" 
+										:key="tagIndex" 
+										class="big-video-tag"
+									>{{ tag }}</text>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view v-if="moduleIndex === 5" class="small-grid-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="small-grid-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="small-video-cover">
+								<image :src="video.cover_image" mode="aspectFill" class="small-cover-image" />
+								<view class="small-video-overlay">
+									<view class="small-play-icon">▶</view>
+								</view>
+								<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
+							</view>
+							<view class="small-video-title-row">
+								<text class="small-video-title">{{ video.title }}</text>
+							</view>
+						</view>
+					</view>
+					<view v-if="moduleIndex === 6" class="mixed-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							:class="['mixed-card', { 'big': index % 3 === 0 }]"
+							@click="handleVideoClick(video)"
+						>
+							<view :class="['mixed-video-cover', { 'big': index % 3 === 0 }]">
+								<image :src="video.cover_image" mode="aspectFill" :class="['mixed-cover-image', { 'big': index % 3 === 0 }]" />
+								<view class="mixed-video-overlay">
+									<view class="mixed-play-icon">▶</view>
+								</view>
+								<text class="mixed-play-count">{{ video.playCount }}</text>
+								<view v-if="video.is_free === 0" :class="['vip-badge', { 'small': index % 3 !== 0 }]">VIP</view>
+							</view>
+							<view :class="['mixed-video-title-row', { 'big': index % 3 === 0 }]">
+								<text :class="['mixed-video-title', { 'big': index % 3 === 0 }]">{{ video.title }}</text>
+							</view>
+						</view>
+					</view>
+					<view v-if="moduleIndex >= 7" class="default-video-container">
+						<view 
+							v-for="(video, index) in module.videos" 
+							:key="video.id" 
+							class="category-video-card"
+							@click="handleVideoClick(video)"
+						>
+							<view class="category-video-cover">
+								<view class="category-video-title-overlay">
+									<text class="category-video-title">{{ video.title }}</text>
+								</view>
+								<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
+								<view class="video-overlay">
+									<view class="play-icon">▶</view>
+								</view>
+								<text class="play-count">{{ video.playCount }}</text>
+								<text class="video-duration">{{ video.duration }}</text>
+								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
+							</view>
+							<view class="category-video-footer">
+								<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
+								<view class="category-like">
+									<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
+									<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view v-if="moduleIndex === 0" class="video-actions">
+						<view class="action-button" @click="handleMoreSource">
+							<text class="action-icon">⊕</text>
+							<text class="action-text">更多片源</text>
+						</view>
+						<view class="action-button" @click="handleModuleRefresh(module.id)">
+							<text class="action-icon">⟳</text>
+							<text class="action-text">换一换</text>
+						</view>
+					</view>
+					<view v-else class="video-actions-single">
+						<view class="action-button-single" @click="handleModuleRefresh(module.id)">
+							<text class="action-icon">⟳</text>
+							<text class="action-text">换一换</text>
+						</view>
+					</view>
 				</view>
 			</view>
-			<view class="video-container" v-if="moduleIndex === 0" :key="module.refreshKey">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="video-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
-							<view class="play-icon">▶</view>
-						</view>
-						<text class="play-count">{{ video.playCount }}</text>
-						<text class="video-duration">{{ video.duration }}</text>
-						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="video-title-row">
-						<text class="video-title">{{ video.title }}</text>
-					</view>
-					<view class="video-tags">
-						<text 
-							v-for="(tag, tagIndex) in video.tags" 
-							:key="tagIndex" 
-							class="video-tag"
-						>{{ tag }}</text>
-					</view>
-				</view>
-			</view>
-			<scroll-view v-if="moduleIndex === 1" scroll-x class="horizontal-scroll-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="horizontal-video-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
-							<view class="play-icon">▶</view>
-						</view>
-						<text class="play-count">{{ video.playCount }}</text>
-						<text class="video-duration">{{ video.duration }}</text>
-						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="video-title-row">
-						<text class="video-title">{{ video.title }}</text>
-					</view>
-					<view class="video-tags">
-						<text 
-							v-for="(tag, tagIndex) in video.tags" 
-							:key="tagIndex" 
-							class="video-tag"
-						>{{ tag }}</text>
-					</view>
-				</view>
-			</scroll-view>
-			<view v-if="moduleIndex === 2" class="left-image-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="left-image-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="left-video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="left-cover-image" />
-						<view class="left-video-overlay">
-							<view class="left-play-icon">▶</view>
-						</view>
-						<text class="left-play-count">{{ video.playCount }}</text>
-						<text class="left-video-duration">{{ video.duration }}</text>
-						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="left-video-info">
-						<view class="left-video-title-row">
-							<text class="left-video-title">{{ video.title }}</text>
-						</view>
-						<view class="left-video-tags">
-							<text 
-								v-for="(tag, tagIndex) in video.tags" 
-								:key="tagIndex" 
-								class="left-video-tag"
-							>{{ tag }}</text>
-						</view>
-					</view>
-				</view>
-			</view>
-			<view v-if="moduleIndex === 3" class="three-column-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="three-column-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="rank-number">{{ index + 1 }}</view>
-					<view class="three-video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="three-cover-image" />
-						<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
-					</view>
-					<view class="three-video-info">
-						<view class="three-video-title-row">
-							<text class="three-video-title">{{ video.title }}</text>
-						</view>
-						<text class="three-video-count">{{ video.playCount }}次</text>
-					</view>
-				</view>
-			</view>
-			<view v-if="moduleIndex === 4" class="big-card-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="big-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="big-video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="big-cover-image" />
-						<view class="big-video-overlay">
-							<view class="big-play-icon">▶</view>
-						</view>
-						<text class="big-play-count">{{ video.playCount }}</text>
-						<text class="big-video-duration">{{ video.duration }}</text>
-						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="big-video-info">
-						<view class="big-video-title-row">
-							<text class="big-video-title">{{ video.title }}</text>
-						</view>
-						<view class="big-video-meta">
-							<text class="meta-item">评分 {{ video.score }}</text>
-							<text class="meta-item">|</text>
-							<text class="meta-item">{{ video.likeNumber }} 点赞</text>
-						</view>
-						<view class="big-video-tags">
-							<text 
-								v-for="(tag, tagIndex) in video.tags.slice(0, 3)" 
-								:key="tagIndex" 
-								class="big-video-tag"
-							>{{ tag }}</text>
-						</view>
-					</view>
-				</view>
-			</view>
-			<view v-if="moduleIndex === 5" class="small-grid-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="small-grid-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="small-video-cover">
-						<image :src="video.cover_image" mode="aspectFill" class="small-cover-image" />
-						<view class="small-video-overlay">
-							<view class="small-play-icon">▶</view>
-						</view>
-						<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
-					</view>
-					<view class="small-video-title-row">
-						<text class="small-video-title">{{ video.title }}</text>
-					</view>
-				</view>
-			</view>
-			<view v-if="moduleIndex === 6" class="mixed-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					:class="['mixed-card', { 'big': index % 3 === 0 }]"
-					@click="handleVideoClick(video)"
-				>
-					<view :class="['mixed-video-cover', { 'big': index % 3 === 0 }]">
-						<image :src="video.cover_image" mode="aspectFill" :class="['mixed-cover-image', { 'big': index % 3 === 0 }]" />
-						<view class="mixed-video-overlay">
-							<view class="mixed-play-icon">▶</view>
-						</view>
-						<text class="mixed-play-count">{{ video.playCount }}</text>
-						<view v-if="video.is_free === 0" :class="['vip-badge', { 'small': index % 3 !== 0 }]">VIP</view>
-					</view>
-					<view :class="['mixed-video-title-row', { 'big': index % 3 === 0 }]">
-						<text :class="['mixed-video-title', { 'big': index % 3 === 0 }]">{{ video.title }}</text>
-					</view>
-				</view>
-			</view>
-			<view v-if="moduleIndex >= 7" class="default-video-container">
-				<view 
-					v-for="(video, index) in module.videos" 
-					:key="video.id" 
-					class="category-video-card"
-					@click="handleVideoClick(video)"
-				>
-					<view class="category-video-cover">
-						<view class="category-video-title-overlay">
-							<text class="category-video-title">{{ video.title }}</text>
-						</view>
-						<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
-							<view class="play-icon">▶</view>
-						</view>
-						<text class="play-count">{{ video.playCount }}</text>
-						<text class="video-duration">{{ video.duration }}</text>
-						<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="category-video-footer">
-						<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
-						<view class="category-like">
-							<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
-							<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
-						</view>
-					</view>
-				</view>
-			</view>
-			<view v-if="moduleIndex === 0" class="video-actions">
-				<view class="action-button" @click="handleMoreSource">
-					<text class="action-icon">⊕</text>
-					<text class="action-text">更多片源</text>
-				</view>
-				<view class="action-button" @click="handleModuleRefresh(module.id)">
-					<text class="action-icon">⟳</text>
-					<text class="action-text">换一换</text>
-				</view>
-			</view>
-			<view v-else class="video-actions-single">
-				<view class="action-button-single" @click="handleModuleRefresh(module.id)">
-					<text class="action-icon">⟳</text>
-					<text class="action-text">换一换</text>
-				</view>
-			</view>
-		</view>
 		</view>
 
 		<view v-if="showCategoryList" class="category-video-list">
@@ -384,9 +390,9 @@
 				/>
 			</scroll-view>
 			<view v-else class="empty-state">
-				<view class="empty-icon">📺</view>
-				<text class="empty-text">暂无相关视频</text>
-				<text class="empty-hint">该分类下暂无视频内容</text>
+				<!-- <view class="empty-icon">📺</view> -->
+				<!-- <text class="empty-text">暂无视频内容</text> -->
+				<text class="empty-hint">暂无视频内容</text>
 			</view>
 		</view>
 
@@ -440,7 +446,7 @@
 </template>
 
 <script>
-	import { IndexAdvertise, IndexChannel, IndexPopup_window, IndexIndex_list_data, IndexIndex_list_data_Refresh, VodApi_vod_data_list_search } from '@/api/home.js'
+	import { IndexAdvertise, IndexChannel, IndexPopup_window, IndexIndex_list_data, IndexIndex_list_data_Refresh, VodApi_vod_data_list_search, AdvertiseApi_advertise_list } from '@/api/home.js'
 
 	export default {
 		data() {
@@ -467,6 +473,7 @@
 				gridList: [],
 				squareAd: null,
 				videoModules: [],
+				advertiseList: [],
 				videoList: [],
 				secondVideoList: [],
 				horizontalVideoList: [],
@@ -486,6 +493,7 @@
 			this.loadPopupData()
 			this.loadChannelData()
 			this.loadAdvertiseData()
+			this.loadHomeAdvertiseList()
 			this.loadDefaultVideos()
 		},
 		methods: {
@@ -618,8 +626,6 @@
 								desc: '',
 								url: item.url
 							}))
-						} else {
-							this.loadDefaultBanner()
 						}
 
 						if (res.data.ten && res.data.ten.length > 0) {
@@ -636,14 +642,12 @@
 					}
 				}).catch(err => {
 					console.error('广告数据加载失败', err)
-					this.loadDefaultBanner()
-					this.loadDefaultGrid()
 				})
 			},
 			loadDefaultVideos() {
 				IndexIndex_list_data().then(res => {
 					if (res && res.data && res.data.length > 0) {
-						this.videoModules = res.data.map(channelData => ({
+						const modules = res.data.map(channelData => ({
 							id: channelData.id,
 							nickname: channelData.nickname || '',
 							refreshKey: Date.now(),
@@ -662,10 +666,55 @@
 								createtime: video.createtime || ''
 							})) : []
 						}))
+						this.videoModules = this.insertHomeAdvertise(modules)
 					}
 				}).catch(err => {
 					console.error('分类视频数据加载失败', err)
 				})
+			},
+			loadHomeAdvertiseList() {
+				AdvertiseApi_advertise_list({ name: '首页穿插广告位' }).then(res => {
+					if (res && res.code === 1 && res.data && res.data.length > 0) {
+						this.advertiseList = res.data
+					}
+				}).catch(err => {
+					console.error('首页广告列表加载失败', err)
+				})
+			},
+			insertHomeAdvertise(modules) {
+				if (!this.advertiseList || this.advertiseList.length === 0) {
+					return modules
+				}
+				const result = []
+				let advertiseIndex = 0
+				const advertiseCount = this.advertiseList.length
+				modules.forEach((module, index) => {
+					result.push(module)
+					if (index % 2 === 1) {
+						const advertise = this.advertiseList[advertiseIndex % advertiseCount]
+						if (advertise && (advertise.image || advertise.cover_image)) {
+							result.push({
+								...advertise,
+								is_advertise: true,
+								id: 'ad-' + advertiseIndex,
+								nickname: '',
+								videos: []
+							})
+						}
+						advertiseIndex++
+					}
+				})
+				return result
+			},
+			openHomeAdvertiseUrl(url) {
+				if (url) {
+					plus.runtime.openURL(url, function(res) {
+						console.log('打开链接成功', res)
+					}, function(err) {
+						console.error('打开链接失败', err)
+						uni.showToast({ title: '打开链接失败', icon: 'none' })
+					})
+				}
 			},
 			setVideoListByIndex(tabIndex, videos) {
 				switch(tabIndex) {
@@ -697,80 +746,6 @@
 						this.$set(this.additionalVideoLists, tabIndex, videos)
 				}
 			},
-			loadStaticVideos(tabIndex) {
-				let staticData = [
-					{
-						id: 1,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20video%20cover%20artistic&image_size=portrait_4_3',
-						title: '高颜值美女私房写真',
-						playCount: '5.2萬',
-						duration: '06:32',
-						tags: ['HD', '超清'],
-						score: 4.8,
-						likeNumber: 1234,
-						collectNumber: 567
-					},
-					{
-						id: 2,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20fashion%20video%20cover&image_size=portrait_4_3',
-						title: '性感模特内衣秀',
-						playCount: '2.0萬',
-						duration: '08:15',
-						tags: ['模特', '高清'],
-						score: 4.5,
-						likeNumber: 890,
-						collectNumber: 345
-					},
-					{
-						id: 3,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20night%20video%20cover&image_size=portrait_4_3',
-						title: '夜色迷人',
-						playCount: '3.8萬',
-						duration: '05:45',
-						tags: ['夜景', '唯美'],
-						score: 4.6,
-						likeNumber: 678,
-						collectNumber: 234
-					},
-					{
-						id: 4,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20beach%20video%20cover&image_size=portrait_4_3',
-						title: '海滩风情',
-						playCount: '4.1萬',
-						duration: '07:20',
-						tags: ['海滩', '比基尼'],
-						score: 4.7,
-						likeNumber: 987,
-						collectNumber: 456
-					}
-				]
-				switch(tabIndex) {
-					case 0:
-						this.videoList = staticData.slice(0, 2)
-						break
-					case 1:
-						this.secondVideoList = staticData
-						break
-					case 2:
-						this.horizontalVideoList = staticData
-						break
-					case 3:
-						this.leftImageVideoList = staticData
-						break
-					case 4:
-						this.threeColumnVideoList = staticData
-						break
-					case 5:
-						this.bigCardVideoList = staticData
-						break
-					case 6:
-						this.smallGridVideoList = staticData
-						break
-					case 7:
-						this.mixedVideoList = staticData
-						break
-				}
-			},
 			getVideoListByIndex(index) {
 				switch(index) {
 					case 0:
@@ -792,203 +767,6 @@
 					default:
 						return this.additionalVideoLists[index] || []
 				}
-			},
-			loadStaticVideoList() {
-				this.secondVideoList = [
-					{
-						id: 3,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20living%20room%20video%20cover&image_size=portrait_4_3',
-						title: '【秦雄全国探花】大神回第二場，熟悉的配方，極品外圍小姐姐，帥哥美女激...',
-						playCount: '8.3萬',
-						duration: '01:33:36',
-						tags: ['打飞机', '美乳', '美女尤物', '国产']
-					},
-					{
-						id: 4,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20pink%20dress%20video%20cover&image_size=portrait_4_3',
-						title: '【太子极品探花】現代版的黑裙少婦，穿上情趣裝沙發上幹後猛...',
-						playCount: '2.0萬',
-						duration: '00:42:40',
-						tags: ['美女尤物', '贵族', '母狗式', '裙子']
-					},
-					{
-						id: 5,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20sofa%20video%20cover&image_size=portrait_4_3',
-						title: '【北寻花】高颜值長相甜美萌妹啪啪，連喘情緒超帶墻口交後入猛...',
-						playCount: '2.5萬',
-						duration: '00:25:12',
-						tags: ['二次元/萌妹', '高挑', '网袜', '美女尤物']
-					},
-					{
-						id: 6,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=couple%20sofa%20intimate%20video%20cover&image_size=portrait_4_3',
-						title: '素人打野毒浓探花老嫖带你探外围，完美视角拍攝起来超浪，极品牛仔裙...',
-						playCount: '3.7萬',
-						duration: '01:16:05',
-						tags: ['自慰', '打飞机', '美女尤物', '牛仔裤']
-					}
-				]
-				this.horizontalVideoList = [
-					{
-						id: 7,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20woman%20bedroom%20video%20cover&image_size=portrait_4_3',
-						title: '美女主播热舞直播精选',
-						playCount: '12.5萬',
-						duration: '00:35:20',
-						tags: ['热舞', '直播', '美女']
-					},
-					{
-						id: 8,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=asian%20woman%20office%20video%20cover&image_size=portrait_4_3',
-						title: '办公室OL制服诱惑',
-						playCount: '8.3萬',
-						duration: '00:28:45',
-						tags: ['制服', 'OL', '办公室']
-					},
-					{
-						id: 9,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20girl%20swimsuit%20video%20cover&image_size=portrait_4_3',
-						title: '泳池比基尼美女合集',
-						playCount: '15.2萬',
-						duration: '00:42:15',
-						tags: ['比基尼', '泳池', '美腿']
-					},
-					{
-						id: 10,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=model%20lingerie%20fashion%20video%20cover&image_size=portrait_4_3',
-						title: '内衣模特走秀精选',
-						playCount: '6.8萬',
-						duration: '00:31:30',
-						tags: ['模特', '内衣', '走秀']
-					},
-					{
-						id: 11,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cosplay%20girl%20anime%20video%20cover&image_size=portrait_4_3',
-						title: 'Cosplay二次元美女',
-						playCount: '9.1萬',
-						duration: '00:25:10',
-						tags: ['Cosplay', '二次元', '萌妹']
-					}
-				]
-				this.leftImageVideoList = [
-					{
-						id: 12,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20woman%20red%20dress%20video%20cover&image_size=portrait_4_3',
-						title: '【极品探花】顶级外围女神颜值爆表',
-						playCount: '18.6萬',
-						duration: '01:12:45',
-						tags: ['探花', '极品', '外围']
-					},
-					{
-						id: 13,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sexy%20couple%20intimate%20video%20cover&image_size=portrait_4_3',
-						title: '【富二代约会】重金约网红嫩模',
-						playCount: '25.3萬',
-						duration: '00:55:30',
-						tags: ['约会', '网红', '嫩模']
-					},
-					{
-						id: 14,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20wife%20domestic%20video%20cover&image_size=portrait_4_3',
-						title: '【国产精品】人妻少妇寂寞难耐',
-						playCount: '32.1萬',
-						duration: '01:08:20',
-						tags: ['国产', '人妻', '少妇']
-					}
-				]
-				this.threeColumnVideoList = [
-					{
-						id: 15,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%201&image_size=portrait_4_3',
-						title: '【全国探花】长腿空姐酒店约炮',
-						playCount: '85.6萬',
-						duration: '01:05:30'
-					},
-					{
-						id: 16,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%202&image_size=portrait_4_3',
-						title: '【国产AV】大胸美女激情演绎',
-						playCount: '72.3萬',
-						duration: '00:58:20'
-					},
-					{
-						id: 17,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%203&image_size=portrait_4_3',
-						title: '【精品推荐】极品嫩模完美身材',
-						playCount: '68.9萬',
-						duration: '00:45:15'
-					},
-					{
-						id: 18,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%204&image_size=portrait_4_3',
-						title: '【真实自拍】90后小情侣酒店',
-						playCount: '61.2萬',
-						duration: '00:38:40'
-					},
-					{
-						id: 19,
-						cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=popular%20video%20thumbnail%205&image_size=portrait_4_3',
-						title: '【高端会所】极品外围女技师',
-						playCount: '55.8萬',
-						duration: '01:12:00'
-					}
-				]
-				this.categoryList = [
-					{ name: '推荐', color: '#6BA3E0' },
-					{ name: '最新', color: '#FF9F43' },
-					{ name: '色图', color: '#EE5A5A' },
-					{ name: '福利姬', color: '#E85FD7' },
-					{ name: '探花大神', color: '#9B59B6' },
-					{ name: '🔥国产大厂', color: '#2ECC71' },
-					{ name: '🇯🇵日本AV', color: '#5DADE2' },
-					{ name: '🇨🇳国产自拍', color: '#F39C12' },
-					{ name: 'P站模特', color: '#E74C3C' },
-					{ name: '成人节目', color: '#D35DE8' },
-					{ name: '🇺🇸欧美', color: '#8E44AD' },
-					{ name: 'S级女优', color: '#27AE60' },
-					{ name: '欧美女优', color: '#3498DB' },
-					{ name: '直播', color: '#F1C40F' },
-					{ name: '制服诱惑', color: '#E67E22' },
-					{ name: '猎奇', color: '#D98880' },
-					{ name: '无码', color: '#9B59B6' },
-					{ name: '🇰🇷韩国', color: '#58D68D' }
-				]
-			},
-			loadDefaultBanner() {
-				this.bannerList = [
-					{
-						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20artistic%20photography&image_size=landscape_16_9',
-						title: '精选推荐',
-						desc: '每日精选内容',
-						url: ''
-					},
-					{
-						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20fashion%20model%20portrait&image_size=landscape_16_9',
-						title: '热门精选',
-						desc: '最受欢迎的内容',
-						url: ''
-					},
-					{
-						image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20asian%20woman%20portrait%20soft%20lighting&image_size=landscape_16_9',
-						title: '精彩集锦',
-						desc: '不容错过的精彩',
-						url: ''
-					}
-				]
-			},
-			loadDefaultGrid() {
-				this.gridList = [
-					{ name: '美女写真', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20woman%20portrait%20icon&image_size=square', url: '' },
-					{ name: '明星网红', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=celebrity%20star%20icon&image_size=square', url: '' },
-					{ name: '制服诱惑', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=uniform%20cosplay%20icon&image_size=square', url: '' },
-					{ name: '街拍女神', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=street%20fashion%20photography%20icon&image_size=square', url: '' },
-					{ name: '私房照', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=private%20photo%20elegant%20icon&image_size=square', url: '' },
-					{ name: '网红直播', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=live%20streaming%20beauty%20icon&image_size=square', url: '' },
-					{ name: '自拍达人', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=selfie%20beautiful%20icon&image_size=square', url: '' },
-					{ name: '模特走秀', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fashion%20model%20catwalk%20icon&image_size=square', url: '' },
-					{ name: '情趣内衣', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=lingerie%20fashion%20icon&image_size=square', url: '' },
-					{ name: '性感热舞', image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dance%20sexy%20icon&image_size=square', url: '' }
-				]
 			},
 			switchTab(index) {
 				this.activeTab = index
@@ -1013,10 +791,11 @@
 				}, 0)
 				if (index === 0) {
 					this.showCategoryList = false
-				} else {
+				} else if (index > 0 && index < this.tabs.length) {
 					this.showCategoryList = true
 					this.currentPage = 1
 					this.isLoadMore = 'loadmore'
+					this.videoList = []
 					const channelId = this.tabs[index] && this.tabs[index].id !== undefined ? this.tabs[index].id : null
 					if (channelId !== null && channelId !== undefined) {
 						this.loadVideoList(channelId)
@@ -1083,45 +862,12 @@
 				})
 			},
 			handleMore(tabIndex) {
-				this.activeTab = tabIndex
-				this.currentPage = 1
-				this.isLoadMore = 'loadmore'
-				this.scrollToTab = ''
-				this.$nextTick(() => {
-					this.scrollToTab = 'tab-' + tabIndex
-					setTimeout(() => {
-						uni.pageScrollTo({
-							scrollTop: 0,
-							duration: 300
-						})
-					}, 100)
-				})
-				this.showCategoryList = true
-				const channelId = this.tabs[tabIndex] && this.tabs[tabIndex].id !== undefined ? this.tabs[tabIndex].id : null
-				if (channelId !== null && channelId !== undefined) {
-					this.loadVideoList(channelId)
-				}
+				this.switchTab(tabIndex)
 			},
 			handleModuleMore(channelId) {
 				const tabIndex = this.tabs.findIndex(tab => tab.id === channelId)
 				if (tabIndex !== -1) {
-					this.activeTab = tabIndex
-					this.scrollToTab = ''
-					this.$nextTick(() => {
-						this.scrollToTab = 'tab-' + tabIndex
-						setTimeout(() => {
-							uni.pageScrollTo({
-								scrollTop: 0,
-								duration: 300
-							})
-						}, 100)
-					})
-				}
-				this.currentPage = 1
-				this.isLoadMore = 'loadmore'
-				this.showCategoryList = true
-				if (channelId !== null && channelId !== undefined) {
-					this.loadVideoList(channelId)
+					this.switchTab(tabIndex)
 				}
 			},
 			handleModuleRefresh(channelId) {
@@ -1198,20 +944,8 @@
 			handleCategoryClick(item) {
 				this.showDrawer = false
 				const tabIndex = this.tabs.findIndex(tab => tab.id === item.id)
-				this.activeTab = tabIndex
-				this.scrollToTab = ''
-				this.$nextTick(() => {
-					this.scrollToTab = 'tab-' + tabIndex
-					setTimeout(() => {
-						uni.pageScrollTo({
-							scrollTop: 0,
-							duration: 300
-						})
-					}, 100)
-				})
-				this.showCategoryList = true
-				if (item.id !== null && item.id !== undefined) {
-					this.loadVideoList(item.id)
+				if (tabIndex !== -1) {
+					this.switchTab(tabIndex)
 				}
 			},
 			handleMoreSource() {
@@ -2668,5 +2402,18 @@
 		background-color: #16213e;
 		padding: 15rpx 40rpx;
 		border-radius: 30rpx;
+	}
+
+	.home-advertise-card {
+		background-color: #1a1a2e;
+		border-radius: 12rpx;
+		overflow: hidden;
+		margin-bottom: 20rpx;
+	}
+
+	.home-advertise-image {
+		width: 100%;
+		height: 180rpx;
+		display: block;
 	}
 </style>
