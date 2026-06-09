@@ -36,6 +36,13 @@ export function UserApi_bind_mobile(params) {
 }
 
 /**
+ * UserApi/get_user_info
+ */
+export function UserApi_get_user_info(params) {
+	return http.post("UserApi/get_user_info", params);
+}
+
+/**
  * AdvertiseApi/advertise_list
  */
 export function AdvertiseApi_advertise_list(params) {

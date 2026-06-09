@@ -3,8 +3,9 @@
 		<!-- 顶部导航 -->
 		<view class="top-nav">
 			<view class="nav-title">我的</view>
-			<view class="nav-setting" @click="goToSetting">
-				<image src="../../static/images/setting.png" mode="widthFix" style="width: 40rpx;"></image>
+			<!-- @click="goToSetting" -->
+			<view class="nav-setting" >
+				<!-- <image src="../../static/images/setting.png" mode="widthFix" style="width: 40rpx;"></image> -->
 			</view>
 		</view>
 
@@ -113,11 +114,10 @@
 </template>
 
 <script>
+	import { UserApi_get_user_info } from '@/api/home.js'
 	export default {
 		data() {
 			return {
-				isBound: false,
-				deviceId: '',
 				userInfo: {
 					avatar: '',
 					name: '',
@@ -128,12 +128,17 @@
 					downloadCount: 0,
 					unreadMessages: 0
 				},
+				isBound: false,
+				deviceId: '',
 				cacheSize: '23.5MB'
 			}
 		},
 		onLoad() {
 			this.getDeviceId()
-			this.checkBindStatus()
+			this.loadUserInfo()
+		},
+		onShow() {
+			this.loadUserInfo()
 		},
 		methods: {
 			getDeviceId() {
@@ -144,6 +149,23 @@
 				}
 				this.deviceId = deviceId.slice(-16)
 			},
+			loadUserInfo() {
+				UserApi_get_user_info({}).then(res => {
+					if (res && res.code === 1 && res.data && res.data.userinfo) {
+						const userinfo = res.data.userinfo
+						uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+						this.userInfo.avatar = userinfo.avatar || userinfo.icon || ''
+						this.userInfo.name = userinfo.nickname || userinfo.username || '游客用户'
+						this.userInfo.vipTag = userinfo.is_member === 1 ? 'VIP会员' : ''
+						this.userInfo.vipTime = userinfo.member_time || ''
+						this.userInfo.unreadMessages = res.data.has_unread_message || 0
+						this.isBound = !!userinfo.mobile
+					}
+				}).catch(err => {
+					console.error('获取用户信息失败', err)
+					this.checkBindStatus()
+				})
+			},
 			checkBindStatus() {
 				const userinfo = uni.getStorageSync('userinfo')
 				if (userinfo) {
@@ -151,7 +173,7 @@
 						const info = JSON.parse(userinfo)
 						if (info.mobile) {
 							this.isBound = true
-							this.userInfo.name = '已绑定用户'
+							this.userInfo.name = info.nickname || info.username || '已绑定用户'
 						}
 					} catch (e) {
 						console.error('解析userinfo失败', e)

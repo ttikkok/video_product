@@ -116,7 +116,7 @@
 </template>
 
 <script>
-	import { VipApiData } from '@/api/home.js'
+	import { VipApiData, UserApi_get_user_info } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -144,6 +144,9 @@
 		},
 		onLoad() {
 			this.loadVipData()
+			this.loadUserInfo()
+		},
+		onShow() {
 			this.loadUserInfo()
 		},
 		methods: {
@@ -195,18 +198,30 @@
 				})
 			},
 			loadUserInfo() {
-				let userinfo = uni.getStorageSync('userinfo')
-				if (userinfo) {
-					try {
-						let info = JSON.parse(userinfo)
-						this.userAvatar = info.icon || info.avatar || ''
-						this.userName = info.nickname || info.username || '游客用户'
-						this.isMember = info.is_member === 1
-						this.isVisitor = info.is_visitor === 1
-					} catch (e) {
-						console.error('解析用户信息失败', e)
+				UserApi_get_user_info({}).then(res => {
+					if (res && res.code === 1 && res.data && res.data.userinfo) {
+						const userinfo = res.data.userinfo
+						uni.setStorageSync('userinfo', JSON.stringify(userinfo))
+						this.userAvatar = userinfo.avatar || userinfo.icon || ''
+						this.userName = userinfo.nickname || userinfo.username || '游客用户'
+						this.isMember = userinfo.is_member === 1
+						this.isVisitor = userinfo.is_visitor === 1
 					}
-				}
+				}).catch(err => {
+					console.error('获取用户信息失败', err)
+					let userinfo = uni.getStorageSync('userinfo')
+					if (userinfo) {
+						try {
+							let info = JSON.parse(userinfo)
+							this.userAvatar = info.icon || info.avatar || ''
+							this.userName = info.nickname || info.username || '游客用户'
+							this.isMember = info.is_member === 1
+							this.isVisitor = info.is_visitor === 1
+						} catch (e) {
+							console.error('解析用户信息失败', e)
+						}
+					}
+				})
 			},
 			goToOrder() {
 				uni.showToast({
