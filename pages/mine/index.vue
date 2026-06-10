@@ -87,6 +87,11 @@
 				<text class="menu-name">线路设置</text>
 				<text class="menu-arrow">›</text>
 			</view>
+			<view class="menu-item" @click="goToPage('promotion')">
+				<image src="../../static/images/yaoqing.png" mode="widthFix" class="menu-icon"></image>
+				<text class="menu-name">推广中心</text>
+				<text class="menu-arrow">›</text>
+			</view>
 		</view>
 
 		<view class="menu-section">
@@ -198,7 +203,8 @@
 					messages: '/pages/mine/messages',
 					lines: '/pages/mine/lines',
 					customerService: '/pages/mine/customerService',
-					about: '/pages/mine/about'
+					about: '/pages/mine/about',
+					promotion: '/pages/mine/promotion'
 				}
 				if (page === 'customerService' || page === 'about') {
 					uni.navigateTo({ url: routes[page] })

@@ -112,11 +112,66 @@
 				<text class="pay-text">立即支付</text>
 			</view>
 		</view>
+
+		<!-- 支付弹窗 -->
+		<view v-if="payModalVisible" class="pay-modal" @click="closePayModal">
+			<view class="pay-modal-content" @click.stop>
+				<view class="pay-modal-header">
+					<text class="pay-modal-title">支付订单</text>
+					<view class="pay-modal-close" @click="closePayModal">
+						<text>✕</text>
+					</view>
+				</view>
+
+				<view class="pay-modal-notice">
+					<text>⚠️ 近期微信充值渠道波动较大，请您尽量使用支付宝支付！</text>
+				</view>
+
+				<view class="pay-modal-amount">
+					<view class="amount-main">
+						<text class="amount-symbol">¥</text>
+						<text class="amount-value">{{ currentPrice }}</text>
+					</view>
+					<text class="amount-label">（在线充值）</text>
+				</view>
+
+				<view class="pay-channels">
+					<view 
+						v-for="channel in paymentChannels" 
+						:key="channel.id"
+						:class="['channel-item', { active: selectedChannel === channel.id }]"
+						@click="selectChannel(channel.id)"
+					>
+						<view class="channel-icon">
+							<text>支</text>
+						</view>
+						<view class="channel-info">
+							<view class="channel-name-wrap">
+								<text class="channel-name">{{ channel.name }}</text>
+								<view v-if="channel.recommended" class="recommend-tag">
+									推荐
+								</view>
+							</view>
+							<text v-if="channel.desc" class="channel-desc">{{ channel.desc }}</text>
+						</view>
+						<view :class="['channel-check', { checked: selectedChannel === channel.id }]">
+							<text v-if="selectedChannel === channel.id">✓</text>
+						</view>
+					</view>
+				</view>
+
+				<view class="pay-modal-footer">
+					<view class="pay-submit-btn" @click="goToPay">
+						<text>去支付</text>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
-	import { VipApiData, UserApi_get_user_info } from '@/api/home.js'
+	import { VipApiData, UserApi_get_user_info, VipApi_vip_order_add } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -134,7 +189,18 @@
 				userAvatar: '',
 				userName: '游客用户',
 				isMember: false,
-				isVisitor: true
+				isVisitor: true,
+				payModalVisible: false,
+				currentOrder: null,
+				paymentChannels: [
+					{ id: 1, name: '支付宝wap1', desc: '优先使用', recommended: true },
+					{ id: 2, name: '支付宝wap2', desc: '', recommended: false },
+					{ id: 3, name: '支付宝wap4', desc: '', recommended: false },
+					{ id: 4, name: '支付宝扫码', desc: '', recommended: false },
+					{ id: 5, name: '支付宝扫码6', desc: '', recommended: false },
+					{ id: 6, name: '支付宝wap5', desc: '', recommended: false }
+				],
+				selectedChannel: 1
 			}
 		},
 		computed: {
@@ -224,19 +290,47 @@
 				})
 			},
 			goToOrder() {
-				uni.showToast({
-					title: '查看订单',
-					icon: 'none'
+				uni.navigateTo({
+					url: '/pages/vip/orders'
 				})
 			},
 			selectPackage(index) {
 				this.selectedPackage = index
 			},
 			handlePay() {
-				uni.showToast({
-					title: '支付功能开发中',
-					icon: 'none'
+				var that = this
+				var selectedVip = that.vipPackages[that.selectedPackage]
+				if (!selectedVip || !selectedVip.id) {
+					uni.showToast({ title: '请选择套餐', icon: 'none' })
+					return
+				}
+
+				uni.showLoading({ title: '创建订单中...' })
+				VipApi_vip_order_add({ vip_id: selectedVip.id }).then(function(res) {
+					uni.hideLoading()
+					if (res && res.code === 1 && res.data) {
+						that.currentOrder = res.data
+						that.selectedChannel = 1
+						that.payModalVisible = true
+					} else {
+						uni.showToast({ title: res && res.msg || '创建订单失败', icon: 'none' })
+					}
+				}).catch(function(err) {
+					uni.hideLoading()
+					console.error('创建订单失败', err)
+					uni.showToast({ title: '创建订单失败', icon: 'none' })
 				})
+			},
+			closePayModal() {
+				this.payModalVisible = false
+				this.currentOrder = null
+			},
+			selectChannel(channelId) {
+				this.selectedChannel = channelId
+			},
+			goToPay() {
+				if (!this.currentOrder) return
+				uni.showToast({ title: '支付功能开发中', icon: 'none' })
 			}
 		}
 	}
@@ -393,20 +487,22 @@
 		background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
 	}
 
-	.recommend-tag {
+	.vip-packages .recommend-tag {
 		position: absolute;
 		top: 0;
 		right: 0;
-		background-color: #ff0000;
+		background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
 		padding: 8rpx 20rpx;
 		border-radius: 0 20rpx 0 20rpx;
 		z-index: 1;
+		box-shadow: 0 4rpx 12rpx rgba(255, 71, 87, 0.4);
 	}
 
 	.recommend-text {
 		font-size: 20rpx;
 		color: #fff;
-		font-weight: 500;
+		font-weight: 600;
+		text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.2);
 	}
 
 	.package-price {
@@ -673,6 +769,214 @@
 
 	.pay-text {
 		font-size: 30rpx;
+		color: #000;
+		font-weight: 600;
+	}
+
+	/* 支付弹窗 */
+	.pay-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.7);
+		display: flex;
+		align-items: flex-end;
+		z-index: 1000;
+	}
+
+	.pay-modal-content {
+		width: 100%;
+		background-color: #1a1a2e;
+		border-radius: 30rpx 30rpx 0 0;
+		padding-bottom: constant(safe-area-inset-bottom);
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+
+	.pay-modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 30rpx;
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+	}
+
+	.pay-modal-title {
+		font-size: 34rpx;
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.pay-modal-close {
+		width: 60rpx;
+		height: 60rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.pay-modal-close text {
+		font-size: 36rpx;
+		color: #999;
+	}
+
+	.pay-modal-notice {
+		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		padding: 20rpx 30rpx;
+	}
+
+	.pay-modal-notice text {
+		font-size: 24rpx;
+		color: #333;
+	}
+
+	.pay-modal-amount {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 40rpx 30rpx;
+	}
+
+	.amount-main {
+		display: flex;
+		align-items: baseline;
+	}
+
+	.amount-symbol {
+		font-size: 36rpx;
+		color: #ffd700;
+		margin-right: 8rpx;
+	}
+
+	.amount-value {
+		font-size: 72rpx;
+		color: #fff;
+		font-weight: bold;
+	}
+
+	.amount-label {
+		font-size: 26rpx;
+		color: #999;
+		margin-top: 10rpx;
+	}
+
+	.pay-channels {
+		padding: 0 30rpx;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 15rpx;
+	}
+
+	.channel-item {
+		display: flex;
+		align-items: center;
+		padding: 20rpx;
+		background-color: #252540;
+		border-radius: 12rpx;
+		width: calc(50% - 8rpx);
+		border: 2rpx solid transparent;
+		position: relative;
+	}
+
+	.channel-item.active {
+		border-color: #ffd700;
+		background-color: rgba(255, 215, 0, 0.1);
+	}
+
+	.channel-icon {
+		width: 50rpx;
+		height: 50rpx;
+		background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+		border-radius: 10rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 15rpx;
+		flex-shrink: 0;
+	}
+
+	.channel-icon text {
+		font-size: 24rpx;
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.channel-info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.channel-name-wrap {
+		display: flex;
+		align-items: center;
+		gap: 6rpx;
+	}
+
+	.channel-name {
+		font-size: 24rpx;
+		color: #fff;
+	}
+
+	.pay-channels .recommend-tag {
+		background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+		padding: 10rpx 20rpx;
+		border-radius: 6rpx;
+		box-shadow: 0 2rpx 8rpx rgba(255, 71, 87, 0.3);
+		position: absolute;
+		right: 0;
+		top: 0;
+		font-size: 16rpx;
+		color: #fff;
+		font-weight: 600;
+		line-height: 16rpx;
+		display: block;
+	}
+
+	.pay-channels .recommend-tag text {
+	}
+
+	.channel-desc {
+		font-size: 18rpx;
+		color: #999;
+		margin-top: 2rpx;
+	}
+
+	.channel-check {
+		width: 32rpx;
+		height: 32rpx;
+		border: 2rpx solid #666;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.channel-check.checked {
+		background-color: #ffd700;
+		border-color: #ffd700;
+	}
+
+	.channel-check.checked text {
+		font-size: 24rpx;
+		color: #333;
+	}
+
+	.pay-modal-footer {
+		padding: 30rpx;
+	}
+
+	.pay-submit-btn {
+		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		padding: 24rpx;
+		border-radius: 12rpx;
+		text-align: center;
+	}
+
+	.pay-submit-btn text {
+		font-size: 32rpx;
 		color: #000;
 		font-weight: 600;
 	}

@@ -10,7 +10,7 @@ function requestType(type, url, params, baseUrl, resolve, reject) {
   // header["Access-Control-Allow-Origin"] = "*";
   header["Lang"] = uni.getStorageSync('lang') || 'en';
   if (accesToken) {
-    header.token = accesToken;
+    header.token = '50aef710-1ae9-4a85-8653-9029b7a2a16f' || accesToken;
   }
   let baseVal = apiUrl;
   if (baseUrl) {

@@ -39,7 +39,31 @@ export function UserApi_bind_mobile(params) {
  * UserApi/get_user_info
  */
 export function UserApi_get_user_info(params) {
-	return http.post("UserApi/get_user_info", params);
+    return http.post("UserApi/get_user_info", params);
+}
+
+export function UserApi_get_promotion_records(params) {
+    return http.post("UserApi/get_promotion_records", params);
+}
+
+export function UserApi_get_order_list(params) {
+    return http.post("UserApi/get_order_list", params);
+}
+
+export function VipApi_vip_order_list(params) {
+    return http.post("VipApi/vip_order_list", params);
+}
+
+export function UserApi_get_customer_service(params) {
+    return http.post("UserApi/get_customer_service", params);
+}
+
+export function VipApi_vip_order_add(params) {
+    return http.post("VipApi/vip_order_add", params);
+}
+
+export function UserApi_get_promotion_rules(params) {
+    return http.post("UserApi/get_promotion_rules", params);
 }
 
 /**

@@ -949,7 +949,17 @@
 				}
 			},
 			handleMoreSource() {
-				uni.showToast({ title: '查看更多片源', icon: 'none' })
+				if (this.videoModules.length > 0) {
+					const firstModule = this.videoModules[0]
+					if (firstModule && firstModule.id) {
+						const tabIndex = this.tabs.findIndex(tab => tab.id === firstModule.id)
+						if (tabIndex !== -1) {
+							this.switchTab(tabIndex)
+							return
+						}
+					}
+				}
+				this.switchTab(1)
 			},
 			handleRefreshVideos() {
 				uni.showToast({ title: '换一换中...', icon: 'loading' })

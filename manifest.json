@@ -1,16 +1,17 @@
 {
     "name" : "home",
-    "appid" : "__UNI__F961E6B",
+    "appid" : "__UNI__14F1142",
     "description" : "home",
     "versionName" : "1.0",
     "versionCode" : 1,
     "transformPx" : false,
-    "sassImplementationName": "node-sass",
+    "sassImplementationName" : "node-sass",
     "app-plus" : {
         /* 5+App特有相关 */
         "usingComponents" : true,
         "nvueCompiler" : "uni-app",
         "nvueStyleCompiler" : "uni-app",
+        "runtimeVersionCheck" : false,
         "splashscreen" : {
             "alwaysShowBeforeRender" : true,
             "waiting" : true,

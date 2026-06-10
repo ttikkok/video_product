@@ -37,21 +37,33 @@
 			<text class="success-tip">手机号绑定后不支持修改</text>
 		</view>
 
+		<view v-if="promotionRules.length > 0" class="rules-section">
+			<view class="rules-header">
+				<text class="rules-title">绑定规则</text>
+			</view>
+			<view v-for="rule in promotionRules" :key="rule.id" class="rule-item">
+				<text class="rule-title">{{ rule.title }}</text>
+				<text class="rule-content" v-html="rule.content"></text>
+			</view>
+		</view>
+
 	</view>
 </template>
 
 <script>
-	import { UserApi_bind_mobile } from '@/api/home.js'
+	import { UserApi_bind_mobile, UserApi_get_customer_service } from '@/api/home.js'
 	export default {
 		data() {
 			return {
 				phone: '',
 				hasBound: false,
-				userMobile: ''
+				userMobile: '',
+				promotionRules: []
 			}
 		},
 		onLoad() {
 			this.checkBindStatus()
+			this.loadPromotionRules()
 		},
 		methods: {
 			checkBindStatus() {
@@ -67,6 +79,16 @@
 						console.error('解析userinfo失败', e)
 					}
 				}
+			},
+			loadPromotionRules() {
+				var that = this
+				UserApi_get_customer_service({}).then(function(res) {
+					if (res.code === 1 && res.data && res.data.promotion_rules) {
+						that.promotionRules = res.data.promotion_rules
+					}
+				}).catch(function(error) {
+					console.error('获取规则失败', error)
+				})
 			},
 			goBack() {
 				uni.navigateBack()
@@ -265,5 +287,40 @@
 	.note text {
 		font-size: 24rpx;
 		color: #e74c3c;
+	}
+
+	.rules-section {
+		padding: 30rpx;
+	}
+
+	.rules-header {
+		margin-bottom: 20rpx;
+	}
+
+	.rules-title {
+		font-size: 30rpx;
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.rule-item {
+		background-color: #1a2744;
+		border-radius: 10rpx;
+		padding: 20rpx;
+		margin-bottom: 15rpx;
+	}
+
+	.rule-item .rule-title {
+		display: block;
+		font-size: 26rpx;
+		color: #ffd700;
+		font-weight: 600;
+		margin-bottom: 10rpx;
+	}
+
+	.rule-item .rule-content {
+		font-size: 24rpx;
+		color: #999;
+		line-height: 1.6;
 	}
 </style>

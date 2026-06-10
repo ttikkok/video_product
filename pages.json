@@ -220,6 +220,33 @@
 				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/mine/promotion",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#fff",
+				"navigationBarTextStyle": "black",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/myPromotion",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#fff",
+				"navigationBarTextStyle": "black",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/vip/orders",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#fff",
+				"navigationBarTextStyle": "black",
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {
