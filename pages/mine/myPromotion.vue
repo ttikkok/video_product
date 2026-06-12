@@ -1,11 +1,14 @@
 <template>
 	<view class="page">
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back_black.png" mode="widthFix" class="back-icon" />
+		<view class="top-header">
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back_black.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">我的推广</view>
+				<view class="nav-right"></view>
 			</view>
-			<view class="nav-title">我的推广</view>
-			<view class="nav-right"></view>
 		</view>
 
 		<view class="stats-bar">
@@ -19,8 +22,6 @@
 			scroll-y 
 			class="content-scroll" 
 			@scrolltolower="loadMore"
-			:refresher-enabled="true"
-			@refresherrefresh="refresh"
 		>
 			<view class="list-container">
 				<view v-if="promotionList.length === 0" class="empty-state">
@@ -166,21 +167,37 @@
 	.page {
 		min-height: 100vh;
 		background-color: #f5f5f5;
-		padding-top: calc(120rpx + constant(safe-area-inset-top));
-		padding-top: calc(120rpx + env(safe-area-inset-top));
+		padding-top: 120rpx;
+	}
+
+	.top-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		padding: 30rpx 30rpx;
+		background-color: #fff;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.top-nav {
 		position: fixed;
-		top: 0;
+		top: var(--status-bar-height, 44px);
 		left: 0;
 		right: 0;
 		z-index: 100;
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		padding-top: calc(30rpx + constant(safe-area-inset-top));
-		padding-top: calc(30rpx + env(safe-area-inset-top));
 		background-color: #fff;
 	}
 

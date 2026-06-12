@@ -62,6 +62,10 @@ export function VipApi_vip_order_add(params) {
     return http.post("VipApi/vip_order_add", params);
 }
 
+export function VipApi_pay_passage(params) {
+    return http.post("VipApi/pay_passage", params);
+}
+
 export function UserApi_get_promotion_rules(params) {
     return http.post("UserApi/get_promotion_rules", params);
 }
@@ -281,4 +285,11 @@ export function NovelApi_novel_collect_list(params) {
  */
 export function NovelApi_novel_details(params) {
 	return http.post("NovelApi/novel_details", params);
+}
+
+/**
+ * VodApi/get_recommend_videos
+ */
+export function VodApi_get_recommend_videos(params) {
+    return http.post("VodApi/get_recommend_videos", params);
 }

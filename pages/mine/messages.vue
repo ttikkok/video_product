@@ -1,34 +1,36 @@
 <template>
 	<view class="page">
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
-			</view>
-			<view class="nav-title">消息通知</view>
-			<view class="nav-right">
-				<view class="nav-all" @click="markAllRead">
-					<text>全部已读</text>
+		<view class="top-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">消息通知</view>
+				<view class="nav-right">
+					<view class="nav-all" @click="markAllRead">
+						<text>全部已读</text>
+					</view>
 				</view>
 			</view>
+			<!-- 分类标签 -->
+			<scroll-view scroll-x class="category-tabs">
+				<view class="tabs">
+					<view 
+						v-for="(category, index) in categoryList" 
+						:key="category.id || index"
+						:class="['tab-item', { active: activeCategory === index }]"
+						@click="switchCategory(index)"
+					>
+						{{ category.name }}
+					</view>
+				</view>
+			</scroll-view>
 		</view>
-
-		<!-- 分类标签 -->
-		<scroll-view scroll-x class="category-tabs">
-			<view class="tabs">
-				<view 
-					v-for="(category, index) in categoryList" 
-					:key="category.id || index"
-					:class="['tab-item', { active: activeCategory === index }]"
-					@click="switchCategory(index)"
-				>
-					{{ category.name }}
-				</view>
-			</view>
-		</scroll-view>
-
 		<!-- 消息列表 -->
 		<scroll-view scroll-y class="message-list" @scrolltolower="loadMore">
-			<u-empty v-if="!loading && messages.length === 0" :text="'暂无消息'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
+			<u-status-bar></u-status-bar>
+			<u-empty v-if="!loading && messages.length === 0" :text="'暂无消息'" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<template v-if="messages.length > 0">
 				<view v-for="(msg, index) in messages" :key="index" :class="['message-item', { unread: msg.is_read !== 1 }]" @click="openMessage(msg)">
@@ -234,23 +236,39 @@
 		background-color: #1a1a2e;
 	}
 
-	.top-nav {
-		display: flex;
-		align-items: center;
-		padding: 0 20rpx;
-		height: 88rpx;
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
-		background-color: #16213e;
+	.top-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
+		padding: 0 20rpx;
+		background-color: #16213e;
+		// padding-top: calc(20rpx + constant(safe-area-inset-top));
+		// padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 30rpx 0;
+	}
+
+	.top-nav {
+		position: fixed;
+		top: var(--status-bar-height, 44px);
+		left: 0;
+		right: 0;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		padding: 30rpx 20rpx;
+		background-color: #16213e;
 	}
 
 	.nav-back {
-		width: 100rpx;
+		width: 120rpx;
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
@@ -270,7 +288,7 @@
 	}
 
 	.nav-right {
-		width: 100rpx;
+		width: 120rpx;
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
@@ -286,12 +304,12 @@
 		background-color: #16213e;
 		white-space: nowrap;
 		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
-		position: fixed;
-		top: calc(88rpx + constant(safe-area-inset-top));
-		top: calc(88rpx + env(safe-area-inset-top));
-		left: 0;
-		right: 0;
-		z-index: 99;
+		// position: fixed;
+		// top: calc(120rpx + constant(safe-area-inset-top));
+		// top: calc(120rpx + env(safe-area-inset-top));
+		// left: 0;
+		// right: 0;
+		// z-index: 99;
 	}
 
 	.tabs {
@@ -329,8 +347,8 @@
 		height: calc(100vh - constant(safe-area-inset-bottom));
 		height: calc(100vh - env(safe-area-inset-bottom));
 		padding: 20rpx;
-		padding-top: calc(200rpx + constant(safe-area-inset-top));
-		padding-top: calc(200rpx + env(safe-area-inset-top));
+		padding-top: calc(220rpx + constant(safe-area-inset-top));
+		padding-top: calc(220rpx + env(safe-area-inset-top));
 		box-sizing: border-box;
 	}
 

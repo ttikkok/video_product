@@ -1,6 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
 			<view class="tabs-wrapper">
 				<view v-if="showCategoryList" class="back-btn" @click="goBackToHome">
 					<!-- <text class="back-icon">‹</text> -->
@@ -15,7 +16,7 @@
 							:class="['tab-item', { active: activeTab === index }]"
 							@click="switchTab(index)"
 						>
-							<text>{{ item.name }}</text>
+							<text style="white-space: nowrap;">{{ item.name }}</text>
 						</view>
 					</view>
 				</scroll-view>
@@ -31,7 +32,7 @@
 			<view class="search-bar">
 				<view class="search-input-wrap" @click="goToSearch">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:36rpx;" class="search-icon" />
-					<input class="search-input" placeholder="极品尤物" />
+					<input class="search-input" placeholder="关键词搜索" />
 				</view>
 				<view class="search-actions">
 					<!-- <view class="action-btn" @click="handleAction('download')">
@@ -207,7 +208,7 @@
 							class="three-column-card"
 							@click="handleVideoClick(video)"
 						>
-							<view class="rank-number">{{ index + 1 }}</view>
+							<!-- <view class="rank-number">{{ index + 1 }}</view> -->
 							<view class="three-video-cover">
 								<image :src="video.cover_image" mode="aspectFill" class="three-cover-image" />
 								<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
@@ -400,7 +401,7 @@
 			<view class="drawer-content" @click.stop>
 				<view class="drawer-header">
 					<text class="drawer-close" @click="closeCategoryDrawer">取消</text>
-					<text class="drawer-title">導航</text>
+					<text class="drawer-title">导航</text>
 					<view class="drawer-placeholder"></view>
 				</view>
 				<view class="drawer-body">
@@ -460,15 +461,7 @@
 				currentBanner: 0,
 				showDrawer: false,
 				showCategoryList: false,
-				tabs: [
-					{ id: 1, name: '推荐', nickname: '精选推荐' },
-					{ id: 2, name: '最新', nickname: '最新更新' },
-					{ id: 3, name: '色图', nickname: '高清美图' },
-					{ id: 4, name: '福利姬', nickname: '福利精选' },
-					{ id: 5, name: '探花大神', nickname: '探花精选' },
-					{ id: 6, name: '国产大工厂', nickname: '国产精品' },
-					{ id: 7, name: '日本AV', nickname: '岛国精选' }
-				],
+				tabs: [],
 				bannerList: [],
 				gridList: [],
 				squareAd: null,
@@ -493,8 +486,12 @@
 			this.loadPopupData()
 			this.loadChannelData()
 			this.loadAdvertiseData()
-			this.loadHomeAdvertiseList()
 			this.loadDefaultVideos()
+			this.loadAfterLogin()
+		},
+		onPullDownRefresh() {
+			console.log('下拉刷新触发')
+			this.refreshPage()
 		},
 		methods: {
 			formatTime(timestamp) {
@@ -507,6 +504,28 @@
 				const hours = String(date.getHours()).padStart(2, '0')
 				const minutes = String(date.getMinutes()).padStart(2, '0')
 				return `${year}-${month}-${day} ${hours}:${minutes}`
+			},
+			refreshPage() {
+				console.log('开始刷新页面')
+				// 重置数据
+				this.videoModules = []
+				this.currentPage = 1
+				this.videoList = []
+				this.isLoadMore = 'loadmore'
+				
+				// 重新加载所有数据
+				Promise.all([
+					this.loadChannelData(),
+					this.loadAdvertiseData(),
+					this.loadHomeAdvertiseList(),
+					this.loadDefaultVideos()
+				]).then(() => {
+					console.log('刷新完成')
+					uni.stopPullDownRefresh()
+				}).catch(() => {
+					console.log('刷新失败')
+					uni.stopPullDownRefresh()
+				})
 			},
 			loadPopupData() {
 				IndexPopup_window().then(res => {
@@ -671,6 +690,20 @@
 				}).catch(err => {
 					console.error('分类视频数据加载失败', err)
 				})
+			},
+			loadAfterLogin() {
+				const app = getApp()
+				const loginPromise = app.globalData.getLoginPromise && app.globalData.getLoginPromise()
+				
+				if (loginPromise) {
+					loginPromise.then(() => {
+						this.loadHomeAdvertiseList()
+					}).catch(() => {
+						this.loadHomeAdvertiseList()
+					})
+				} else {
+					this.loadHomeAdvertiseList()
+				}
 			},
 			loadHomeAdvertiseList() {
 				AdvertiseApi_advertise_list({ name: '首页穿插广告位' }).then(res => {
@@ -1052,6 +1085,7 @@
 	
 	.tabs-wrapper {
 		display: flex;
+		flex-direction: row;
 		align-items: center;
 		padding: 20rpx 0;
 		gap: 10rpx;
@@ -1077,17 +1111,27 @@
 	.tabs-scroll {
 		white-space: nowrap;
 		flex: 1;
-		overflow: hidden;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	.tabs-scroll::-webkit-scrollbar {
+		display: none;
+		width: 0;
+		height: 0;
 	}
 	
 	.tabs {
 		display: inline-flex;
-		gap: 30rpx;
+		gap: 20rpx;
 		padding: 0 10rpx;
+		min-width: 100%;
 	}
 	
 	.tab-item {
 		display: inline-flex;
+		flex-direction: row;
 		align-items: center;
 		gap: 5rpx;
 		padding: 15rpx 25rpx;
@@ -1095,6 +1139,7 @@
 		background-color: rgba(255, 255, 255, 0.1);
 		color: #999;
 		font-size: 28rpx;
+		white-space: nowrap;
 		transition: all 0.3s;
 		
 		&.active {
@@ -1407,6 +1452,7 @@
 		border-radius: 8rpx;
 		font-weight: 700;
 		box-shadow: 0 4rpx 12rpx rgba(255, 69, 0, 0.5);
+		z-index: 11;
 		
 		&.small {
 			font-size: 18rpx;
@@ -1942,7 +1988,7 @@
 	}
 
 	.popup-content {
-		padding: 30rpx;
+		// padding: 30rpx;
 	}
 
 	.popup-header {
@@ -1962,6 +2008,7 @@
 		padding: 30rpx;
 		max-height: 50vh;
 		overflow-y: auto;
+		min-height: 300rpx;
 	}
 
 	.popup-text {
@@ -2110,6 +2157,7 @@
 		gap: 12rpx;
 		background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
 		z-index: 10;
+		text-align: right;
 	}
 
 	.category-video-title {

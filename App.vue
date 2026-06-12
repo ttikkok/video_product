@@ -2,12 +2,37 @@
 	// import { getUserInfo } from "@/api/public";
 	import config from "@/http/config";
 	import { register_login } from "@/api/home.js";
+	import { getRealDeviceId } from "@/common/device.js";
+	
+	let loginPromise = null
+	let loginResolved = false
+	
 	export default {
 		onLaunch: function() {
+			// #ifdef APP-PLUS
+			// 禁用HTML5+ Runtime版本检查
+			if (plus && plus.runtime && typeof plus.runtime.setRuntimeVersionCheck === 'function') {
+				plus.runtime.setRuntimeVersionCheck(false);
+			}
+			// #endif
 			this.autoLogin()
 			this.setPageTitle()
 		},
+		globalData: {
+			getLoginPromise: function() {
+				return loginPromise
+			},
+			isLoginResolved: function() {
+				return loginResolved
+			}
+		},
 		onShow: function() {
+			// #ifdef APP-PLUS
+			// 禁用HTML5+ Runtime版本检查
+			if (plus && plus.runtime && typeof plus.runtime.setRuntimeVersionCheck === 'function') {
+				plus.runtime.setRuntimeVersionCheck(false);
+			}
+			// #endif
 			this.setPageTitle()
 			// uni.request({  
 			// 	url: config.baseApiOrg + 'app/index/logo', // url地址  
@@ -61,31 +86,38 @@
 				//#endif
 			},
 			autoLogin() {
-				// 检查是否已经登录成功，如果有token则不需要重复登录
-				let token = uni.getStorageSync('token')
-				let userinfo = uni.getStorageSync('userinfo')
-				
-				if (token && userinfo) {
-					console.log('已经登录成功，无需重复登录')
-					return
-				}
-				
-				let deviceId = uni.getStorageSync('deviceId')
-				if (!deviceId) {
-					deviceId = 'xxxxxxx' + Date.now() + Math.random().toString(36).substr(2, 9)
-					uni.setStorageSync('deviceId', deviceId)
-				}
-				register_login({ device_id: deviceId }).then(res => {
-					if (res && res.code === 1 && res.data) {
-						if (res.data.userinfo) {
-							uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))
-						}
-						if (res.data.token) {
-							uni.setStorageSync('token', res.data.token)
-						}
+				loginPromise = new Promise((resolve, reject) => {
+					// 检查是否已经登录成功，如果有token则不需要重复登录
+					let token = uni.getStorageSync('token')
+					let userinfo = uni.getStorageSync('userinfo')
+					
+					if (token && userinfo) {
+						console.log('已经登录成功，无需重复登录')
+						loginResolved = true
+						resolve({ token, userinfo })
+						return
 					}
-				}).catch(err => {
-					console.error('登录失败', err)
+					
+					// 获取真实设备ID
+					getRealDeviceId().then(deviceId => {
+						console.log('获取到设备ID:', deviceId)
+						register_login({ device_id: deviceId }).then(res => {
+							loginResolved = true
+							if (res && res.code === 1 && res.data) {
+								if (res.data.userinfo) {
+									uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))
+								}
+								if (res.data.token) {
+									uni.setStorageSync('token', res.data.token)
+								}
+							}
+							resolve(res)
+						}).catch(err => {
+							loginResolved = true
+							console.error('登录失败', err)
+							reject(err)
+						})
+					})
 				})
 			}
 		}
@@ -110,6 +142,10 @@
 	// 	background-color: #f5f5f5;
 	// }
 	/* #endif */
+	/* 移除全局uni-text样式，避免影响文字换行 */
+	/* uni-text {
+		white-space: nowrap !important;
+	} */
 	.example-info {
 		font-size: 14px;
 		color: #333;

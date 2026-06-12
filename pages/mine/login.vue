@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<u-status-bar bg-color="#16213e"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -117,9 +118,40 @@
 	.page {
 		min-height: 100vh;
 		background-color: #0f1629;
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
 		box-sizing: border-box;
+	}
+
+	.top-nav {
+		position: fixed;
+		top: var(--status-bar-height, 44px);
+		left: 0;
+		right: 0;
+		z-index: 100;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20rpx 30rpx;
+		background-color: #0f1629;
+	}
+
+	.nav-back {
+		width: 80rpx;
+		display: flex;
+		align-items: center;
+	}
+
+	.back-icon {
+		width: 40rpx;
+	}
+
+	.nav-title {
+		font-size: 32rpx;
+		color: #fff;
+		font-weight: 500;
+	}
+
+	.nav-placeholder {
+		width: 80rpx;
 	}
 
 	.form-section {

@@ -1,17 +1,21 @@
 <template>
 	<view class="page">
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
-			</view>
-			<view class="nav-title">我的收藏</view>
-			<view class="nav-edit" @click="toggleEdit">
-				<text>{{ isEdit ? '完成' : '编辑' }}</text>
+		<view class="top-header">
+			<u-status-bar bgColor="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">我的收藏</view>
+				<view class="nav-edit" @click="toggleEdit">
+					<text>{{ isEdit ? '完成' : '编辑' }}</text>
+				</view>
 			</view>
 		</view>
 
 		<!-- 内容列表 -->
 		<scroll-view scroll-y class="content-list" @scrolltolower="loadMore">
+			<u-status-bar></u-status-bar>
 			<!-- 空状态 -->
 			<u-empty v-if="!loading && favorites.length === 0" :text="'暂无收藏内容'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
@@ -210,6 +214,24 @@
 		background-color: #1a1a2e;
 	}
 
+	.top-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		padding: 30rpx 20rpx;
+		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
 	.empty-state {
 		flex: 1;
 		display: flex;
@@ -235,11 +257,11 @@
 	}
 
 	.content-list {
-		height: calc(100vh - 140rpx - constant(safe-area-inset-bottom));
-		height: calc(100vh - 140rpx - env(safe-area-inset-bottom));
+		height: calc(100vh - constant(safe-area-inset-bottom));
+		height: calc(100vh - env(safe-area-inset-bottom));
 		padding: 20rpx;
-		padding-top: calc(20rpx + constant(safe-area-inset-top));
-		padding-top: calc(20rpx + env(safe-area-inset-top));
+		padding-top: calc(120rpx + constant(safe-area-inset-top));
+		padding-top: calc(120rpx + env(safe-area-inset-top));
 		box-sizing: border-box;
 	}
 

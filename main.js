@@ -13,6 +13,9 @@ Vue.use(uView)
 import util from '@/utils/util'
 Vue.prototype.$util = util;
 
+import VueCompositionAPI from '@vue/composition-api'
+Vue.use(VueCompositionAPI)
+
 //引入websocket文件
 // import wsRequest from '@/utils/websocket.js'
 //开启websocket

@@ -1,14 +1,18 @@
 <template>
 	<view class="page">
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+		<view class="top-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">我的书架</view>
+				<view class="nav-placeholder"></view>
 			</view>
-			<view class="nav-title">我的书架</view>
-			<view class="nav-placeholder"></view>
 		</view>
 
 		<scroll-view scroll-y class="content-scroll" @scrolltolower="loadMore">
+			<u-status-bar></u-status-bar>
 			<view class="content-list">
 				<u-empty v-if="!loading && novels.length === 0" :text="'暂无收藏小说'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
@@ -130,17 +134,38 @@
 	.page {
 		min-height: 100vh;
 		background-color: #1a1a2e;
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
 	}
 
-	.top-nav {
+	.top-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
-		background-color: #1a1a2e;
+		padding: 30rpx 30rpx;
+		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.top-nav {
+		position: fixed;
+		top: var(--status-bar-height, 44px);
+		left: 0;
+		right: 0;
+		z-index: 100;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20rpx 30rpx;
+		background-color: #16213e;
 	}
 
 	.nav-title {

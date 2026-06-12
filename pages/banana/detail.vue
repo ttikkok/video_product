@@ -1,12 +1,15 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航 -->
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+		<view class="top-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">帖子详情</view>
+				<view class="nav-placeholder"></view>
 			</view>
-			<view class="nav-title">帖子详情</view>
-			<view class="nav-placeholder"></view>
 		</view>
 
 		<!-- 帖子内容 -->
@@ -24,6 +27,15 @@
 					:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
 					controls
 					show-center-play-btn
+					show-fullscreen-btn
+					enable-progress-gesture
+					enable-play-gesture
+					object-fit="contain"
+					playsinline
+					x5-video-player-type="h5"
+					x5-video-orientation="landscape"
+					x5-video-player-fullscreen="true"
+					webkit-playsinline
 					:duration="post.duration"
 				></video>
 			</view>
@@ -195,19 +207,24 @@
 		flex-direction: column;
 	}
 
-	.top-nav {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0 20rpx;
-		height: 88rpx;
+	.top-header {
+		padding: 30rpx 20rpx;
+		// height: 88rpx;
 		background-color: #16213e;
-		padding-top: var(--status-bar-height, 44px);
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
-		z-index: 100;
+		z-index: 9999;
+	}
+
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.nav-back {
@@ -234,7 +251,7 @@
 
 	.content {
 		flex: 1;
-		padding-top: calc(88rpx + var(--status-bar-height, 44px));
+		padding-top: calc(120rpx + var(--status-bar-height, 44px));
 	}
 
 	.post-header {

@@ -1,12 +1,15 @@
 <template>
 	<view class="page">
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
-			</view>
-			<view class="nav-title">观看历史</view>
-			<view class="nav-edit" @click="toggleEdit">
-				<text>{{ isEdit ? '完成' : '编辑' }}</text>
+		<view class="top-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">观看历史</view>
+				<view class="nav-edit" @click="toggleEdit">
+					<text>{{ isEdit ? '完成' : '编辑' }}</text>
+				</view>
 			</view>
 		</view>
 
@@ -24,6 +27,7 @@
 
 		<!-- 内容列表 -->
 		<scroll-view scroll-y class="content-list" @scrolltolower="loadMore">
+			<u-status-bar></u-status-bar>
 			<!-- 空状态 -->
 			<u-empty v-if="!loading && history.length === 0" :text="'暂无观看历史'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
@@ -196,6 +200,60 @@
 		background-color: #1a1a2e;
 	}
 
+	.top-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		padding: 30rpx 20rpx;
+		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.top-nav {
+		position: fixed;
+		top: var(--status-bar-height, 44px);
+		left: 0;
+		right: 0;
+		z-index: 100;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20rpx 30rpx;
+		background-color: #16213e;
+	}
+
+	.nav-back {
+		width: 60rpx;
+		display: flex;
+		align-items: center;
+	}
+
+	.back-icon {
+		width: 40rpx;
+	}
+
+	.nav-title {
+		font-size: 32rpx;
+		color: #fff;
+		font-weight: 500;
+	}
+
+	.nav-edit {
+		width: 80rpx;
+		text-align: right;
+		font-size: 28rpx;
+		color: #6BA3E0;
+	}
+
 	.time-filter {
 		display: flex;
 		gap: 20rpx;
@@ -237,11 +295,10 @@
 	}
 
 	.content-list {
-		height: calc(100vh - 140rpx - constant(safe-area-inset-bottom));
-		height: calc(100vh - 140rpx - env(safe-area-inset-bottom));
+		height: calc(100vh - constant(safe-area-inset-bottom));
+		height: calc(100vh - env(safe-area-inset-bottom));
 		padding: 20rpx;
-		padding-top: calc(20rpx + constant(safe-area-inset-top));
-		padding-top: calc(20rpx + env(safe-area-inset-top));
+		padding-top: 120rpx;
 		box-sizing: border-box;
 	}
 

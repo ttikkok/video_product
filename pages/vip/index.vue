@@ -1,12 +1,17 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航 -->
-		<view class="top-nav">
-			<view class="nav-title">VIP充值中心</view>
-			<view class="nav-order" @click="goToOrder">订单</view>
+		<view class="top-header">
+			<u-status-bar bgColor="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view style="width: 100rpx;"></view>
+				<view class="nav-title">VIP充值中心</view>
+				<view class="nav-order" style="width: 100rpx;text-align: center;" @click="goToOrder">订单</view>
+			</view>
 		</view>
 
 		<!-- 用户信息 -->
+		<u-status-bar></u-status-bar>
 		<view class="user-section">
 			<view class="user-info">
 				<image :src="userAvatar" mode="aspectFill" class="user-avatar" />
@@ -19,7 +24,7 @@
 				<text class="vip-text">{{ isMember ? 'VIP会员' : '普通用户' }}</text>
 			</view>
 			<view class="vip-hint">
-				<text>購買會員享受無限次數觀影體驗</text>
+				<text>购买会员享受无限次数观影体验</text>
 			</view>
 		</view>
 
@@ -57,7 +62,7 @@
 		<!-- VIP权益 -->
 		<view class="benefits-section">
 			<view class="benefits-header">
-				<text class="benefits-title">VIP會員享價值</text>
+				<text class="benefits-title">VIP会员享价值</text>
 				<view class="benefits-value">
 					<text class="value-symbol">¥</text>
 					<text class="value-number">988元</text>
@@ -65,7 +70,7 @@
 				<text class="benefits-text">的增值套餐</text>
 			</view>
 			<view class="benefits-tag">
-				<text>會員專享</text>
+				<text>会员专享</text>
 			</view>
 			<view class="benefits-list">
 				<view 
@@ -80,7 +85,7 @@
 		</view>
 
 		<!-- 推荐内容 -->
-		<view class="recommend-section">
+		<!-- <view class="recommend-section">
 			<view class="section-header">
 				<text class="section-title">午夜電台·有聲小說</text>
 				<view class="section-tag">
@@ -94,6 +99,11 @@
 					<text class="arrow-icon">▶</text>
 				</view>
 			</view>
+		</view> -->
+
+		<!-- VIP广告位 -->
+		<view v-if="vipAdvertise" class="vip-advertise" @click="openVipAdvertiseUrl">
+			<image :src="vipAdvertise.image || vipAdvertise.cover_image" mode="aspectFill" class="advertise-image" />
 		</view>
 
 		<!-- 底部支付栏 -->
@@ -124,7 +134,7 @@
 				</view>
 
 				<view class="pay-modal-notice">
-					<text>⚠️ 近期微信充值渠道波动较大，请您尽量使用支付宝支付！</text>
+					<text>{{ marquee || '⚠️ 近期微信充值渠道波动较大，请您尽量使用支付宝支付！' }}</text>
 				</view>
 
 				<view class="pay-modal-amount">
@@ -148,11 +158,10 @@
 						<view class="channel-info">
 							<view class="channel-name-wrap">
 								<text class="channel-name">{{ channel.name }}</text>
-								<view v-if="channel.recommended" class="recommend-tag">
+								<view v-if="channel.is_hot === 1" class="recommend-tag">
 									推荐
 								</view>
 							</view>
-							<text v-if="channel.desc" class="channel-desc">{{ channel.desc }}</text>
 						</view>
 						<view :class="['channel-check', { checked: selectedChannel === channel.id }]">
 							<text v-if="selectedChannel === channel.id">✓</text>
@@ -171,20 +180,20 @@
 </template>
 
 <script>
-	import { VipApiData, UserApi_get_user_info, VipApi_vip_order_add } from '@/api/home.js'
+	import { VipApiData, UserApi_get_user_info, VipApi_vip_order_add, VipApi_pay_passage, AdvertiseApi_advertise_list } from '@/api/home.js'
 	export default {
 		data() {
 			return {
 				selectedPackage: 0,
 				vipPackages: [],
 				benefits: [
-					{ name: '無限觀影', icon: '🎬' },
-					{ name: '無限下載', icon: '⬇️' },
-					{ name: '專屬客服', icon: '🎧' },
-					{ name: '官方推薦', icon: '📌' },
-					{ name: '午夜電臺', icon: '📖' },
-					{ name: '槐凰免打賞', icon: '🎁' },
-					{ name: '發布打賞帖', icon: '💰' }
+					{ name: '无限观影', icon: '🎬' },
+					{ name: '无限下载', icon: '⬇️' },
+					{ name: '专属客服', icon: '🎧' },
+					{ name: '官方推荐', icon: '📌' },
+					{ name: '午夜电台', icon: '📖' },
+					{ name: '槐凰免打赏', icon: '🎁' },
+					{ name: '发布打赏帖', icon: '💰' }
 				],
 				userAvatar: '',
 				userName: '游客用户',
@@ -192,15 +201,11 @@
 				isVisitor: true,
 				payModalVisible: false,
 				currentOrder: null,
-				paymentChannels: [
-					{ id: 1, name: '支付宝wap1', desc: '优先使用', recommended: true },
-					{ id: 2, name: '支付宝wap2', desc: '', recommended: false },
-					{ id: 3, name: '支付宝wap4', desc: '', recommended: false },
-					{ id: 4, name: '支付宝扫码', desc: '', recommended: false },
-					{ id: 5, name: '支付宝扫码6', desc: '', recommended: false },
-					{ id: 6, name: '支付宝wap5', desc: '', recommended: false }
-				],
-				selectedChannel: 1
+				paymentChannels: [],
+				selectedChannel: '',
+				orderId: '',
+				marquee: '',
+				vipAdvertise: null
 			}
 		},
 		computed: {
@@ -211,11 +216,26 @@
 		onLoad() {
 			this.loadVipData()
 			this.loadUserInfo()
+			this.loadVipAdvertise()
 		},
 		onShow() {
 			this.loadUserInfo()
 		},
 		methods: {
+			loadVipAdvertise() {
+				AdvertiseApi_advertise_list({ name: 'VIP广告位' }).then(res => {
+					if (res && res.code === 1 && res.data && res.data.length > 0) {
+						this.vipAdvertise = res.data[0]
+					}
+				}).catch(err => {
+					console.error('VIP广告加载失败', err)
+				})
+			},
+			openVipAdvertiseUrl() {
+				if (this.vipAdvertise && this.vipAdvertise.url) {
+					this.openExternalURL(this.vipAdvertise.url)
+				}
+			},
 			loadVipData() {
 				VipApiData().then(res => {
 					if (res && res.code === 1 && res.data) {
@@ -310,8 +330,9 @@
 					uni.hideLoading()
 					if (res && res.code === 1 && res.data) {
 						that.currentOrder = res.data
-						that.selectedChannel = 1
-						that.payModalVisible = true
+						that.orderId = res.data.order_id
+						// 获取支付通道
+						that.loadPaymentChannels()
 					} else {
 						uni.showToast({ title: res && res.msg || '创建订单失败', icon: 'none' })
 					}
@@ -323,14 +344,85 @@
 			},
 			closePayModal() {
 				this.payModalVisible = false
-				this.currentOrder = null
+			},
+			loadPaymentChannels() {
+				var that = this
+				uni.showLoading({ title: '加载支付通道...' })
+				VipApi_pay_passage({ order_id: this.orderId }).then(function(res) {
+					uni.hideLoading()
+					if (res && res.code === 1 && res.data) {
+						that.paymentChannels = res.data.list || []
+						that.marquee = res.data.marquee || ''
+						// 默认选择推荐的支付通道
+						var recommendedChannel = that.paymentChannels.find(function(ch) { return ch.is_hot === 1 })
+						that.selectedChannel = recommendedChannel ? recommendedChannel.id : (that.paymentChannels[0] ? that.paymentChannels[0].id : '')
+						that.payModalVisible = true
+					} else {
+						uni.showToast({ title: '获取支付通道失败', icon: 'none' })
+					}
+				}).catch(function(err) {
+					uni.hideLoading()
+					console.error('获取支付通道失败', err)
+					uni.showToast({ title: '获取支付通道失败', icon: 'none' })
+				})
 			},
 			selectChannel(channelId) {
 				this.selectedChannel = channelId
 			},
 			goToPay() {
-				if (!this.currentOrder) return
-				uni.showToast({ title: '支付功能开发中', icon: 'none' })
+				var that = this
+				if (!this.selectedChannel) {
+					uni.showToast({ title: '请选择支付通道', icon: 'none' })
+					return
+				}
+				var selectedChannel = that.paymentChannels.find(function(ch) { return ch.id === that.selectedChannel })
+				if (!selectedChannel || !selectedChannel.url) {
+					uni.showToast({ title: '支付通道信息异常', icon: 'none' })
+					return
+				}
+				
+				uni.showLoading({ title: '跳转支付中...' })
+				uni.request({
+					url: selectedChannel.url,
+					method: 'POST',
+					data: { order_id: that.orderId },
+					timeout: 10000,
+					success: function(res) {
+						uni.hideLoading()
+						if (res && res.data && res.data.code === 1 && res.data.data && res.data.data.pay_url) {
+							that.openExternalURL(res.data.data.pay_url)
+						} else {
+							uni.showToast({ title: res.data.msg || '获取支付链接失败', icon: 'none' })
+						}
+					},
+					fail: function(err) {
+						uni.hideLoading()
+						console.error('获取支付链接失败', err)
+						uni.showToast({ title: '获取支付链接失败', icon: 'none' })
+					}
+				})
+			},
+			openExternalURL(url) {
+				if (!url) return
+				// #ifdef APP-PLUS
+				if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
+					plus.runtime.openURL(url)
+					return
+				}
+				// #endif
+				// #ifdef H5
+				if (typeof window !== 'undefined' && window.open) {
+					window.open(url, '_blank')
+					return
+				}
+				// #endif
+				// 其他平台（微信小程序等）
+				uni.setClipboardData({
+					data: url,
+					success: function() {
+						uni.showToast({ title: '链接已复制，请到浏览器打开', icon: 'none' })
+					}
+				})
 			}
 		}
 	}
@@ -340,25 +432,28 @@
 	.page {
 		min-height: 100vh;
 		background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
-		padding-bottom: 266rpx;
-		padding-top: calc(120rpx + constant(safe-area-inset-top));
-		padding-top: calc(120rpx + env(safe-area-inset-top));
+		padding-bottom: calc(160rpx + constant(safe-area-inset-bottom));
+		padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+		padding-top: 120rpx;
 	}
 
 	/* 顶部导航 */
-	.top-nav {
+	.top-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
 		padding: 30rpx 20rpx;
-		padding-top: calc(30rpx + constant(safe-area-inset-top));
-		padding-top: calc(30rpx + env(safe-area-inset-top));
 		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.nav-title {
@@ -705,7 +800,13 @@
 	/* 底部支付栏 */
 	.bottom-bar {
 		position: fixed;
-		bottom: 110rpx;
+		// #ifdef H5
+		bottom: calc(98rpx + constant(safe-area-inset-bottom));
+		bottom: calc(98rpx + env(safe-area-inset-bottom));
+		// #endif
+		// #ifndef H5
+		bottom: 0;
+		// #endif
 		left: 0;
 		right: 0;
 		display: flex;
@@ -713,9 +814,8 @@
 		justify-content: space-between;
 		background-color: #1a1a1a;
 		padding: 20rpx 30rpx;
-		padding-bottom: calc(20rpx + constant(safe-area-inset-bottom));
-		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
 		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		z-index: 99;
 	}
 
 	.bar-left {
@@ -865,6 +965,7 @@
 		padding: 0 30rpx;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: space-between;
 		gap: 15rpx;
 	}
 
@@ -874,7 +975,7 @@
 		padding: 20rpx;
 		background-color: #252540;
 		border-radius: 12rpx;
-		width: calc(50% - 8rpx);
+		width: calc(50% - 12rpx);
 		border: 2rpx solid transparent;
 		position: relative;
 	}
@@ -979,5 +1080,19 @@
 		font-size: 32rpx;
 		color: #000;
 		font-weight: 600;
+	}
+
+	/* VIP广告位 */
+	.vip-advertise {
+		margin: 20rpx;
+		border-radius: 16rpx;
+		overflow: hidden;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+	}
+
+	.vip-advertise .advertise-image {
+		width: 100%;
+		height: 240rpx;
+		display: block;
 	}
 </style>

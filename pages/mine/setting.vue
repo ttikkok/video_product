@@ -1,10 +1,11 @@
 <template>
 	<view class="page">
+		<u-status-bar bg-color="#16213e"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
 			</view>
-			<view class="nav-title">設置</view>
+			<view class="nav-title">设置</view>
 			<view class="nav-placeholder"></view>
 		</view>
 
@@ -23,7 +24,7 @@
 			</view>
 
 			<view class="setting-item" @click="goToLines">
-				<text class="item-label">線路設置</text>
+				<text class="item-label">线路设置</text>
 				<view class="item-right">
 					<text class="item-hint">圖片、視頻異常時請切換</text>
 					<text class="item-arrow">›</text>
@@ -31,7 +32,7 @@
 			</view>
 
 			<view class="setting-item" @click="goToLines">
-				<text class="item-label">線路設置</text>
+				<text class="item-label">线路设置</text>
 				<view class="item-right">
 					<text class="item-hint">圖片、視頻異常時請切換</text>
 					<text class="item-arrow">›</text>
@@ -39,18 +40,18 @@
 			</view>
 
 			<view class="setting-item" @click="goToPrivacy">
-				<text class="item-label">隱私設置</text>
+				<text class="item-label">隐私设置</text>
 				<view class="item-right">
-					<text class="item-hint">更換應用圖標、設置手勢密碼</text>
+					<text class="item-hint">更换应用图标、设置手势密码</text>
 					<view class="item-dot"></view>
 					<text class="item-arrow">›</text>
 				</view>
 			</view>
 
 			<view class="setting-item" @click="goToSecurity">
-				<text class="item-label">安全碼</text>
+				<text class="item-label">安全码</text>
 				<view class="item-right">
-					<text class="item-value">未設置</text>
+					<text class="item-value">未设置</text>
 					<text class="item-arrow">›</text>
 				</view>
 			</view>
@@ -82,7 +83,7 @@
 		</view>
 
 		<view class="login-link" @click="otherLogin">
-			<text>使用其他帳號登錄</text>
+			<text>使用其他账号登录</text>
 		</view>
 	</view>
 </template>

@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<u-status-bar bg-color="#16213e"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />

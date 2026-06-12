@@ -1,19 +1,23 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航 - 固定 -->
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
-			</view>
-			<view class="nav-title">
-				<text class="title-text">{{ novelTitle }}</text>
-			</view>
-			<view class="nav-actions">
+		<view class="top-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">
+					<text class="title-text">{{ novelTitle }}</text>
+				</view>
+				<view class="nav-actions">
+				</view>
 			</view>
 		</view>
 
 		<!-- 内容区域 -->
 		<scroll-view scroll-y class="content-scroll">
+			<u-status-bar></u-status-bar>
 			<!-- 小说信息 -->
 			<view class="novel-header">
 				<image :src="currentNovel.cover" mode="aspectFill" class="novel-cover" />
@@ -308,12 +312,23 @@
 	}
 
 	/* 顶部导航 - 固定 */
-	.top-nav {
+	.top-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
+		padding: 30rpx 30rpx;
+		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.nav-title {
@@ -568,7 +583,7 @@
 	}
 
 	.popup-header {
-		padding: 30rpx;
+		padding: 80rpx 30rpx 30rpx;
 		text-align: center;
 		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 	}

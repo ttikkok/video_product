@@ -1,17 +1,21 @@
 <template>
 	<view class="page">
 		<!-- 顶部自定义导航栏 -->
-		<view class="custom-navbar">
-			<view class="navbar-back" @click="goBack">
-				<image src="/static/images/back.png" class="back-icon" mode="aspectFit"></image>
+		<view class="top-header">
+			<u-status-bar bgColor="#16213e"></u-status-bar>
+			<view class="custom-navbar">
+				<view class="navbar-back" @click="goBack">
+					<image src="/static/images/back.png" class="back-icon" mode="aspectFit"></image>
+				</view>
+				<view class="navbar-title">视频播放</view>
+				<view class="navbar-placeholder"></view>
 			</view>
-			<view class="navbar-title">视频播放</view>
-			<view class="navbar-placeholder"></view>
 		</view>
 
 		<!-- 视频播放窗口 -->
 		<view class="video-container">
 			<video 
+			v-if="videoSrc"
 			id="videoPlayer"
 			class="video-player"
 			:src="videoSrc"
@@ -21,15 +25,30 @@
 			:controls="true"
 			:enable-progress-gesture="true"
 			:show-play-btn="true"
+			:show-fullscreen-btn="true"
+			:enable-play-gesture="true"
+			:show-mute-btn="false"
+			:enable-auto-rotation="false"
 			object-fit="contain"
+			playsinline
+			webkit-playsinline
 			@play="onPlay"
 			@pause="onPause"
 			@timeupdate="onTimeUpdate"
 			@error="handleVideoError"
 			@ended="onEnded"
+			@loadedmetadata="onLoadedMetadata"
+			@canplay="onCanPlay"
+			@waiting="onVideoWaiting"
+			@seeked="onSeeked"
 		></video>
 			<view v-if="!videoSrc" class="video-placeholder">
+				<view class="loading-spinner"></view>
 				<text class="placeholder-text">视频加载中...</text>
+			</view>
+			<view v-if="videoSrc && videoError" class="video-error">
+				<text class="error-text">{{ videoErrorText }}</text>
+				<view class="retry-btn" @click="retryPlay">重试</view>
 			</view>
 		</view>
 
@@ -42,9 +61,9 @@
 				<view class="video-title">{{ videoTitle }}</view>
 			</view>
 			<view class="video-meta">
-				<view class="meta-item">
+				<!-- <view class="meta-item">
 					<text class="meta-text">番號: {{ videoCode }}</text>
-				</view>
+				</view> -->
 				<view v-if="videoYear" class="meta-item">
 					<text class="meta-text">年份: {{ videoYear }}</text>
 				</view>
@@ -69,12 +88,12 @@
 				>{{ tag }}</text>
 			</view>
 
-			<view class="rating-section">
+			<!-- <view class="rating-section">
 				<view class="rating-bar">
 					<view class="rating-fill" :style="{ width: ratingPercent + '%' }"></view>
 				</view>
 				<text class="rating-text">好評 {{ ratingPercent }}%</text>
-			</view>
+			</view> -->
 
 			<view class="video-desc">
 				<text class="desc-text">{{ videoDesc }}</text>
@@ -94,28 +113,38 @@
 				</view>
 			</view>
 
+			<!-- 广告区域 -->
+			<view v-if="recommendAdvertise" class="ad-item" @click="openAdUrl(recommendAdvertise.url)">
+				<image :src="recommendAdvertise.image" mode="aspectFill" class="ad-image" />
+				<view class="ad-overlay">
+					<text class="ad-title">{{ recommendAdvertise.title }}</text>
+				</view>
+			</view>
+
 			<view class="video-list">
 				<view 
-					class="video-card" 
 					v-for="(item, index) in recommendList" 
-					:key="index"
+					:key="index" 
+					class="content-item" 
 					@click="playVideo(item)"
 				>
-					<view class="video-cover">
-						<image 
-							:src="item.cover_image || item.poster" 
-							mode="aspectFill" 
-							class="cover-image"
-					/>
+					<view class="item-cover-wrap">
+						<view class="item-title-overlay">
+							<text class="item-title">{{ item.title || '精彩视频推荐' }}</text>
+						</view>
+						<image :src="item.cover_image || item.poster" mode="aspectFill" class="cover-image" />
 						<view class="video-overlay">
 							<view class="play-icon">▶</view>
 						</view>
+						<text class="play-count">{{ item.look_number || item.views || '0' }}次播放</text>
 						<text class="video-duration">{{ item.duration || '00:15:00' }}</text>
+						<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
 					</view>
-					<view class="video-detail">
-						<view class="detail-title">{{ item.title || '精彩视频推荐' }}</view>
-						<view class="detail-meta">
-							<text class="meta-view">{{ item.views || '2.3萬' }}次播放</text>
+					<view class="item-footer">
+						<text class="time-text">{{ item.createtime ? formatTime(item.createtime) : '' }} 发布</text>
+						<view class="item-like">
+							<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
+							<text class="like-text">{{ item.like_number || item.likeNumber || 0 }}</text>
 						</view>
 					</view>
 				</view>
@@ -128,7 +157,7 @@
 </template>
 
 <script>
-	import { VodApi_vod_details, VodApi_vod_like, VodApi_vod_collect } from '@/api/home.js';
+	import { VodApi_vod_details, VodApi_vod_like, VodApi_vod_collect, UserApi_get_user_info, VodApi_get_recommend_videos } from '@/api/home.js';
 
 	export default {
 		data() {
@@ -152,22 +181,36 @@
 				collectCount: '0',
 				videoYear: '',
 				videoTags: [],
+				videoError: false,
+				videoErrorText: '',
+				hasLoadedOnce: false,
+				showingVipModal: false,
 				recommendList: [],
+				recommendAdvertise: null,
 				recommendPage: 1,
 				recommendPageSize: 10,
 				recommendTotal: 0,
 				recommendLoading: false,
-				recommendHasMore: true
+				recommendHasMore: true,
+				playTimer: null
 			}
 		},
 		onLoad(options) {
+			// #ifdef APP-PLUS
+			// 禁用HTML5+ Runtime版本检查，防止弹出模块缺失提示
+			if (plus && plus.runtime && typeof plus.runtime.setRuntimeVersionCheck === 'function') {
+				plus.runtime.setRuntimeVersionCheck(false);
+			}
+			// #endif
 			// 从跳转参数中获取视频ID
 			if (options.id) {
 				this.videoId = options.id;
 			}
-			// 获取用户会员状态
+			// 先从本地缓存获取用户会员状态
 			const userInfo = uni.getStorageSync('userinfo');
 			this.isMember = userInfo && userInfo.is_member === 1;
+			// 调用接口获取最新用户信息
+			this.loadUserInfo();
 			// 调用接口获取视频详情
 			this.loadVideoData();
 			// 加载相关推荐
@@ -184,6 +227,8 @@
 			this.loadRecommendList()
 		},
 		onUnload() {
+			// 清理定时器
+			this.clearPlayTimer();
 			// 停止视频播放
 			try {
 				const videoContext = uni.createVideoContext('videoPlayer', this);
@@ -193,8 +238,61 @@
 			}
 		},
 		methods: {
+			formatTime(timestamp) {
+				if (!timestamp) return '';
+				const date = new Date(timestamp * 1000);
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, '0');
+				const day = String(date.getDate()).padStart(2, '0');
+				return `${year}-${month}-${day}`;
+			},
 			goBack() {
 				uni.navigateBack();
+			},
+			openAdUrl(url) {
+				if (!url) return
+				// #ifdef APP-PLUS
+				if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
+					plus.runtime.openURL(url)
+					return
+				}
+				// #endif
+				// #ifdef H5
+				if (typeof window !== 'undefined' && window.open) {
+					window.open(url, '_blank')
+					return
+				}
+				// #endif
+				// 其他平台（微信小程序等）
+				uni.setClipboardData({
+					data: url,
+					success: () => {
+						uni.showToast({ title: '链接已复制，请到浏览器打开', icon: 'none' })
+					}
+				})
+			},
+			startPlayTimer() {
+				this.clearPlayTimer();
+			},
+			clearPlayTimer() {
+				if (this.playTimer) {
+					clearTimeout(this.playTimer);
+					this.playTimer = null;
+				}
+			},
+			loadUserInfo() {
+				UserApi_get_user_info().then(res => {
+					if (res && res.code === 1 && res.data) {
+						const userInfo = res.data;
+						if (userInfo.userinfo && userInfo.userinfo.is_member !== undefined) {
+							this.isMember = userInfo.userinfo.is_member === 1;
+							// 更新本地缓存
+							uni.setStorageSync('userinfo', userInfo.userinfo);
+						}
+					}
+				}).catch(err => {
+					console.error('获取用户信息失败:', err);
+				});
 			},
 			loadVideoData() {
 				if (!this.videoId) {
@@ -228,36 +326,125 @@
 			},
 			loadRecommendList() {
 				this.recommendLoading = true
-				this.recommendLoading = false
-				this.recommendTotal = 0
-				this.recommendHasMore = false
+				VodApi_get_recommend_videos({ 
+					video_id: this.videoId,
+					page: this.recommendPage,
+					page_size: this.recommendPageSize
+				}).then(res => {
+					console.log('推荐视频接口返回:', res);
+					if (res.code === 1 && res.data) {
+						// 只有第一页时才更新广告
+						if (this.recommendPage === 1) {
+							this.recommendAdvertise = res.data.advertise && res.data.advertise.length > 0 ? res.data.advertise[0] : null;
+						}
+						// 添加推荐视频列表
+						if (res.data.list && res.data.list.length > 0) {
+							if (this.recommendPage === 1) {
+								this.recommendList = res.data.list;
+							} else {
+								this.recommendList = [...this.recommendList, ...res.data.list];
+							}
+							this.recommendTotal = res.data.total || this.recommendList.length;
+						} else {
+							this.recommendHasMore = false;
+						}
+					}
+				}).catch(err => {
+					console.error('加载推荐视频失败:', err);
+				}).finally(() => {
+					this.recommendLoading = false;
+				});
 			},
 			onPlay() {
 				console.log('视频开始播放');
+				this.videoError = false;
 				this.playTime = 0;
 			},
 			onPause() {
 				console.log('视频暂停');
 			},
+			onLoadedMetadata(e) {
+				console.log('视频元数据加载完成:', e);
+				console.log('视频时长:', e.detail.duration);
+				this.hasLoadedOnce = true;
+			},
+			onCanPlay() {
+				console.log('视频可以播放了');
+			},
+			onVideoWaiting() {
+				console.log('视频缓冲中...');
+			},
 			onTimeUpdate(e) {
 				if (e && e.detail && e.detail.currentTime !== undefined) {
 					this.playTime = e.detail.currentTime;
 				}
-				// 如果不是免费视频且用户不是会员，限制观看10秒
-				if (this.isFree === 0 && !this.isMember && this.playTime >= 10 && !this.hasShownVipModal) {
-					this.hasShownVipModal = true;
+				this.checkMemberLimit();
+			},
+			checkMemberLimit() {
+				if (this.showingVipModal) {
+					return;
+				}
+				const userInfo = uni.getStorageSync('userinfo');
+				const currentIsMember = userInfo && userInfo.is_member === 1;
+				if (this.isFree === 0 && !currentIsMember && this.playTime >= 5) {
+					console.log('检测到非会员超过5秒限制');
+					this.showingVipModal = true;
+					try {
+						const videoContext = uni.createVideoContext('videoPlayer', this);
+						videoContext.pause();
+						videoContext.seek(5);
+					} catch(e) {
+						console.log('暂停视频失败', e);
+					}
+					this.playTime = 5;
 					this.showVipModal();
 				}
+			},
+			onSeeked(e) {
+				console.log('用户拖动进度条完成');
+				if (e && e.detail && e.detail.currentTime !== undefined) {
+					this.playTime = e.detail.currentTime;
+				}
+				this.checkMemberLimit();
 			},
 			handleVideoError(e) {
 				console.error('视频播放错误', e);
 				console.error('当前视频地址：', this.videoSrc);
+				if (e && e.detail) {
+					if (e.detail.errCode) {
+						if (e.detail.errCode === -1) {
+							this.videoError = true;
+							this.videoErrorText = '视频资源加载失败，请检查网络';
+						} else if (e.detail.errCode === -2) {
+							this.videoError = true;
+							this.videoErrorText = '视频格式不支持';
+						} else if (e.detail.errCode === -3) {
+							this.videoError = true;
+							this.videoErrorText = '视频解码失败';
+						} else {
+							console.log('忽略非致命视频错误:', e.detail.errCode);
+							return;
+						}
+						uni.showToast({
+							title: this.videoErrorText,
+							icon: 'none',
+							duration: 3000
+						});
+					}
+				}
+			},
+			retryPlay() {
+				this.videoError = false;
+				if (this.videoSrc) {
+					const videoContext = uni.createVideoContext('videoPlayer', this);
+					videoContext.load();
+					videoContext.play();
+				}
 			},
 			onEnded() {
 				console.log('视频播放结束');
 			},
 			showVipModal() {
-				// 暂停视频
 				const videoContext = uni.createVideoContext('videoPlayer', this);
 				videoContext.pause();
 				
@@ -267,11 +454,18 @@
 					confirmText: '开通会员',
 					cancelText: '取消',
 					success: (res) => {
+						this.showingVipModal = false;
 						if (res.confirm) {
-							uni.navigateTo({
-								url: '/pages/mine/vip'
+							uni.switchTab({
+								url: '/pages/vip/index'
 							});
 						}
+					},
+					fail: () => {
+						this.showingVipModal = false;
+					},
+					complete: () => {
+						this.showingVipModal = false;
 					}
 				});
 			},
@@ -341,15 +535,30 @@
 	}
 
 	/* 自定义导航栏 */
+	.top-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 9999;
+		padding: 30rpx 30rpx;
+		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
 	.custom-navbar {
+		// position: fixed;
+		// top: var(--status-bar-height, 44px);
+		// left: 0;
+		// right: 0;
+		// z-index: 100;
+		width: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 40rpx 30rpx 20rpx;
-		background-color: #16213e;
-		position: sticky;
-		top: 0;
-		z-index: 100;
+		// padding: 20rpx 30rpx;
+		// background-color: #16213e;
 	}
 
 	.navbar-back {
@@ -380,6 +589,7 @@
 		height: 420rpx;
 		background-color: #000;
 		position: relative;
+		padding-top: 120rpx;
 	}
 
 	.video-player {
@@ -389,19 +599,63 @@
 
 	.video-placeholder {
 		position: absolute;
-		top: 0;
+		top: 120rpx;
 		left: 0;
 		width: 100%;
-		height: 100%;
+		height: calc(100% - 120rpx);
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		background-color: #000;
 	}
 
+	.loading-spinner {
+		width: 60rpx;
+		height: 60rpx;
+		border: 4rpx solid rgba(255, 255, 255, 0.3);
+		border-top-color: #ff6b6b;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
 	.placeholder-text {
+		margin-top: 20rpx;
 		color: #888;
 		font-size: 28rpx;
+	}
+
+	.video-error {
+		position: absolute;
+		top: 120rpx;
+		left: 0;
+		width: 100%;
+		height: calc(100% - 120rpx);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(0, 0, 0, 0.8);
+	}
+
+	.error-text {
+		color: #ff6b6b;
+		font-size: 28rpx;
+		margin-bottom: 30rpx;
+	}
+
+	.retry-btn {
+		padding: 20rpx 60rpx;
+		background-color: #ff6b6b;
+		color: #fff;
+		font-size: 28rpx;
+		border-radius: 40rpx;
 	}
 
 	.vip-label {
@@ -464,8 +718,8 @@
 		font-size: 32rpx;
 		color: #fff;
 		font-weight: 600;
-		line-height: 1.5;
-		margin-bottom: 20rpx;
+		line-height: 56rpx;
+		// margin-bottom: 20rpx;
 	}
 
 	.video-meta {
@@ -607,27 +861,66 @@
 		color: #999;
 	}
 
+	.ad-item {
+		margin-bottom: 15rpx;
+		border-radius: 16rpx;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.ad-image {
+		width: 100%;
+		height: 200rpx;
+	}
+
+	.ad-overlay {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+		padding: 40rpx 20rpx 15rpx;
+	}
+
+	.ad-title {
+		color: #fff;
+		font-size: 24rpx;
+	}
+
 	.video-list {
 		display: flex;
 		flex-direction: column;
-		gap: 15rpx;
+		gap: 20rpx;
 	}
 
-	.video-card {
-		display: flex;
+	.content-item {
 		background-color: #16213e;
-		border-radius: 12rpx;
+		border-radius: 16rpx;
 		overflow: hidden;
-		padding: 15rpx;
 	}
 
-	.video-cover {
-		width: 240rpx;
-		height: 160rpx;
+	.item-cover-wrap {
 		position: relative;
-		flex-shrink: 0;
-		border-radius: 12rpx;
+		width: 100%;
+		height: 370rpx;
+	}
+
+	.item-title-overlay {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+		padding: 60rpx 20rpx 15rpx;
+	}
+
+	.item-title {
+		color: #fff;
+		font-size: 28rpx;
+		font-weight: 500;
 		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.cover-image {
@@ -640,9 +933,9 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 70rpx;
-		height: 70rpx;
-		background-color: rgba(0, 0, 0, 0.5);
+		width: 80rpx;
+		height: 80rpx;
+		background-color: rgba(0, 0, 0, 0.6);
 		border-radius: 50%;
 		display: flex;
 		align-items: center;
@@ -651,49 +944,69 @@
 
 	.play-icon {
 		color: #fff;
-		font-size: 28rpx;
-		margin-left: 4rpx;
+		font-size: 32rpx;
+		margin-left: 5rpx;
 	}
 
 	.video-duration {
 		position: absolute;
-		bottom: 10rpx;
-		right: 10rpx;
+		bottom: 15rpx;
+		right: 15rpx;
 		background-color: rgba(0, 0, 0, 0.7);
 		color: #fff;
-		font-size: 20rpx;
-		padding: 4rpx 10rpx;
-		border-radius: 6rpx;
-	}
-
-	.video-detail {
-		flex: 1;
-		padding: 0 20rpx;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-	}
-
-	.detail-title {
-		font-size: 26rpx;
-		color: #fff;
-		font-weight: 500;
-		line-height: 1.4;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.detail-meta {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-
-	.meta-view {
 		font-size: 22rpx;
+		padding: 6rpx 12rpx;
+		border-radius: 8rpx;
+	}
+
+	.play-count {
+		position: absolute;
+		top: 15rpx;
+		left: 15rpx;
+		background-color: rgba(0, 0, 0, 0.6);
+		color: #fff;
+		font-size: 22rpx;
+		padding: 6rpx 12rpx;
+		border-radius: 8rpx;
+	}
+
+	.vip-badge {
+		position: absolute;
+		top: 15rpx;
+		right: 15rpx;
+		background: linear-gradient(135deg, #ffd700, #ff8c00);
+		color: #1a1a1a;
+		font-size: 22rpx;
+		font-weight: 600;
+		padding: 6rpx 12rpx;
+		border-radius: 8rpx;
+	}
+
+	.item-footer {
+		padding: 16rpx 20rpx;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.time-text {
+		font-size: 26rpx;
+		color: #999;
+	}
+
+	.item-like {
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+	}
+
+	.like-icon {
+		width: 32rpx;
+		height: 32rpx;
+	}
+
+	.like-text {
+		font-size: 26rpx;
 		color: #999;
 	}
 

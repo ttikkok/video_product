@@ -1,9 +1,7 @@
 <!-- 顶部组件 -->
 <template>
 	<view>
-		<view class="index-5" :class="isSticky ? 'position-sticky' : 'position-fixed'">
-			<u-status-bar></u-status-bar>
-			<view v-if="isStatus" :style="{height: `${statusHeight}px`, backgroundColor: bgColor}"></view>
+		<view class="index-5" :class="isSticky ? 'position-sticky' : 'position-fixed'" :style="{paddingTop: `${statusHeight}px`}">
 			<view class="top top-0 index-1"
 				:style="{height: `${navbarHeight}px`, borderBottom: borderBottom ? '1rpx solid #f5f5f5' : 'none'}">
 				<view :style="{backgroundColor: bgColor}" class="tabbar d-flex j-center a-center position-relative">

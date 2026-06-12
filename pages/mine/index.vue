@@ -1,15 +1,19 @@
 <template>
 	<view class="page">
 		<!-- 顶部导航 -->
-		<view class="top-nav">
-			<view class="nav-title">我的</view>
-			<!-- @click="goToSetting" -->
-			<view class="nav-setting" >
-				<!-- <image src="../../static/images/setting.png" mode="widthFix" style="width: 40rpx;"></image> -->
+		<view class="top-header">
+			<u-status-bar bg-Color="#16213e"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-title">我的</view>
+				<!-- @click="goToSetting" -->
+				<view class="nav-setting" >
+					<!-- <image src="../../static/images/setting.png" mode="widthFix" style="width: 40rpx;"></image> -->
+				</view>
 			</view>
 		</view>
 
 		<!-- 用户信息 -->
+		<u-status-bar></u-status-bar>
 		<view class="user-section">
 			<view class="user-info">
 				<image :src="userInfo.avatar" mode="aspectFill" class="user-avatar" />
@@ -25,7 +29,7 @@
 				</view>
 			</view>
 			<view v-if="!isBound" class="device-id">
-				<text class="device-label">设备ID：{{ deviceId }}</text>
+				<!-- <text class="device-label">设备ID：{{ deviceId }}</text> -->
 				<text class="device-hint">当前为游客模式，绑定账号后数据可同步</text>
 			</view>
 		</view>
@@ -108,18 +112,19 @@
 			</view>
 		</view>
 
-		<view class="menu-section">
+		<!-- <view class="menu-section">
 			<view class="menu-item" @click="goToPage('about')">
 				<image src="../../static/images/guanyu.png" mode="widthFix" class="menu-icon"></image>
 				<text class="menu-name">关于我们</text>
 				<text class="menu-arrow">›</text>
 			</view>
-		</view>
+		</view> -->
 	</view>
 </template>
 
 <script>
 	import { UserApi_get_user_info } from '@/api/home.js'
+	import { getRealDeviceId, getDeviceIdSync } from '@/common/device.js'
 	export default {
 		data() {
 			return {
@@ -147,12 +152,16 @@
 		},
 		methods: {
 			getDeviceId() {
-				let deviceId = uni.getStorageSync('deviceId')
-				if (!deviceId) {
-					deviceId = 'UDID_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-					uni.setStorageSync('deviceId', deviceId)
+				// 优先从缓存读取
+				const cachedId = getDeviceIdSync()
+				if (cachedId) {
+					this.deviceId = cachedId.slice(-16)
+					return
 				}
-				this.deviceId = deviceId.slice(-16)
+				// 异步获取真实设备ID
+				getRealDeviceId().then(deviceId => {
+					this.deviceId = deviceId.slice(-16)
+				})
 			},
 			loadUserInfo() {
 				UserApi_get_user_info({}).then(res => {
@@ -233,23 +242,25 @@
 		min-height: 100vh;
 		background-color: #1a1a2e;
 		padding-bottom: 120rpx;
-		padding-top: calc(120rpx + constant(safe-area-inset-top));
-		padding-top: calc(120rpx + env(safe-area-inset-top));
+		padding-top: 120rpx;
 	}
 
-	.top-nav {
+	.top-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
+		padding: 30rpx 30rpx;
+		background-color: #16213e;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+	.top-nav-view {
+		width: 100%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding: 30rpx 30rpx;
-		padding-top: calc(30rpx + constant(safe-area-inset-top));
-		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
 	}
 
 	.nav-title {

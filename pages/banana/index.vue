@@ -2,6 +2,7 @@
 	<view class="page">
 		<!-- 固定顶部导航 -->
 		<view class="fixed-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
 			<!-- 顶部搜索栏 -->
 			<view class="search-header">
 				<view class="search-bar">
@@ -36,16 +37,17 @@
 		</view>
 
 		<!-- 帖子列表 -->
-		<scroll-view scroll-y class="post-list" @scrolltolower="loadMore">
+		<scroll-view scroll-y class="post-list" @scrolltolower="loadMore" @scroll="onScroll">
+			<u-status-bar></u-status-bar>
 			<!-- 空状态 -->
 			<u-empty v-if="!loading && postList.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<template v-if="postList.length > 0">
 				<view v-for="(post, index) in postList" :key="index" class="post-page">
-					<view v-if="post.is_advertise" class="advertise-card" @click="openAdvertiseUrl(post.url)">
+					<view v-if="post.is_advertise" class="advertise-card" @click.stop="openAdvertiseUrl(post.url)">
 						<image :src="post.image || post.cover_image" mode="aspectFill" class="advertise-image" />
 					</view>
-					<view v-else @click="goToDetail(post)">
+					<view v-else @click.stop="goToDetail(post)">
 				<!-- 帖子内容 -->
 				<view class="post-content">
 					<text>{{ post.title }}</text>
@@ -53,14 +55,26 @@
 
 				<!-- 视频直接加载 -->
 				<view v-if="post.video" class="post-media video-container">
+					<!-- <sunny-video 
+						 ref="sunnyVideoRef" 
+						 title="视频"
+						 :src="post.video" 
+						 :poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
+						 :trialTime="0"
+						 :seekTime="0"
+						 @timeupdate="timeupdate" 
+						 zIndex="0"
+				 /> -->
 					<video 
 						:src="post.video" 
 						class="video-player" 
 						:poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
-						:duration="post.duration"
 						controls
 						show-center-play-btn
-						enable-progress-gesture
+						show-fullscreen-btn
+						object-fit="cover"
+						playsinline
+						webkit-playsinline
 					/>
 					<text v-if="post.duration" class="video-duration">{{ post.duration }}</text>
 				</view>
@@ -277,6 +291,8 @@
 					]
 				})
 			},
+			timeupdate(e){
+      },
 			switchNavTab(index) {
 				this.activeTab = index
 				this.currentCategoryId = this.categoryList[index] && this.categoryList[index].id !== undefined ? this.categoryList[index].id : null
@@ -491,7 +507,7 @@
 		left: 0;
 		right: 0;
 		background-color: #16213e;
-		z-index: 100;
+		z-index: 9999;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
@@ -649,10 +665,13 @@
 
 	/* 帖子列表 */
 	.post-list {
-		height: calc(100vh - 200rpx - 98rpx - constant(safe-area-inset-bottom));
-		height: calc(100vh - 200rpx - 98rpx - env(safe-area-inset-bottom));
+		height: calc(100vh - 120rpx -98rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 120rpx -98rpx - env(safe-area-inset-bottom));
 		padding-top: calc(200rpx + constant(safe-area-inset-top));
 		padding-top: calc(200rpx + env(safe-area-inset-top));
+		// box-sizing: content-box;
+		// padding-left: 20rpx;
+		// padding-right: 20rpx;
 		box-sizing: content-box;
 	}
 
@@ -660,6 +679,8 @@
 		background-color: #16213e;
 		margin-bottom: 20rpx;
 		padding: 20rpx;
+		border-radius: 16rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
 	}
 
 	/* 帖子头部 */
@@ -718,28 +739,36 @@
 	/* 帖子标签 */
 	.post-tags {
 		display: flex;
-		gap: 10rpx;
-		margin-bottom: 15rpx;
+		gap: 12rpx;
+		margin-bottom: 20rpx;
+		flex-wrap: wrap;
 	}
 
 	.post-tag {
 		font-size: 24rpx;
-		padding: 6rpx 16rpx;
-		border-radius: 6rpx;
-		background-color: rgba(107, 163, 224, 0.2);
+		padding: 8rpx 18rpx;
+		border-radius: 20rpx;
+		background-color: rgba(107, 163, 224, 0.15);
 		color: #6BA3E0;
+		border: 1rpx solid rgba(107, 163, 224, 0.3);
 	}
 	.post-page {
 		width: 100%;
-		padding: 20rpx 20rpx 0 20rpx;
+		padding: 20rpx;
+		background-color: #16213e;
+		// border-radius: 16rpx;
+		// box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		margin-bottom: 20rpx;
 	}
 
 	/* 帖子内容 */
 	.post-content {
-		font-size: 28rpx;
+		font-size: 30rpx;
 		color: #fff;
-		line-height: 1.6;
-		margin-bottom: 15rpx;
+		line-height: 1.7;
+		margin-bottom: 20rpx;
+		white-space: pre-wrap;
+		word-break: break-word;
 	}
 
 	.expand-text {
@@ -749,14 +778,16 @@
 	/* 帖子媒体 */
 	.post-media {
 		position: relative;
-		margin-bottom: 15rpx;
-		// border-radius: 12rpx;
+		margin-bottom: 20rpx;
+		border-radius: 12rpx;
 		overflow: hidden;
+		background-color: #0f0f1a;
+		z-index: 0;
 	}
 
 	.media-image {
 		width: 100%;
-		height: 400rpx;
+		height: 420rpx;
 		display: block;
 	}
 
@@ -787,37 +818,37 @@
 		justify-content: center;
 	}
 
-	.video-player {
-		width: 100%;
-		height: 400rpx;
-	}
-
 	.video-container {
 		position: relative;
 		width: 100%;
+		border-radius: 12rpx;
+		overflow: hidden;
 	}
 
 	.video-player {
 		width: 100%;
-		height: 400rpx;
+		height: 420rpx;
 	}
 
 	.video-duration {
 		position: absolute;
-		bottom: 10rpx;
-		right: 10rpx;
-		background-color: rgba(0, 0, 0, 0.7);
-		padding: 4rpx 12rpx;
-		border-radius: 6rpx;
+		bottom: 12rpx;
+		right: 12rpx;
+		background-color: rgba(0, 0, 0, 0.75);
+		padding: 6rpx 14rpx;
+		border-radius: 8rpx;
 		font-size: 24rpx;
 		color: #fff;
 		z-index: 10;
+		backdrop-filter: blur(4rpx);
 	}
 
 	.images-grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: 4rpx;
+		gap: 8rpx;
+		border-radius: 12rpx;
+		overflow: hidden;
 	}
 
 	.grid-image {
@@ -825,9 +856,16 @@
 		height: 220rpx;
 	}
 
+	.single-image {
+		border-radius: 12rpx;
+		overflow: hidden;
+	}
+
 	.single-image .media-image {
+		width: 100%;
 		height: auto;
 		max-height: 500rpx;
+		display: block;
 	}
 
 	/* 互动数据 */
@@ -835,31 +873,43 @@
 		display: flex;
 		align-items: center;
 		gap: 50rpx;
-		margin-bottom: 15rpx;
+		margin-bottom: 0;
+		padding-top: 20rpx;
+		border-top: 1rpx solid rgba(255, 255, 255, 0.08);
 	}
 
 	.stat-item {
 		display: flex;
 		align-items: center;
-		gap: 5rpx;
-		// font-size: 24rpx;
-		color: #999;
+		gap: 10rpx;
+		font-size: 26rpx;
+		color: #888;
 		white-space: nowrap;
+		transition: all 0.3s ease;
+	}
+
+	.stat-item.active {
+		color: #ff6b6b;
 	}
 
 	.stat-icon {
-		width: 30rpx;
-		height: 30rpx;
+		width: 32rpx;
+		height: 32rpx;
 		margin-right: 8rpx;
 		flex-shrink: 0;
 	}
 
+	.stat-text {
+		font-size: 26rpx;
+	}
+
 	.reward-btn {
-		background-color: #e74c3c;
+		background-color: linear-gradient(135deg, #ff6b6b, #ee5a5a);
 		color: #fff;
-		padding: 5rpx 15rpx;
-		border-radius: 4rpx;
+		padding: 8rpx 20rpx;
+		border-radius: 20rpx;
 		margin-left: auto;
+		font-size: 24rpx;
 	}
 
 	.reward-btn .stat-text {
@@ -1008,16 +1058,16 @@
 	}
 
 	.advertise-card {
-		background-color: #1a1a2e;
-		padding: 20rpx 0;
-		// border-radius: 12rpx;
+		background-color: #16213e;
+		border-radius: 16rpx;
 		overflow: hidden;
-		// margin-bottom: 15rpx;
+		margin-bottom: 20rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
 	}
 
 	.advertise-image {
 		width: 100%;
-		height: 200rpx;
+		height: 240rpx;
 		display: block;
 	}
 </style>

@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<u-status-bar bg-color="#16213e"></u-status-bar>
 		<view class="search-header">
 			<view class="back-btn" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -272,16 +273,17 @@
 	.page {
 		min-height: 100vh;
 		background-color: #1a1a2e;
-		padding-top: constant(safe-area-inset-top);
-		padding-top: env(safe-area-inset-top);
 	}
 
 	.search-header {
+		position: fixed;
+		top: var(--status-bar-height, 44px);
+		left: 0;
+		right: 0;
+		z-index: 100;
 		display: flex;
 		align-items: center;
 		padding: 20rpx;
-		padding-top: calc(20rpx + constant(safe-area-inset-top));
-		padding-top: calc(20rpx + env(safe-area-inset-top));
 		background-color: #16213e;
 	}
 
@@ -312,6 +314,7 @@
 	.virtual-tags {
 		background-color: #16213e;
 		padding: 20rpx 0;
+		padding-top: 140rpx;
 		border-bottom: 1rpx solid #2a2a4a;
 	}
 

@@ -6,7 +6,8 @@
 				"navigationBarTitleText": "",
 				"navigationBarBackgroundColor": "#16213e",
 				"navigationBarTextStyle": "white",
-				"navigationStyle": "custom"
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

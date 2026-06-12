@@ -1,13 +1,16 @@
 <template>
 	<view class="page">
 		<canvas canvas-id="promotionCanvas" class="promotion-canvas"></canvas>
-		<view class="top-nav">
-			<view class="nav-back" @click="goBack">
-				<image src="../../static/images/back_black.png" mode="widthFix" class="back-icon" />
-			</view>
-			<view class="nav-title">推广中心</view>
-			<view class="nav-right" @click="goToMyPromotion">
-				<text class="right-text">我的推广</text>
+		<view class="top-header">
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<view class="top-nav-view">
+				<view class="nav-back" @click="goBack">
+					<image src="../../static/images/back_black.png" mode="widthFix" class="back-icon" />
+				</view>
+				<view class="nav-title">推广中心</view>
+				<view class="nav-right" @click="goToMyPromotion">
+					<text class="right-text">我的推广</text>
+				</view>
 			</view>
 		</view>
 
@@ -34,8 +37,12 @@
 				<view class="invite-card">
 					<image :src="userAvatar" mode="aspectFill" class="invite-avatar" />
 					<view class="invite-info">
-						<text class="invite-label">我的邀请码:</text>
-						<text class="invite-code">{{ inviteCode }}</text>
+						<text class="invite-label">推广码:</text>
+						<text class="invite-code">{{ promotionalCode }}</text>
+					</view>
+					<view class="invite-link-wrap">
+						<text class="invite-link-label">推广链接:</text>
+						<text class="invite-link-text">{{ promotionalLink }}</text>
 					</view>
 					<view class="invite-tip">扫码即可邀请下载(邀请码自动上报，无需手动填写)</view>
 				</view>
@@ -46,7 +53,10 @@
 					<view class="qr-frame">
 						<image :src="qrCode" mode="aspectFit" class="qr-image" />
 					</view>
-					<text class="qr-link">您的邀请链接为: {{ inviteLink }}</text>
+					<view class="qr-link-wrap">
+						<text class="qr-link-label">您的邀请链接为:</text>
+						<text class="qr-link-text">{{ inviteLink }}</text>
+					</view>
 					<view class="qr-actions">
 						<view class="action-btn action-save" @click="saveQrCode">
 							<text>保存图片</text>
@@ -173,6 +183,8 @@
 				inviteCode: 'C1VE2D',
 				qrCode: '',
 				inviteLink: 'https://hao09.tv/invite/C1VE2D',
+				promotionalLink: '',
+				promotionalCode: '',
 				todayViews: 1,
 				cacheCount: 0,
 				showSaveSuccess: false,
@@ -212,6 +224,12 @@
 						this.needMore = data.promotion_num.need_more || 0
 						this.rules = data.promotion_num.rules || []
 						this.promotionRules = data.promotion_rules || []
+						// 更新推广链接和推广码
+						this.promotionalLink = data.promotional_link || ''
+						this.promotionalCode = data.promotional_code || ''
+						// 更新邀请链接和邀请码
+						this.inviteLink = this.promotionalLink || this.inviteLink
+						this.inviteCode = this.promotionalCode || this.inviteCode
 					}
 				}).catch(err => {
 					console.error('获取推广规则失败', err)
@@ -354,7 +372,33 @@
 				uni.showToast({ title: '任务中心开发中', icon: 'none' })
 			},
 			handlePromote() {
-				uni.showToast({ title: '推广功能开发中', icon: 'none' })
+				if (!this.promotionalLink) {
+					uni.showToast({ title: '推广链接未获取', icon: 'none' })
+					return
+				}
+				this.openExternalURL(this.promotionalLink)
+			},
+			openExternalURL(url) {
+				if (!url) return
+				// #ifdef APP-PLUS
+				if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
+					plus.runtime.openURL(url)
+					return
+				}
+				// #endif
+				// #ifdef H5
+				if (typeof window !== 'undefined' && window.open) {
+					window.open(url, '_blank')
+					return
+				}
+				// #endif
+				// 其他平台（微信小程序等）
+				uni.setClipboardData({
+					data: url,
+					success: () => {
+						uni.showToast({ title: '链接已复制，请到浏览器打开', icon: 'none' })
+					}
+				})
 			}
 		}
 	}
@@ -364,8 +408,7 @@
 	.page {
 		min-height: 100vh;
 		background-color: #f5f5f5;
-		padding-top: calc(120rpx + constant(safe-area-inset-top));
-		padding-top: calc(120rpx + env(safe-area-inset-top));
+		padding-top: 120rpx;
 	}
 
 	.promotion-canvas {
@@ -418,22 +461,39 @@
 		width: 100%;
 	}
 
-	.top-nav {
+	.top-header {
 		position: fixed;
 		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+		padding: 30rpx 30rpx;
+		background-color: #fff;
+		padding-top: calc(20rpx + constant(safe-area-inset-top));
+		padding-top: calc(20rpx + env(safe-area-inset-top));
+	}
+
+	.top-nav-view {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.top-nav {
+		position: fixed;
+		top: var(--status-bar-height, 44px);
 		left: 0;
 		right: 0;
 		z-index: 100;
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		padding-top: calc(30rpx + constant(safe-area-inset-top));
-		padding-top: calc(30rpx + env(safe-area-inset-top));
 		background-color: #fff;
 	}
 
 	.nav-back {
-		width: 100rpx;
+		width: 120rpx;
 		display: flex;
 		align-items: center;
 		justify-content: left;
@@ -453,7 +513,7 @@
 	}
 
 	.nav-right {
-		width: 100rpx;
+		width: 120rpx;
 		text-align: right;
 	}
 
@@ -552,6 +612,31 @@
 		font-family: 'Courier New', monospace;
 	}
 
+	.invite-link-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin-top: 10rpx;
+		padding: 15rpx 20rpx;
+		background-color: #f8f9fa;
+		border-radius: 10rpx;
+		width: 100%;
+	}
+
+	.invite-link-label {
+		font-size: 24rpx;
+		color: #999;
+		margin-bottom: 8rpx;
+	}
+
+	.invite-link-text {
+		font-size: 26rpx;
+		color: #333;
+		word-break: break-all;
+		text-align: center;
+		line-height: 1.4;
+	}
+
 	.invite-tip {
 		font-size: 22rpx;
 		color: #999;
@@ -584,10 +669,25 @@
 		height: 300rpx;
 	}
 
-	.qr-link {
+	.qr-link-wrap {
+		width: 100%;
+		margin-bottom: 30rpx;
+	}
+
+	.qr-link-label {
 		font-size: 22rpx;
 		color: #999;
-		margin-bottom: 30rpx;
+		display: block;
+		margin-bottom: 8rpx;
+	}
+
+	.qr-link-text {
+		font-size: 24rpx;
+		color: #666;
+		word-break: break-all;
+		word-wrap: break-word;
+		display: block;
+		line-height: 1.5;
 	}
 
 	.qr-actions {

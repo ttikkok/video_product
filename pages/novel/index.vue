@@ -1,6 +1,7 @@
 <template>
 	<view class="page">
 		<view class="fixed-header">
+			<u-status-bar bg-color="#16213e"></u-status-bar>
 			<view class="search-header">
 				<view class="search-bar">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
@@ -23,6 +24,7 @@
 		</view>
 
 		<scroll-view scroll-y class="novel-list" @scrolltolower="loadMore">
+			<u-status-bar></u-status-bar>
 			<u-empty v-if="!loading && novels.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<view v-if="novels.length > 0" class="list-container">
@@ -274,8 +276,8 @@
 	}
 
 	.novel-list {
-		height: calc(100vh - 200rpx - 98rpx - constant(safe-area-inset-bottom));
-		height: calc(100vh - 200rpx - 98rpx - env(safe-area-inset-bottom));
+		height: calc(100vh - 120rpx - 98rpx - constant(safe-area-inset-bottom));
+		height: calc(100vh - 120rpx - 98rpx - env(safe-area-inset-bottom));
 		padding-top: calc(200rpx + constant(safe-area-inset-top));
 		padding-top: calc(200rpx + env(safe-area-inset-top));
 		box-sizing: content-box;

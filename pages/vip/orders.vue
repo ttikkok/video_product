@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<u-status-bar bgColor="#16213e"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back_black.png" mode="widthFix" class="back-icon" />
@@ -11,8 +12,6 @@
 		<scroll-view 
 			scroll-y 
 			class="content-scroll"
-			:refresher-enabled="true"
-			@refresherrefresh="refresh"
 			@scrolltolower="loadMore"
 		>
 			<view class="orders-container">
@@ -230,21 +229,18 @@
 	.page {
 		min-height: 100vh;
 		background-color: #f5f5f5;
-		padding-top: calc(120rpx + constant(safe-area-inset-top));
-		padding-top: calc(120rpx + env(safe-area-inset-top));
+		padding-top: 120rpx;
 	}
 
 	.top-nav {
 		position: fixed;
-		top: 0;
+		top: var(--status-bar-height, 44px);
 		left: 0;
 		right: 0;
 		z-index: 100;
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		padding-top: calc(30rpx + constant(safe-area-inset-top));
-		padding-top: calc(30rpx + env(safe-area-inset-top));
 		background-color: #fff;
 	}
 
