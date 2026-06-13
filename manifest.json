@@ -1,7 +1,7 @@
 {
-    "name" : "home",
+    "name" : "视频APP",
     "appid" : "__UNI__14F1142",
-    "description" : "home",
+    "description" : "视频APP",
     "versionName" : "1.0",
     "versionCode" : 1,
     "transformPx" : false,
@@ -46,7 +46,8 @@
                 "ad" : {}
             },
             "splashscreen" : {
-                "useOriginalMsgbox" : false
+                "useOriginalMsgbox" : false,
+                "androidStyle" : "common"
             },
             "icons" : {
                 "android" : {

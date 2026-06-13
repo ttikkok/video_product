@@ -12,6 +12,7 @@
 			</view>
 		</view>
 
+		<u-status-bar></u-status-bar>
 		<!-- 视频播放窗口 -->
 		<view class="video-container">
 			<video 
