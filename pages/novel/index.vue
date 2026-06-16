@@ -31,28 +31,32 @@
 				<view 
 					v-for="(novel, index) in novels" 
 					:key="index"
-					class="novel-card"
-					@click="goToRead(novel)"
+					class="novel-item"
 				>
-					<view class="novel-cover">
-						<image :src="novel.cover" mode="aspectFill" class="cover-image" />
-						<view v-if="novel.isVip" class="vip-badge">VIP</view>
-						<view v-if="novel.isFinished" class="finish-badge">已完结</view>
+					<view v-if="novel.is_advertise" class="advertise-card" @click="openAdvertiseUrl(novel.url)">
+						<image :src="novel.image || novel.cover_image" mode="aspectFill" class="advertise-image" />
 					</view>
-					<view class="novel-info">
-						<text class="novel-title">{{ novel.title }}</text>
-						<text class="novel-author">{{ novel.author }}</text>
-						<view class="novel-tags">
-							<text 
-								v-for="(tag, tagIndex) in novel.tags" 
-								:key="tagIndex"
-								class="novel-tag"
-							>{{ tag }}</text>
+					<view v-else class="novel-card" @click="goToRead(novel)">
+						<view class="novel-cover">
+							<image :src="novel.cover" mode="aspectFill" class="cover-image" />
+							<view v-if="novel.isVip" class="vip-badge">VIP</view>
+							<view v-if="novel.isFinished" class="finish-badge">已完结</view>
 						</view>
-						<text class="novel-intro">{{ novel.intro }}</text>
-						<view class="novel-stats">
-							<view class="stat-text"><image src="../../static/images/look.png" mode="widthFix" class="stat-icon" />{{ novel.views }}</view>
-							<view class="stat-text"><image src="../../static/images/shu.png" mode="widthFix" class="stat-icon" />{{ novel.chapters }}</view>
+						<view class="novel-info">
+							<text class="novel-title">{{ novel.title }}</text>
+							<text class="novel-author">{{ novel.author }}</text>
+							<view class="novel-tags">
+								<text 
+									v-for="(tag, tagIndex) in novel.tags" 
+									:key="tagIndex"
+									class="novel-tag"
+								>{{ tag }}</text>
+							</view>
+							<text class="novel-intro">{{ novel.intro }}</text>
+							<view class="novel-stats">
+								<view class="stat-text"><image src="../../static/images/look.png" mode="widthFix" class="stat-icon" />{{ novel.views }}</view>
+								<view class="stat-text"><image src="../../static/images/shu.png" mode="widthFix" class="stat-icon" />{{ novel.chapters }}</view>
+							</view>
 						</view>
 					</view>
 				</view>
@@ -70,7 +74,7 @@
 </template>
 
 <script>
-	import { NovelApi_novel_type_list, NovelApi_novel_data_list_search } from '@/api/home.js'
+	import { NovelApi_novel_type_list, NovelApi_novel_data_list_search, AdvertiseApi_advertise_list } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -82,11 +86,14 @@
 				pageSize: 10,
 				total: 0,
 				loading: false,
-				hasMore: true
+				hasMore: true,
+				advertiseList: [],
+				actualDataCount: 0
 			}
 		},
 		onLoad() {
 			this.loadCategories()
+			this.loadAdvertiseList()
 			this.loadNovelList()
 		},
 		methods: {
@@ -99,10 +106,65 @@
 					console.error('加载分类失败:', err)
 				})
 			},
+			loadAdvertiseList() {
+				console.log('开始加载小说广告位')
+				AdvertiseApi_advertise_list({ name: '小说广告位' }).then(res => {
+					console.log('广告接口返回:', res)
+					if (res && res.code === 1 && res.data && Array.isArray(res.data)) {
+						this.advertiseList = res.data
+						console.log('广告列表加载成功:', this.advertiseList.length, '条')
+					} else {
+						console.log('广告列表为空或返回格式错误')
+					}
+				}).catch(err => {
+					console.error('加载广告列表失败:', err)
+				})
+			},
+			insertAdvertise(list) {
+				if (!this.advertiseList || this.advertiseList.length === 0) {
+					return list
+				}
+				const result = []
+				let advertiseIndex = 0
+				const advertiseCount = this.advertiseList.length
+				list.forEach((item, index) => {
+					result.push(item)
+					if ((index + 1) % 3 === 0) {
+						result.push({
+							...this.advertiseList[advertiseIndex % advertiseCount],
+							is_advertise: true,
+							ad_index: advertiseIndex
+						})
+						advertiseIndex++
+					}
+				})
+				return result
+			},
+			openAdvertiseUrl(url) {
+				if (!url) return
+				// #ifdef APP-PLUS
+				if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
+					plus.runtime.openURL(url)
+					return
+				}
+				// #endif
+				// #ifdef H5
+				if (typeof window !== 'undefined' && window.open) {
+					window.open(url, '_blank')
+					return
+				}
+				// #endif
+				uni.setClipboardData({
+					data: url,
+					success: () => {
+						uni.showToast({ title: '链接已复制，请到浏览器打开', icon: 'none' })
+					}
+				})
+			},
 			loadMore() {
 				if (this.loading) return
 				if (!this.hasMore) return
-				if (this.novels.length >= this.total && this.total > 0) {
+				if (this.actualDataCount >= this.total && this.total > 0) {
 					this.hasMore = false
 					return
 				}
@@ -149,15 +211,21 @@
 							category: item.type_name || ''
 						}))
 						if (this.page === 1) {
-							this.novels = novels
+							this.novels = this.insertAdvertise(novels)
+							this.actualDataCount = novels.length
 						} else {
-							this.novels = [...this.novels, ...novels]
+							const newNovels = this.insertAdvertise(novels)
+							this.novels = [...this.novels, ...newNovels]
+							this.actualDataCount += novels.length
 						}
-						if (novels.length < this.pageSize) {
-							this.hasMore = false
+						if (this.total > 0) {
+							this.hasMore = this.actualDataCount < this.total
+						} else {
+							this.hasMore = novels.length >= this.pageSize
 						}
 					} else {
 						this.novels = []
+						this.actualDataCount = 0
 						this.hasMore = false
 					}
 				}).catch(err => {
@@ -174,6 +242,7 @@
 				this.total = 0
 				this.novels = []
 				this.hasMore = true
+				this.actualDataCount = 0
 				this.loadNovelList()
 			},
 			doSearch() {
@@ -181,6 +250,7 @@
 				this.total = 0
 				this.novels = []
 				this.hasMore = true
+				this.actualDataCount = 0
 				this.loadNovelList()
 			},
 			goToRead(novel) {
@@ -285,6 +355,10 @@
 
 	.list-container {
 		padding: 20rpx;
+	}
+
+	.novel-item {
+		display: block;
 	}
 
 	.novel-card {
@@ -400,5 +474,19 @@
 		width: 28rpx;
 		height: 28rpx;
 		margin-right: 5rpx;
+	}
+
+	.advertise-card {
+		background-color: #16213e;
+		border-radius: 16rpx;
+		overflow: hidden;
+		margin-bottom: 20rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+	}
+
+	.advertise-image {
+		width: 100%;
+		height: 240rpx;
+		display: block;
 	}
 </style>

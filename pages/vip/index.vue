@@ -60,7 +60,7 @@
 		</scroll-view>
 
 		<!-- VIP权益 -->
-		<view class="benefits-section">
+		<!-- <view class="benefits-section">
 			<view class="benefits-header">
 				<text class="benefits-title">VIP会员享价值</text>
 				<view class="benefits-value">
@@ -82,7 +82,7 @@
 					<text class="benefit-name">{{ benefit.name }}</text>
 				</view>
 			</view>
-		</view>
+		</view> -->
 
 		<!-- 推荐内容 -->
 		<!-- <view class="recommend-section">
@@ -382,8 +382,10 @@
 				}
 				
 				uni.showLoading({ title: '跳转支付中...' })
+				this.closePayModal()
 				uni.request({
 					url: selectedChannel.url,
+					header: { token: uni.getStorageSync('token') },
 					method: 'POST',
 					data: { order_id: that.orderId },
 					timeout: 10000,

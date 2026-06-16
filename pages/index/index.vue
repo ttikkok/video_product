@@ -124,9 +124,9 @@
 						>
 							<view class="video-cover">
 								<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-								<view class="video-overlay">
+								<!-- <view class="video-overlay">
 									<view class="play-icon">▶</view>
-								</view>
+								</view> -->
 								<text class="play-count">{{ video.playCount }}</text>
 								<text class="video-duration">{{ video.duration }}</text>
 								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
@@ -152,9 +152,9 @@
 						>
 							<view class="video-cover">
 								<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-								<view class="video-overlay">
+								<!-- <view class="video-overlay">
 									<view class="play-icon">▶</view>
-								</view>
+								</view> -->
 								<text class="play-count">{{ video.playCount }}</text>
 								<text class="video-duration">{{ video.duration }}</text>
 								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
@@ -180,9 +180,9 @@
 						>
 							<view class="left-video-cover">
 								<image :src="video.cover_image" mode="aspectFill" class="left-cover-image" />
-								<view class="left-video-overlay">
+								<!-- <view class="left-video-overlay">
 									<view class="left-play-icon">▶</view>
-								</view>
+								</view> -->
 								<text class="left-play-count">{{ video.playCount }}</text>
 								<text class="left-video-duration">{{ video.duration }}</text>
 								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
@@ -230,9 +230,9 @@
 						>
 							<view class="big-video-cover">
 								<image :src="video.cover_image" mode="aspectFill" class="big-cover-image" />
-								<view class="big-video-overlay">
+								<!-- <view class="big-video-overlay">
 									<view class="big-play-icon">▶</view>
-								</view>
+								</view> -->
 								<text class="big-play-count">{{ video.playCount }}</text>
 								<text class="big-video-duration">{{ video.duration }}</text>
 								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
@@ -265,9 +265,9 @@
 						>
 							<view class="small-video-cover">
 								<image :src="video.cover_image" mode="aspectFill" class="small-cover-image" />
-								<view class="small-video-overlay">
+								<!-- <view class="small-video-overlay">
 									<view class="small-play-icon">▶</view>
-								</view>
+								</view> -->
 								<view v-if="video.is_free === 0" class="vip-badge small">VIP</view>
 							</view>
 							<view class="small-video-title-row">
@@ -284,9 +284,9 @@
 						>
 							<view :class="['mixed-video-cover', { 'big': index % 3 === 0 }]">
 								<image :src="video.cover_image" mode="aspectFill" :class="['mixed-cover-image', { 'big': index % 3 === 0 }]" />
-								<view class="mixed-video-overlay">
+								<!-- <view class="mixed-video-overlay">
 									<view class="mixed-play-icon">▶</view>
-								</view>
+								</view> -->
 								<text class="mixed-play-count">{{ video.playCount }}</text>
 								<view v-if="video.is_free === 0" :class="['vip-badge', { 'small': index % 3 !== 0 }]">VIP</view>
 							</view>
@@ -307,9 +307,9 @@
 									<text class="category-video-title">{{ video.title }}</text>
 								</view>
 								<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-								<view class="video-overlay">
+								<!-- <view class="video-overlay">
 									<view class="play-icon">▶</view>
-								</view>
+								</view> -->
 								<text class="play-count">{{ video.playCount }}</text>
 								<text class="video-duration">{{ video.duration }}</text>
 								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
@@ -361,13 +361,13 @@
 						@click="handleVideoClick(video)"
 					>
 						<view class="category-video-cover">
-						<view class="category-video-title-overlay">
-							<text class="category-video-title">{{ video.title }}</text>
-						</view>
+							<!-- <view class="category-video-title-overlay">
+								<text class="category-video-title">{{ video.title }}</text>
+							</view> -->
 							<image :src="video.cover_image" mode="aspectFill" class="cover-image" />
-							<view class="video-overlay">
+							<!-- <view class="video-overlay">
 								<view class="play-icon">▶</view>
-							</view>
+							</view> -->
 							<text class="play-count">{{ video.playCount }}</text>
 							<text class="video-duration">{{ video.duration }}</text>
 							<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
@@ -503,7 +503,7 @@
 				const day = String(date.getDate()).padStart(2, '0')
 				const hours = String(date.getHours()).padStart(2, '0')
 				const minutes = String(date.getMinutes()).padStart(2, '0')
-				return `${year}-${month}-${day} ${hours}:${minutes}`
+				return `${month}-${day} ${hours}:${minutes}`
 			},
 			refreshPage() {
 				console.log('开始刷新页面')
@@ -1067,8 +1067,8 @@
 		// min-height: 100vh;
 		background-color: #1a1a2e;
 		// padding-bottom: 98rpx;
-		padding-top: calc(220rpx + constant(safe-area-inset-top));
-		padding-top: calc(220rpx + env(safe-area-inset-top));
+		padding-top: calc(170rpx + constant(safe-area-inset-top));
+		padding-top: calc(170rpx + env(safe-area-inset-top));
 	}
 	
 	.top-header {
@@ -1078,16 +1078,16 @@
 		right: 0;
 		z-index: 100;
 		background-color: #16213e;
-		padding: 20rpx;
-		padding-top: calc(20rpx + constant(safe-area-inset-top));
-		padding-top: calc(20rpx + env(safe-area-inset-top));
+		padding: 10rpx 15rpx;
+		padding-top: calc(15rpx + constant(safe-area-inset-top));
+		padding-top: calc(15rpx + env(safe-area-inset-top));
 	}
 	
 	.tabs-wrapper {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		padding: 20rpx 0;
+		padding-bottom: 10rpx;
 		gap: 10rpx;
 	}
 
@@ -1133,18 +1133,29 @@
 		display: inline-flex;
 		flex-direction: row;
 		align-items: center;
+		justify-content: center;
 		gap: 5rpx;
-		padding: 15rpx 25rpx;
-		border-radius: 30rpx;
-		background-color: rgba(255, 255, 255, 0.1);
+		padding: 2rpx 8rpx 6rpx;
 		color: #999;
 		font-size: 28rpx;
 		white-space: nowrap;
 		transition: all 0.3s;
+		position: relative;
 		
 		&.active {
-			background-color: #ffd700;
-			color: #000;
+			color: #ffd700;
+			
+			&::after {
+				content: '';
+				position: absolute;
+				bottom: 0;
+				left: 50%;
+				transform: translateX(-50%);
+				width: 60%;
+				height: 4rpx;
+				background-color: #ffd700;
+				border-radius: 2rpx;
+			}
 		}
 	}
 	
@@ -1152,6 +1163,7 @@
 		display: flex;
 		align-items: center;
 		gap: 20rpx;
+		margin-top: 6rpx;
 	}
 	
 	.search-input-wrap {
@@ -1160,7 +1172,7 @@
 		align-items: center;
 		background-color: rgba(255, 255, 255, 0.1);
 		border-radius: 30rpx;
-		padding: 15rpx 25rpx;
+		padding: 12rpx 25rpx;
 	}
 	
 	.search-icon {
@@ -1493,7 +1505,7 @@
 		font-weight: 500;
 		margin-bottom: 10rpx;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -1771,7 +1783,7 @@
 		color: #fff;
 		font-weight: 500;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -1848,7 +1860,7 @@
 		color: #fff;
 		font-weight: 500;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -1863,7 +1875,7 @@
 	.square-ad {
 		position: fixed;
 		right: 20rpx;
-		top: 50%;
+		top: 70%;
 		transform: translateY(-50%);
 		width: 120rpx;
 		height: 120rpx;
@@ -2042,7 +2054,7 @@
 	}
 
 	.category-video-scroll {
-		height: calc(100% - 80rpx);
+		height: calc(100% - 40rpx);
 		box-sizing: border-box;
 	}
 
@@ -2059,8 +2071,8 @@
 	}
 
 	.category-video-container {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 20rpx;
 	}
 
@@ -2143,7 +2155,7 @@
 	.category-video-cover {
 		position: relative;
 		width: 100%;
-		height: 370rpx;
+		height: 280rpx;
 	}
 
 	.category-video-title-overlay {
@@ -2166,7 +2178,7 @@
 		font-weight: 600;
 		line-height: 1.4;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -2276,7 +2288,7 @@
 		font-weight: 500;
 		margin-bottom: 15rpx;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -2357,7 +2369,7 @@
 		font-size: 22rpx;
 		color: #ccc;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -2444,7 +2456,7 @@
 
 	.mixed-video-title.big {
 		font-size: 28rpx;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 1;
 	}
 
 	.video-actions-single {

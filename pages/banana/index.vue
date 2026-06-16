@@ -1,43 +1,45 @@
 <template>
 	<view class="page">
-		<!-- 固定顶部导航 -->
-		<view class="fixed-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
-			<!-- 顶部搜索栏 -->
-			<view class="search-header">
-				<view class="search-bar">
-					<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
-					<input 
-						class="search-input" 
-						placeholder="搜索帖子" 
-						v-model="searchKeyword"
-						@confirm="handleSearch"
-						@input="handleSearchInput"
-					/>
-					<view v-if="searchKeyword" class="search-clear" @click="clearSearch">✕</view>
-				</view>
-				<view class="search-actions">
-					<image src="../../static/images/tongzhi.png" mode="widthFix" class="action-icon" @click="goToMessages" />
-				</view>
-			</view>
-
-			<!-- 标签导航 -->
-			<scroll-view scroll-x class="nav-tabs">
-				<view class="tabs">
-					<view 
-						v-for="(category, index) in categoryList" 
-						:key="category.id || index"
-						:class="['tab-item', { active: activeTab === index }]"
-						@click="switchNavTab(index)"
-					>
-						{{ category.name }}
+		<!-- 帖子列表（包含头部，一起滚动） -->
+		<scroll-view scroll-y class="scroll-container" @scrolltolower="loadMore">
+			<!-- 页面头部 -->
+			<view class="page-header">
+				<u-status-bar bg-color="#16213e"></u-status-bar>
+				<!-- 顶部搜索栏 -->
+				<view class="search-header">
+					<view class="search-bar">
+						<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
+						<input 
+							class="search-input" 
+							placeholder="搜索帖子" 
+							v-model="searchKeyword"
+							@confirm="handleSearch"
+							@input="handleSearchInput"
+						/>
+						<view v-if="searchKeyword" class="search-clear" @click="clearSearch">✕</view>
+					</view>
+					<view class="search-actions">
+						<image src="../../static/images/tongzhi.png" mode="widthFix" class="action-icon" @click="goToMessages" />
 					</view>
 				</view>
-			</scroll-view>
-		</view>
 
-		<!-- 帖子列表 -->
-		<scroll-view scroll-y class="post-list" @scrolltolower="loadMore" @scroll="onScroll">
+				<!-- 标签导航 -->
+				<scroll-view scroll-x class="nav-tabs">
+					<view class="tabs">
+						<view 
+							v-for="(category, index) in categoryList" 
+							:key="category.id || index"
+							:class="['tab-item', { active: activeTab === index }]"
+							@click="switchNavTab(index)"
+						>
+							{{ category.name }}
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+
+			<!-- 帖子列表内容 -->
+			<view class="post-list">
 			<u-status-bar></u-status-bar>
 			<!-- 空状态 -->
 			<u-empty v-if="!loading && postList.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
@@ -54,28 +56,21 @@
 				</view>
 
 				<!-- 视频直接加载 -->
-				<view v-if="post.video" class="post-media video-container">
-					<!-- <sunny-video 
-						 ref="sunnyVideoRef" 
+				<view v-if="post.video" class="post-media video-container" @click.stop>
+					<sunny-video 
+						 :ref="el => { if (el) videoRefs[index] = el }"
+						 :video-id="'sunny-video-' + index"
 						 title="视频"
 						 :src="post.video" 
 						 :poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
-						 :trialTime="0"
+						 :trialTime="0.1"
 						 :seekTime="0"
 						 @timeupdate="timeupdate" 
+						 @handleBtn="handleBtn" 
 						 zIndex="0"
-				 /> -->
-					<video 
-						:src="post.video" 
-						class="video-player" 
-						:poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
-						controls
-						show-center-play-btn
-						show-fullscreen-btn
-						object-fit="cover"
-						playsinline
-						webkit-playsinline
-					/>
+						 @click="() => handleVideoClick(index)"
+						 @play="() => handleVideoPlay(index)"
+				 />
 					<text v-if="post.duration" class="video-duration">{{ post.duration }}</text>
 				</view>
 				<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
@@ -159,14 +154,15 @@
 				</view>
 			</template>
 			<!-- 加载更多 -->
-			<u-loadmore 
-				v-if="postList.length > 0" 
-				:status="loading ? 'loading' : (hasMore ? 'loadmore' : 'nomore')" 
-				loading-text="加载中" 
-				loadmore-text="加载中" 
-				nomore-text="暂无更多数据" 
-				class="py-3" 
-			/>
+				<u-loadmore 
+					v-if="postList.length > 0" 
+					:status="loading ? 'loading' : (hasMore ? 'loadmore' : 'nomore')" 
+					loading-text="加载中" 
+					loadmore-text="加载中" 
+					nomore-text="暂无更多数据" 
+					class="py-3" 
+				/>
+			</view>
 		</scroll-view>
 
 		<!-- 图片预览遮罩 -->
@@ -204,10 +200,13 @@
 				loading: false,
 				searchKeyword: '',
 				hasMore: true,
+				actualDataCount: 0, // 实际数据条数（不包括广告）
 				showPreview: false,
 				previewImages: [],
 				currentPreviewIndex: 0,
-				advertiseList: []
+				advertiseList: [],
+				currentPlayingIndex: -1,
+				videoRefs: {}
 			}
 		},
 		onLoad() {
@@ -215,14 +214,54 @@
 			this.loadAdvertiseList()
 			this.loadPostList()
 		},
+		onReachBottom() {
+			this.loadMore()
+		},
 		methods: {
+			handleVideoClick(index) {
+				if (this.currentPlayingIndex === index) {
+					this.currentPlayingIndex = -1
+				} else {
+					this.currentPlayingIndex = index
+				}
+			},
+			handleVideoPlay(index) {
+				if (this.currentPlayingIndex !== index) {
+					this.pauseOtherVideos(index)
+					this.currentPlayingIndex = index
+				}
+			},
+			pauseOtherVideos(currentIndex) {
+				for (let i = 0; i < this.postList.length; i++) {
+					if (i !== currentIndex && this.postList[i].video) {
+						const videoRef = this.videoRefs[i]
+						if (videoRef && videoRef.videoCtx) {
+							videoRef.videoCtx.pause()
+						}
+					}
+				}
+			},
+			handleBtn() {
+				uni.switchTab({
+					url: '/pages/vip/index'
+				});
+			},
 			loadMore() {
-				if (this.loading) return
-				if (!this.hasMore) return
-				if (this.postList.length >= this.total && this.total > 0) {
+				console.log('loadMore 触发, loading:', this.loading, ', hasMore:', this.hasMore, ', page:', this.page, ', total:', this.total, ', actualDataCount:', this.actualDataCount)
+				if (this.loading) {
+					console.log('正在加载中，跳过')
+					return
+				}
+				if (!this.hasMore) {
+					console.log('hasMore 为 false，跳过')
+					return
+				}
+				if (this.actualDataCount >= this.total && this.total > 0) {
+					console.log('数据已加载完毕')
 					this.hasMore = false
 					return
 				}
+				console.log(`开始加载第 ${this.page + 1} 页`)
 				this.page++
 				if (this.searchKeyword) {
 					this.loadSearchList()
@@ -406,6 +445,7 @@
 				if (this.currentCategoryId !== null && this.currentCategoryId !== undefined) {
 					params.category_id = this.currentCategoryId
 				}
+				console.log('请求参数:', params)
 				CircleApi_circle_data_list(params).then(res => {
 					this.loading = false
 					if (this.page === 1) {
@@ -417,13 +457,18 @@
 						if (rows.length > 0) {
 							if (this.page === 1) {
 								this.postList = this.insertAdvertise(rows)
+								this.actualDataCount = rows.length
 							} else {
 								const newRows = this.insertAdvertise(rows)
 								this.postList = [...this.postList, ...newRows]
+								this.actualDataCount += rows.length
 							}
 						}
-						if (rows.length < this.pageSize) {
-							this.hasMore = false
+						// 判断是否还有更多数据（使用实际数据条数，不包括广告）
+						if (this.total > 0) {
+							this.hasMore = this.actualDataCount < this.total
+						} else {
+							this.hasMore = rows.length >= this.pageSize
 						}
 					} else {
 						if (this.page === 1) {
@@ -495,19 +540,13 @@
 
 <style lang="scss" scoped>
 	.page {
-		// min-height: 100vh;
+		min-height: 100vh;
 		background-color: #1a1a2e;
-		// padding-bottom: 98rpx;
-		// box-sizing: border-box;
 	}
 
-	.fixed-header {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
+	/* 页面头部 */
+	.page-header {
 		background-color: #16213e;
-		z-index: 9999;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
@@ -562,23 +601,6 @@
 		justify-content: center;
 		color: #999;
 		font-size: 28rpx;
-	}
-
-	.header-actions {
-		display: flex;
-		gap: 15rpx;
-	}
-
-	.action-btn {
-		width: 60rpx;
-		height: 60rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.icon-text {
-		font-size: 32rpx;
 	}
 
 	/* 导航标签 */
@@ -663,16 +685,16 @@
 		color: #999;
 	}
 
+	/* 滚动容器 */
+	.scroll-container {
+		height: 100vh;
+		box-sizing: border-box;
+	}
+
 	/* 帖子列表 */
 	.post-list {
-		height: calc(100vh - 120rpx -98rpx - constant(safe-area-inset-bottom));
-		height: calc(100vh - 120rpx -98rpx - env(safe-area-inset-bottom));
-		padding-top: calc(200rpx + constant(safe-area-inset-top));
-		padding-top: calc(200rpx + env(safe-area-inset-top));
-		// box-sizing: content-box;
-		// padding-left: 20rpx;
-		// padding-right: 20rpx;
-		box-sizing: content-box;
+		padding: 20rpx;
+		// padding-bottom: 60rpx;
 	}
 
 	.post-card {
@@ -782,7 +804,7 @@
 		border-radius: 12rpx;
 		overflow: hidden;
 		background-color: #0f0f1a;
-		z-index: 0;
+		z-index: 1;
 	}
 
 	.media-image {

@@ -251,7 +251,7 @@
 		left: 0;
 		right: 0;
 		z-index: 100;
-		padding: 30rpx 30rpx;
+		padding: 30rpx 20rpx;
 		background-color: #16213e;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));

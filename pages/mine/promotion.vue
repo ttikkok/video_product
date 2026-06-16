@@ -68,6 +68,17 @@
 				</view>
 			</view>
 
+			<view v-if="advertiseList.length > 0" class="advertise-section">
+				<view 
+					v-for="(ad, index) in advertiseList" 
+					:key="index"
+					class="advertise-card"
+					@click="openAdvertiseUrl(ad.url)"
+				>
+					<image :src="ad.image || ad.cover_image" mode="aspectFill" class="advertise-image" />
+				</view>
+			</view>
+
 			<view class="stats-section">
 				<view class="stat-item">
 					<view class="stat-value">
@@ -174,7 +185,7 @@
 </template>
 
 <script>
-	import { UserApi_get_promotion_rules } from '../../api/home.js'
+	import { UserApi_get_promotion_rules, AdvertiseApi_advertise_list } from '../../api/home.js'
 
 	export default {
 		data() {
@@ -193,12 +204,14 @@
 				nextLevel: null,
 				needMore: 0,
 				rules: [],
-				promotionRules: []
+				promotionRules: [],
+				advertiseList: []
 			}
 		},
 		onLoad() {
 			this.loadUserInfo()
 			this.loadPromotionData()
+			this.loadAdvertiseList()
 		},
 		onReady() {
 			this.generateQRCode()
@@ -214,6 +227,36 @@
 						console.error('解析用户信息失败', e)
 					}
 				}
+			},
+			loadAdvertiseList() {
+				AdvertiseApi_advertise_list({ name: '推广页面广告位' }).then(res => {
+					if (res && res.code === 1 && res.data && Array.isArray(res.data)) {
+						this.advertiseList = res.data
+					}
+				}).catch(err => {
+					console.error('加载推广页面广告失败:', err)
+				})
+			},
+			openAdvertiseUrl(url) {
+				if (!url) return
+				// #ifdef APP-PLUS
+				if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
+					plus.runtime.openURL(url)
+					return
+				}
+				// #endif
+				// #ifdef H5
+				if (typeof window !== 'undefined' && window.open) {
+					window.open(url, '_blank')
+					return
+				}
+				// #endif
+				uni.setClipboardData({
+					data: url,
+					success: () => {
+						uni.showToast({ title: '链接已复制，请到浏览器打开', icon: 'none' })
+					}
+				})
 			},
 			loadPromotionData() {
 				UserApi_get_promotion_rules({}).then(res => {
@@ -467,7 +510,7 @@
 		left: 0;
 		right: 0;
 		z-index: 100;
-		padding: 30rpx 30rpx;
+		padding: 30rpx 20rpx;
 		background-color: #fff;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
@@ -1014,5 +1057,28 @@
 
 	.bottom-space {
 		height: 60rpx;
+	}
+
+	.advertise-section {
+		padding: 0 30rpx;
+		margin-bottom: 30rpx;
+	}
+
+	.advertise-card {
+		background-color: #fff;
+		border-radius: 16rpx;
+		overflow: hidden;
+		margin-bottom: 20rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+	}
+
+	.advertise-card:last-child {
+		margin-bottom: 0;
+	}
+
+	.advertise-image {
+		width: 100%;
+		height: 240rpx;
+		display: block;
 	}
 </style>

@@ -119,6 +119,7 @@
 				scrollTop: 0,
 				isLiked: false,
 				isCollected: false,
+				isVip: false,
 				likes: 0,
 				currentNovel: {
 					id: 0,
@@ -144,6 +145,8 @@
 			}
 		},
 		onLoad(options) {
+			// 读取用户VIP状态
+			this.checkVipStatus()
 			if (options.id) {
 				this.novelId = parseInt(options.id)
 				this.loadNovelDetail()
@@ -151,6 +154,17 @@
 			this.loadChapters()
 		},
 		methods: {
+			checkVipStatus() {
+				const userinfo = uni.getStorageSync('userinfo')
+				if (userinfo) {
+					try {
+						const user = JSON.parse(userinfo)
+						this.isVip = user.is_vip === 1 || user.vip_level > 0
+					} catch (e) {
+						console.error('解析用户信息失败:', e)
+					}
+				}
+			},
 			loadNovelDetail() {
 				uni.showLoading({
 					title: '加载中...'
@@ -206,7 +220,7 @@
 								number: number,
 								title: item.title.replace(/第\d+章\s*/, '') || '章节',
 								content: item.content || '',
-								isVip: item.is_vip === 1
+								isVip: true
 							}
 						})
 						this.currentNovel.chapters = this.chapters.length
@@ -238,7 +252,7 @@
 						number: i + 1,
 						title: chapterTitles[i % chapterTitles.length] + (i >= chapterTitles.length ? `（续${Math.floor(i / chapterTitles.length) + 1}）` : ''),
 						content: `第${i + 1}章 ${chapterTitles[i % chapterTitles.length]}\n\n${baseContent}\n\n（未完待续...）`,
-						isVip: i >= 50
+						isVip: true
 					})
 				}
 			},
@@ -246,6 +260,25 @@
 				uni.navigateBack()
 			},
 			selectChapter(index) {
+				const chapter = this.chapters[index]
+				// 如果是VIP章节且用户不是会员
+				if (chapter.isVip && !this.isVip) {
+					uni.showModal({
+						title: '开通VIP',
+						content: '该章节为VIP专属内容，请开通VIP会员后阅读',
+						confirmText: '开通VIP',
+						cancelText: '取消',
+						success: (res) => {
+							if (res.confirm) {
+								// 跳转VIP页面
+								uni.switchTab({
+									url: '/pages/vip/index'
+								});
+							}
+						}
+					})
+					return
+				}
 				this.currentChapterIndex = index
 				this.showContent = true
 			},
@@ -318,7 +351,7 @@
 		left: 0;
 		right: 0;
 		z-index: 100;
-		padding: 30rpx 30rpx;
+		padding: 30rpx 20rpx;
 		background-color: #16213e;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));

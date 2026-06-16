@@ -37,7 +37,7 @@
 			"path": "pages/index/play",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#000",
+				"navigationBarBackgroundColor": "#16213e",
 				"navigationBarTextStyle": "white",
 				"navigationStyle": "custom"
 			}
@@ -48,7 +48,8 @@
 				"navigationBarTitleText": "",
 				"navigationBarBackgroundColor": "#16213e",
 				"navigationBarTextStyle": "white",
-				"navigationStyle": "custom"
+				"navigationStyle": "custom",
+				"onReachBottomDistance": 50
 			}
 		},
 		{
@@ -254,8 +255,7 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "home",
 		"navigationBarBackgroundColor": "#ffffff",
-		"backgroundColor": "#F8F8F8",
-		"titleNView": false
+		"backgroundColor": "#F8F8F8"
 	},
 	"tabBar": {
     "color": "#828A99",

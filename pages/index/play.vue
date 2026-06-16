@@ -12,10 +12,20 @@
 			</view>
 		</view>
 
-		<u-status-bar></u-status-bar>
 		<!-- 视频播放窗口 -->
 		<view class="video-container">
-			<video 
+			<sunny-video 
+			v-if="videoSrc"
+						 title="视频"
+						 :src="videoSrc" 
+						 :poster="videoPoster"
+						 :trialTime="10"
+						 :seekTime="0"
+						 @timeupdate="timeupdate" 
+						 @handleBtn="handleBtn" 
+						 zIndex="0"
+				 />
+			<!-- <video 
 			v-if="videoSrc"
 			id="videoPlayer"
 			class="video-player"
@@ -42,7 +52,7 @@
 			@canplay="onCanPlay"
 			@waiting="onVideoWaiting"
 			@seeked="onSeeked"
-		></video>
+		></video> -->
 			<view v-if="!videoSrc" class="video-placeholder">
 				<view class="loading-spinner"></view>
 				<text class="placeholder-text">视频加载中...</text>
@@ -134,9 +144,9 @@
 							<text class="item-title">{{ item.title || '精彩视频推荐' }}</text>
 						</view>
 						<image :src="item.cover_image || item.poster" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
+						<!-- <view class="video-overlay">
 							<view class="play-icon">▶</view>
-						</view>
+						</view> -->
 						<text class="play-count">{{ item.look_number || item.views || '0' }}次播放</text>
 						<text class="video-duration">{{ item.duration || '00:15:00' }}</text>
 						<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
@@ -239,6 +249,36 @@
 			}
 		},
 		methods: {
+			timeupdate(e){
+			},
+			handleBtn() {
+				uni.switchTab({
+					url: '/pages/vip/index'
+				});
+			},
+			handleVideoClick(index) {
+				// if (this.currentPlayingIndex === index) {
+				// 	this.currentPlayingIndex = -1
+				// } else {
+				// 	this.currentPlayingIndex = index
+				// }
+			},
+			// handleVideoPlay(index) {
+			// 	if (this.currentPlayingIndex !== index) {
+			// 		this.pauseOtherVideos(index)
+			// 		this.currentPlayingIndex = index
+			// 	}
+			// },
+			// pauseOtherVideos(currentIndex) {
+			// 	for (let i = 0; i < this.postList.length; i++) {
+			// 		if (i !== currentIndex && this.postList[i].video) {
+			// 			const videoRef = this.videoRefs[i]
+			// 			if (videoRef && videoRef.videoCtx) {
+			// 				videoRef.videoCtx.pause()
+			// 			}
+			// 		}
+			// 	}
+			// },
 			formatTime(timestamp) {
 				if (!timestamp) return '';
 				const date = new Date(timestamp * 1000);
@@ -535,31 +575,23 @@
 		padding-bottom: 30rpx;
 	}
 
-	/* 自定义导航栏 */
 	.top-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 9999;
-		padding: 30rpx 30rpx;
+		padding: 30rpx 20rpx;
 		background-color: #16213e;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
 
 	.custom-navbar {
-		// position: fixed;
-		// top: var(--status-bar-height, 44px);
-		// left: 0;
-		// right: 0;
-		// z-index: 100;
 		width: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		// padding: 20rpx 30rpx;
-		// background-color: #16213e;
 	}
 
 	.navbar-back {
@@ -587,10 +619,10 @@
 
 	.video-container {
 		width: 100%;
-		height: 420rpx;
+		min-height: 420rpx;
 		background-color: #000;
 		position: relative;
-		padding-top: 120rpx;
+		padding-top: 114rpx;
 	}
 
 	.video-player {
@@ -711,7 +743,7 @@
 	.video-info {
 		padding: 30rpx;
 		background-color: #16213e;
-		margin: 0 20rpx 20rpx;
+		margin: 20rpx;
 		border-radius: 16rpx;
 	}
 

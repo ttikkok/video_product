@@ -22,7 +22,7 @@
 		@timeupdate="timeupdate"
 		@fullscreenchange="fullscreenchange"
 	>
-		<cover-view v-if="!state.isPlay" class="banner-view">
+		<cover-view v-if="!state.isPlay" class="banner-view" @click.stop="handleVideoClick">
 			<cover-image
 				class="banner"
 				:style="{ width: addUnit(videoWidth), height: addUnit(videoHeight) }"
@@ -458,6 +458,10 @@
 				videoCtx.value.stop();
 			}
 
+			function handleVideoClick() {
+				emit('click');
+			}
+
 			return {
 				videoCtx,
 				emit,
@@ -485,7 +489,8 @@
 				exitFullScreen,
 				showStatusBar,
 				hideStatusBar,
-				handelStop
+				handelStop,
+				handleVideoClick
 			};
 		}
 	});

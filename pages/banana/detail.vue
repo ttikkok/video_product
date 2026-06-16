@@ -21,23 +21,17 @@
 
 			<!-- 帖子视频 -->
 			<view v-if="post.video" class="post-media video">
-				<video 
+				<sunny-video 
+					v-if="post.video"
+					title="视频"
 					:src="post.video" 
-					class="video-player"
 					:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
-					controls
-					show-center-play-btn
-					show-fullscreen-btn
-					enable-progress-gesture
-					enable-play-gesture
-					object-fit="contain"
-					playsinline
-					x5-video-player-type="h5"
-					x5-video-orientation="landscape"
-					x5-video-player-fullscreen="true"
-					webkit-playsinline
-					:duration="post.duration"
-				></video>
+					:trialTime="0.1"
+					:seekTime="0"
+					@timeupdate="timeupdate" 
+					@handleBtn="handleBtn" 
+					zIndex="0"
+				/>
 			</view>
 			<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
 				<image 
@@ -138,6 +132,13 @@
 			},
 			goBack() {
 					uni.navigateBack();
+				},
+				timeupdate(e) {
+				},
+				handleBtn() {
+					uni.switchTab({
+						url: '/pages/vip/index'
+					});
 				},
 				playVideo() {
 					if (this.post.video) {

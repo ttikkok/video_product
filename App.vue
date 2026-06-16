@@ -87,7 +87,6 @@
 			},
 			autoLogin() {
 				loginPromise = new Promise((resolve, reject) => {
-					// 检查是否已经登录成功，如果有token则不需要重复登录
 					let token = uni.getStorageSync('token')
 					let userinfo = uni.getStorageSync('userinfo')
 					
@@ -98,9 +97,20 @@
 						return
 					}
 					
-					// 获取真实设备ID
 					getRealDeviceId().then(deviceId => {
 						console.log('获取到设备ID:', deviceId)
+						
+						if (!deviceId) {
+							deviceId = uni.getStorageSync('last_device_id')
+						}
+						
+						if (!deviceId) {
+							deviceId = 'TEMP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+							console.log('设备ID获取失败，使用临时ID:', deviceId)
+						}
+						
+						uni.setStorageSync('last_device_id', deviceId)
+						
 						register_login({ device_id: deviceId }).then(res => {
 							loginResolved = true
 							if (res && res.code === 1 && res.data) {
@@ -110,12 +120,41 @@
 								if (res.data.token) {
 									uni.setStorageSync('token', res.data.token)
 								}
+								console.log('自动登录成功')
+							} else if (res && res.code !== 1) {
+								console.log('登录返回非成功状态:', res.code, res.msg)
 							}
 							resolve(res)
 						}).catch(err => {
 							loginResolved = true
 							console.error('登录失败', err)
-							reject(err)
+							resolve(null)
+						})
+					}).catch(err => {
+						loginResolved = true
+						console.error('获取设备ID失败', err)
+						
+						let deviceId = uni.getStorageSync('last_device_id')
+						
+						if (!deviceId) {
+							deviceId = 'TEMP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+							console.log('设备ID获取失败，使用临时ID:', deviceId)
+						}
+						
+						uni.setStorageSync('last_device_id', deviceId)
+						
+						register_login({ device_id: deviceId }).then(res => {
+							if (res && res.code === 1 && res.data) {
+								if (res.data.userinfo) {
+									uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))
+								}
+								if (res.data.token) {
+									uni.setStorageSync('token', res.data.token)
+								}
+							}
+							resolve(res)
+						}).catch(() => {
+							resolve(null)
 						})
 					})
 				})

@@ -62,24 +62,26 @@
 				<text class="empty-hint">换个关键词试试吧</text>
 			</view>
 			<template v-if="searchResults.length > 0">
-				<view v-for="(item, index) in searchResults" :key="index" class="content-item" @click="playVideo(item)">
-					<view class="item-cover-wrap">
-						<view class="item-title-overlay">
-							<text class="item-title">{{ item.title }}</text>
+				<view class="content-container">
+					<view v-for="(item, index) in searchResults" :key="index" class="content-item" @click="playVideo(item)">
+						<view class="item-cover-wrap">
+							<!-- <view class="item-title-overlay">
+								<text class="item-title">{{ item.title }}</text>
+							</view> -->
+							<image :src="item.cover" mode="aspectFill" class="cover-image" />
+							<!-- <view class="video-overlay">
+								<view class="play-icon">▶</view>
+							</view> -->
+							<text class="play-count">{{ item.playCount }}</text>
+							<text class="video-duration">{{ item.duration }}</text>
+							<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
 						</view>
-						<image :src="item.cover" mode="aspectFill" class="cover-image" />
-						<view class="video-overlay">
-							<view class="play-icon">▶</view>
-						</view>
-						<text class="play-count">{{ item.playCount }}</text>
-						<text class="video-duration">{{ item.duration }}</text>
-						<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
-					</view>
-					<view class="item-footer">
-						<text class="time-text">{{ formatTime(item.createtime) }} 发布</text>
-						<view class="item-like">
-							<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
-							<text class="like-text">{{ item.likeNumber || 0 }}</text>
+						<view class="item-footer">
+							<text class="time-text">{{ formatTime(item.createtime) }} 发布</text>
+							<view class="item-like">
+								<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
+								<text class="like-text">{{ item.likeNumber || 0 }}</text>
+							</view>
 						</view>
 					</view>
 				</view>
@@ -403,17 +405,22 @@
 		padding: 20rpx;
 	}
 
+	.content-container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 20rpx;
+	}
+
 	.content-item {
 		background-color: #16213e;
 		border-radius: 16rpx;
 		overflow: hidden;
-		margin-bottom: 20rpx;
 	}
 
 	.item-cover-wrap {
 		position: relative;
 		width: 100%;
-		height: 370rpx;
+		height: 280rpx;
 	}
 
 	.cover-image {
