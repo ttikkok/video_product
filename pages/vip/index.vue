@@ -32,11 +32,16 @@
 		<scroll-view scroll-x class="vip-packages">
 			<view class="packages-container">
 				<view 
-					v-for="(pkg, index) in vipPackages" 
-					:key="pkg.id"
-					:class="['package-card', { active: selectedPackage === index }]"
-					@click="selectPackage(index)"
-				>
+				v-for="(pkg, index) in vipPackages" 
+				:key="pkg.id"
+				:class="['package-card', { active: selectedPackage === index }]"
+				@click="selectPackage(index)"
+			>
+				<view v-if="pkg.days === 365" class="card-corner"></view>
+				<view v-if="pkg.days === 365" class="card-corner"></view>
+				<view v-if="pkg.days === 365" class="card-corner"></view>
+				<view v-if="pkg.days === 365" class="card-corner"></view>
+				<view class="package-inner">
 					<view v-if="pkg.days === 365" class="recommend-tag">
 						<text class="recommend-text">推荐</text>
 					</view>
@@ -57,10 +62,11 @@
 					</view>
 				</view>
 			</view>
+			</view>
 		</scroll-view>
 
 		<!-- VIP权益 -->
-		<!-- <view class="benefits-section">
+		<view class="benefits-section">
 			<view class="benefits-header">
 				<text class="benefits-title">VIP会员享价值</text>
 				<view class="benefits-value">
@@ -82,7 +88,7 @@
 					<text class="benefit-name">{{ benefit.name }}</text>
 				</view>
 			</view>
-		</view> -->
+		</view>
 
 		<!-- 推荐内容 -->
 		<!-- <view class="recommend-section">
@@ -188,12 +194,12 @@
 				vipPackages: [],
 				benefits: [
 					{ name: '无限观影', icon: '🎬' },
-					{ name: '无限下载', icon: '⬇️' },
+					// { name: '无限下载', icon: '⬇️' },
 					{ name: '专属客服', icon: '🎧' },
 					{ name: '官方推荐', icon: '📌' },
-					{ name: '午夜电台', icon: '📖' },
-					{ name: '槐凰免打赏', icon: '🎁' },
-					{ name: '发布打赏帖', icon: '💰' }
+					{ name: '凤楼免费', icon: '🎁' },
+					{ name: '小说免费', icon: '📖' },
+					// { name: '发布打赏帖', icon: '💰' }
 				],
 				userAvatar: '',
 				userName: '游客用户',
@@ -547,41 +553,152 @@
 
 	/* VIP套餐 */
 	.vip-packages {
-		padding: 30rpx 0;
+		padding-top: 40rpx;
 		white-space: nowrap;
 	}
 
 	.packages-container {
 		display: inline-flex;
-		gap: 20rpx;
-		padding: 0 20rpx;
+		gap: 24rpx;
+		padding: 0 24rpx;
+		padding-top: 10rpx;
 	}
 
 	.package-card {
 		position: relative;
-		width: 280rpx;
+		// width: 280rpx;
 		flex-shrink: 0;
-		border-radius: 20rpx;
+		border-radius: 24rpx;
 		overflow: hidden;
-		border: 3rpx solid transparent;
-		transition: all 0.3s;
-		background: linear-gradient(135deg, #8B0000 0%, #4A0000 100%);
+		border: 4rpx solid transparent;
+		transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+		background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+		box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.3);
 	}
 
 	.package-card.active {
-		border-color: #ffd700;
+		transform: translateY(-10rpx);
+		box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.5);
+	}
+
+	.package-card:nth-child(1) {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+
+	.package-card:nth-child(1).active {
+		border-color: #a78bfa;
 	}
 
 	.package-card:nth-child(2) {
-		background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+		background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	}
+
+	.package-card:nth-child(2).active {
+		border-color: #fb7185;
 	}
 
 	.package-card:nth-child(3) {
-		background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
+		background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+	}
+
+	.package-card:nth-child(3).active {
+		border-color: #67e8f9;
 	}
 
 	.package-card:nth-child(4) {
-		background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff6347 100%);
+		box-shadow: 
+			0 0 60rpx rgba(255, 215, 0, 0.3),
+			0 8rpx 30rpx rgba(0, 0, 0, 0.4);
+	}
+
+	.package-card:nth-child(4).active {
+		border-color: #fff;
+		transform: translateY(-15rpx);
+		box-shadow: 
+			0 0 80rpx rgba(255, 215, 0, 0.5),
+			0 20rpx 50rpx rgba(0, 0, 0, 0.5);
+	}
+
+	.package-card:nth-child(4)::before {
+		content: '';
+		position: absolute;
+		top: -50%;
+		left: -50%;
+		width: 200%;
+		height: 200%;
+		background: conic-gradient(
+			from 0deg,
+			transparent 0deg,
+			rgba(255, 255, 255, 0.1) 30deg,
+			transparent 60deg,
+			rgba(255, 255, 255, 0.15) 90deg,
+			transparent 120deg,
+			rgba(255, 255, 255, 0.1) 150deg,
+			transparent 180deg,
+			rgba(255, 255, 255, 0.15) 210deg,
+			transparent 240deg,
+			rgba(255, 255, 255, 0.1) 270deg,
+			transparent 300deg,
+			rgba(255, 255, 255, 0.15) 330deg,
+			transparent 360deg
+		);
+		animation: rotateGlow 8s linear infinite;
+		z-index: 0;
+	}
+
+	@keyframes rotateGlow {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.package-card:nth-child(4) .package-inner {
+		position: relative;
+		z-index: 1;
+	}
+
+	.package-card:nth-child(4) .card-corner {
+		position: absolute;
+		width: 60rpx;
+		height: 60rpx;
+		border: 6rpx solid rgba(255, 255, 255, 0.6);
+		z-index: 2;
+	}
+
+	.package-card:nth-child(4) .card-corner:nth-child(1) {
+		top: 0;
+		left: 0;
+		border-right: none;
+		border-bottom: none;
+		border-radius: 20rpx 0 0 0;
+	}
+
+	.package-card:nth-child(4) .card-corner:nth-child(2) {
+		top: 0;
+		right: 0;
+		border-left: none;
+		border-bottom: none;
+		border-radius: 0 20rpx 0 0;
+	}
+
+	.package-card:nth-child(4) .card-corner:nth-child(3) {
+		bottom: 0;
+		left: 0;
+		border-right: none;
+		border-top: none;
+		border-radius: 0 0 0 20rpx;
+	}
+
+	.package-card:nth-child(4) .card-corner:nth-child(4) {
+		bottom: 0;
+		right: 0;
+		border-left: none;
+		border-top: none;
+		border-radius: 0 0 20rpx 0;
 	}
 
 	.vip-packages .recommend-tag {
@@ -589,83 +706,103 @@
 		top: 0;
 		right: 0;
 		background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
-		padding: 8rpx 20rpx;
-		border-radius: 0 20rpx 0 20rpx;
-		z-index: 1;
-		box-shadow: 0 4rpx 12rpx rgba(255, 71, 87, 0.4);
+		padding: 10rpx 24rpx;
+		border-radius: 0 24rpx 0 24rpx;
+		z-index: 10;
+		box-shadow: 0 4rpx 16rpx rgba(255, 71, 87, 0.5);
+		animation: pulseTag 2s ease-in-out infinite;
+	}
+
+	@keyframes pulseTag {
+		0%, 100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.05);
+		}
 	}
 
 	.recommend-text {
-		font-size: 20rpx;
+		font-size: 22rpx;
 		color: #fff;
-		font-weight: 600;
-		text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.2);
+		font-weight: 700;
+		text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
 	}
 
 	.package-price {
-		padding: 30rpx 20rpx 10rpx;
+		padding: 35rpx 20rpx 10rpx;
 		text-align: center;
+		position: relative;
+		z-index: 1;
 	}
 
 	.price-symbol {
-		font-size: 24rpx;
+		font-size: 28rpx;
 		color: #fff;
+		font-weight: 500;
 	}
 
 	.price-value {
-		font-size: 56rpx;
+		font-size: 64rpx;
 		color: #fff;
-		font-weight: bold;
+		font-weight: 900;
+		text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.3);
 	}
 
 	.price-unit {
-		font-size: 24rpx;
-		color: #fff;
+		font-size: 26rpx;
+		color: rgba(255, 255, 255, 0.8);
 	}
 
 	.package-original {
 		text-align: center;
 		padding-bottom: 15rpx;
+		position: relative;
+		z-index: 1;
 	}
 
 	.package-original text {
-		font-size: 22rpx;
-		color: rgba(255, 255, 255, 0.6);
+		font-size: 24rpx;
+		color: rgba(255, 255, 255, 0.5);
 		text-decoration: line-through;
 	}
 
 	.package-card-bg {
 		padding: 20rpx;
 		background-color: rgba(255, 255, 255, 0.1);
+		position: relative;
+		z-index: 1;
 	}
 
 	.card-icon {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		gap: 10rpx;
+		gap: 0;
 		margin-bottom: 15rpx;
 	}
 
 	.card-chip {
-		width: 40rpx;
-		height: 30rpx;
-		background-color: rgba(255, 255, 255, 0.3);
-		border-radius: 6rpx;
+		width: 44rpx;
+		height: 32rpx;
+		background-color: rgba(255, 255, 255, 0.25);
+		border-radius: 8rpx;
 	}
 
 	.card-signal {
-		width: 30rpx;
-		height: 30rpx;
+		width: 32rpx;
+		height: 32rpx;
 		background: conic-gradient(from 0deg, rgba(255, 255, 255, 0.3) 0deg 180deg, transparent 180deg 360deg);
 		border-radius: 50%;
+		margin-left: -10rpx;
 	}
 
 	.package-name {
 		text-align: center;
-		font-size: 30rpx;
+		font-size: 34rpx;
 		color: #fff;
-		font-weight: 600;
+		font-weight: 700;
+		letter-spacing: 2rpx;
 	}
 
 	/* VIP权益 */

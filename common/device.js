@@ -11,12 +11,14 @@ const COOKIE_EXPIRES_DAYS = 3650;
 
 /**
  * 主入口：获取统一设备标识
+ * 目标：App端和H5端使用相同的设备标识符
  */
 export function getRealDeviceId() {
 	return new Promise((resolve) => {
 		// 1. 优先从localStorage读取
 		const cached = uni.getStorageSync(STORAGE_KEY_DEVICE_ID);
 		if (cached) {
+			console.log('从缓存读取设备ID:', cached);
 			resolve(cached);
 			return;
 		}
@@ -24,6 +26,7 @@ export function getRealDeviceId() {
 		// 2. 从Cookie读取
 		const cookieValue = getCookie(COOKIE_NAME_DEVICE_ID);
 		if (cookieValue) {
+			console.log('从Cookie读取设备ID:', cookieValue);
 			uni.setStorageSync(STORAGE_KEY_DEVICE_ID, cookieValue);
 			resolve(cookieValue);
 			return;
@@ -31,29 +34,20 @@ export function getRealDeviceId() {
 
 		// 3. 获取设备指纹（使用稳定的硬件参数）
 		getDeviceFingerprint().then(fingerprint => {
+			console.log('生成设备指纹:', fingerprint);
+			
 			// 存储到多个地方
 			uni.setStorageSync(STORAGE_KEY_DEVICE_ID, fingerprint);
 			uni.setStorageSync(STORAGE_KEY_FINGERPRINT, fingerprint);
 			setCookie(COOKIE_NAME_DEVICE_ID, fingerprint, COOKIE_EXPIRES_DAYS);
 			
-			// #ifdef APP-PLUS
-			getNativeDeviceId().then(nativeId => {
-				if (nativeId) {
-					const combinedId = nativeId + '_' + fingerprint;
-					uni.setStorageSync(STORAGE_KEY_DEVICE_ID, combinedId);
-					setCookie(COOKIE_NAME_DEVICE_ID, combinedId, COOKIE_EXPIRES_DAYS);
-					resolve(combinedId);
-				} else {
-					resolve(fingerprint);
-				}
-			}).catch(() => {
-				resolve(fingerprint);
-			});
-			// #endif
-
-			// #ifndef APP-PLUS
 			resolve(fingerprint);
-			// #endif
+		}).catch(err => {
+			console.log('获取设备指纹失败:', err);
+			const fallbackId = generateUUID();
+			uni.setStorageSync(STORAGE_KEY_DEVICE_ID, fallbackId);
+			setCookie(COOKIE_NAME_DEVICE_ID, fallbackId, COOKIE_EXPIRES_DAYS);
+			resolve(fallbackId);
 		});
 	});
 }
@@ -70,8 +64,7 @@ export function getDeviceFingerprint() {
 			// 使用数组收集参数，保持顺序一致
 			const components = [];
 			
-			// ========== 稳定的硬件参数（跨浏览器一致） ==========
-			// 这些参数在同一设备上的所有浏览器中都是相同的
+			// ========== 核心硬件参数（最稳定，跨浏览器一致） ==========
 			components.push(sysInfo.model || '');           // 设备型号（如iPhone 15 Pro）
 			components.push(sysInfo.platform || '');       // 平台类型（ios/android/h5）
 			components.push(sysInfo.pixelRatio || '');     // 像素比（硬件特性）
@@ -79,60 +72,16 @@ export function getDeviceFingerprint() {
 			components.push(sysInfo.screenHeight || '');   // 屏幕高度
 			components.push(sysInfo.system || '');         // 系统版本（如iOS 17.0）
 			components.push(sysInfo.language || '');       // 系统语言
-			components.push(sysInfo.version || '');        // 应用版本号
-			components.push(sysInfo.fontSizeSetting || ''); // 字体大小设置
-			components.push(sysInfo.batteryLevel || '');   // 电池电量
-			components.push(sysInfo.statusBarHeight || ''); // 状态栏高度
-			if (sysInfo.safeArea) {
-				components.push(sysInfo.safeArea.top || '');
-				components.push(sysInfo.safeArea.bottom || '');
-				components.push(sysInfo.safeArea.left || '');
-				components.push(sysInfo.safeArea.right || '');
-			}
 			
-			// ========== App端额外参数 ==========
-			// #ifdef APP-PLUS
-			if (typeof plus !== 'undefined' && plus.device) {
-				try {
-					const uuid = plus.device.uuid || '';
-					if (uuid && uuid !== '00000000-0000-0000-0000-000000000000') {
-						components.push('UUID_' + uuid);
-					}
-				} catch (e) {
-					console.log('获取UUID失败', e);
-				}
-				
-				try {
-					const manufacturer = plus.device.manufacturer || '';
-					if (manufacturer) {
-						components.push('MANUFACTURER_' + manufacturer);
-					}
-				} catch (e) {
-					console.log('获取制造商失败', e);
-				}
-				
-				try {
-					const model = plus.device.model || '';
-					if (model) {
-						components.push('MODEL_' + model);
-					}
-				} catch (e) {
-					console.log('获取设备型号失败', e);
-				}
-			}
-			// #endif
-			
-			// ========== H5端硬件参数 ==========
+			// ========== H5端额外参数（跨浏览器稳定） ==========
 			// #ifndef APP-PLUS
 			if (typeof navigator !== 'undefined') {
 				// 硬件核心数（稳定）
 				components.push((navigator.hardwareConcurrency || '') + '');
-				// 设备内存（稳定）
-				components.push((navigator.deviceMemory || '') + '');
 				// 最大触摸点数（稳定）
 				components.push((navigator.maxTouchPoints || '') + '');
 				
-				// WebGL指纹（显卡信息，非常稳定）
+				// WebGL显卡信息（在大多数浏览器上稳定）
 				try {
 					if (typeof document !== 'undefined') {
 						const canvas = document.createElement('canvas');
@@ -140,10 +89,6 @@ export function getDeviceFingerprint() {
 						if (gl) {
 							const ext = gl.getExtension('WEBGL_debug_renderer_info');
 							if (ext) {
-								// 显卡厂商（跨浏览器一致）
-								const vendor = gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) || '';
-								components.push(vendor);
-								// 显卡型号（跨浏览器一致）
 								const renderer = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '';
 								components.push(renderer);
 							}
@@ -152,35 +97,15 @@ export function getDeviceFingerprint() {
 				} catch (e) {
 					console.log('WebGL指纹失败', e);
 				}
-				
-				// 使用Canvas绘制简单图形（减少字体差异影响）
-				try {
-					if (typeof document !== 'undefined') {
-						const canvas = document.createElement('canvas');
-						const ctx = canvas.getContext('2d');
-						canvas.width = 100;
-						canvas.height = 100;
-						
-						// 使用纯几何图形，避免字体渲染差异
-						ctx.fillStyle = '#000000';
-						ctx.fillRect(0, 0, 100, 100);
-						
-						ctx.fillStyle = '#ffffff';
-						ctx.fillRect(10, 10, 20, 20);
-						ctx.fillRect(70, 10, 20, 20);
-						ctx.fillRect(10, 70, 20, 20);
-						ctx.fillRect(70, 70, 20, 20);
-						
-						ctx.fillStyle = '#ff0000';
-						ctx.beginPath();
-						ctx.arc(50, 50, 30, 0, Math.PI * 2);
-						ctx.fill();
-						
-						components.push(canvas.toDataURL('image/png'));
-					}
-				} catch (e) {
-					console.log('Canvas指纹失败', e);
-				}
+			}
+			// #endif
+			
+			// ========== App端额外参数 ==========
+			// #ifdef APP-PLUS
+			// App端也使用navigator参数（如果可用）
+			if (typeof navigator !== 'undefined') {
+				components.push((navigator.hardwareConcurrency || '') + '');
+				components.push((navigator.maxTouchPoints || '') + '');
 			}
 			// #endif
 

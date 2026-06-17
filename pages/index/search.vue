@@ -9,6 +9,34 @@
 			<view class="header-placeholder"></view>
 		</view>
 
+		<view class="filter-container">
+		<scroll-view scroll-y class="filter-left-scroll">
+			<view 
+				v-for="(category, catIndex) in categoryTags" 
+				:key="catIndex"
+				:class="['category-item', { active: activeCategory === category.data_id }]"
+				@click="selectCategory(category.data_id)"
+			>
+				<text>{{ category.title }}</text>
+				<text v-if="getSelectedSubTagsCount(category.data_id) > 0" class="selected-count">
+					{{ getSelectedSubTagsCount(category.data_id) }}
+				</text>
+			</view>
+		</scroll-view>
+		<scroll-view scroll-y class="filter-right-scroll">
+			<view class="sub-tags-wrap">
+				<view 
+					v-for="(subTag, subIndex) in currentSubTags" 
+					:key="subIndex"
+					:class="['sub-tag', { active: isSubTagSelected(activeCategory, subTag.id) }]"
+					@click="toggleSubTag(activeCategory, subTag)"
+				>
+					<text>{{ subTag.title }}</text>
+				</view>
+			</view>
+		</scroll-view>
+	</view>
+
 		<view class="virtual-tags">
 			<scroll-view scroll-x class="virtual-tags-scroll">
 				<view 
@@ -22,39 +50,6 @@
 			</scroll-view>
 		</view>
 
-		<view class="filter-container">
-			<view class="filter-left">
-				<view class="section-title">分类</view>
-				<scroll-view scroll-y class="tags-scroll">
-					<view class="tags-wrap">
-						<view 
-							v-for="(item, index) in categoryTags" 
-							:key="index"
-							:class="['filter-tag', { active: selectedCategory === item.id, single: true }]"
-							@click="selectCategory(item.id)"
-						>
-							<text>{{ item.title }}</text>
-						</view>
-					</view>
-				</scroll-view>
-			</view>
-			<view class="filter-right">
-				<view class="section-title">标签</view>
-				<scroll-view scroll-y class="tags-scroll">
-					<view class="tags-wrap">
-						<view 
-							v-for="(item, index) in normalTags" 
-							:key="index"
-							:class="['filter-tag', { active: selectedTags.includes(item.id) }]"
-							@click="toggleTag(item)"
-						>
-							<text>{{ item.title }}</text>
-						</view>
-					</view>
-				</scroll-view>
-			</view>
-		</view>
-
 		<scroll-view scroll-y class="content-list" @scrolltolower="loadMore">
 			<view v-if="!loading && searchResults.length === 0" class="empty-state">
 				<text class="empty-icon">📭</text>
@@ -65,22 +60,19 @@
 				<view class="content-container">
 					<view v-for="(item, index) in searchResults" :key="index" class="content-item" @click="playVideo(item)">
 						<view class="item-cover-wrap">
-							<!-- <view class="item-title-overlay">
-								<text class="item-title">{{ item.title }}</text>
-							</view> -->
 							<image :src="item.cover" mode="aspectFill" class="cover-image" />
-							<!-- <view class="video-overlay">
-								<view class="play-icon">▶</view>
-							</view> -->
 							<text class="play-count">{{ item.playCount }}</text>
 							<text class="video-duration">{{ item.duration }}</text>
 							<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
 						</view>
 						<view class="item-footer">
-							<text class="time-text">{{ formatTime(item.createtime) }} 发布</text>
-							<view class="item-like">
-								<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
-								<text class="like-text">{{ item.likeNumber || 0 }}</text>
+							<text class="item-title-bottom">{{ item.title }}</text>
+							<view class="item-meta">
+								<text class="time-text">{{ formatTime(item.createtime) }} 发布</text>
+								<view class="item-like">
+									<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
+									<text class="like-text">{{ item.likeNumber || 0 }}</text>
+								</view>
 							</view>
 						</view>
 					</view>
@@ -110,9 +102,8 @@
 				],
 				tags: [],
 				selectedVirtualTag: -1,
-				selectedCategory: 0,
-				selectedTags: [],
-				selectedTagNames: [],
+				activeCategory: null,
+				selectedCategories: [],
 				searchResults: [],
 				page: 1,
 				pageSize: 10,
@@ -123,12 +114,12 @@
 		},
 		computed: {
 			categoryTags() {
-				const categoryGroup = this.tags.find(t => t.title === '分类')
-				return categoryGroup?.children || []
+				return this.tags || []
 			},
-			normalTags() {
-				const tagGroup = this.tags.find(t => t.title === '标签')
-				return tagGroup?.children || []
+			currentSubTags() {
+				if (this.activeCategory === null) return []
+				const category = this.categoryTags.find(c => c.data_id === this.activeCategory)
+				return category ? category.children || [] : []
 			}
 		},
 		onLoad() {
@@ -145,6 +136,9 @@
 						if (this.virtualTags.length > 0) {
 							this.selectedVirtualTag = this.virtualTags[0].other_id
 						}
+						if (this.tags.length > 0) {
+							this.activeCategory = this.tags[0].data_id
+						}
 					}
 				}).catch(err => {
 					console.error('加载分类失败:', err)
@@ -157,12 +151,11 @@
 						title: '加载中...'
 					})
 				}
+				const dataId = this.buildDataId()
 				const params = {
 					page: this.page,
 					pagesize: this.pageSize,
-					data_id: this.selectedCategory,
-					id: this.selectedTags.join(','),
-					name: this.selectedTagNames.join(','),
+					data_id: dataId,
 					other_id: this.selectedVirtualTag
 				}
 				VodApi_vod_data_type_search(params).then(res => {
@@ -243,20 +236,56 @@
 				this.hasMore = true
 				this.loadVideoList()
 			},
-			selectCategory(categoryId) {
-				this.selectedCategory = categoryId
-				this.page = 1
-				this.hasMore = true
-				this.loadVideoList()
+			buildDataId() {
+				if (this.selectedCategories.length === 0) {
+					return ''
+				}
+				const dataIdArray = this.selectedCategories.map(cat => {
+					const children = cat.subTags.map(st => ({
+						id: st.id,
+						title: st.title
+					}))
+					return {
+						data_id: cat.categoryId,
+						children: children
+					}
+				})
+				return JSON.stringify(dataIdArray)
 			},
-			toggleTag(tag) {
-				const index = this.selectedTags.indexOf(tag.id)
-				if (index > -1) {
-					this.selectedTags.splice(index, 1)
-					this.selectedTagNames.splice(index, 1)
+			isCategorySelected(categoryId) {
+				return this.selectedCategories.some(c => c.categoryId === categoryId)
+			},
+			isSubTagSelected(categoryId, subTagId) {
+				const cat = this.selectedCategories.find(c => c.categoryId === categoryId)
+				return cat ? cat.subTags.some(st => st.id === subTagId) : false
+			},
+			getSelectedSubTagsCount(categoryId) {
+				const cat = this.selectedCategories.find(c => c.categoryId === categoryId)
+				return cat ? cat.subTags.length : 0
+			},
+			selectCategory(categoryId) {
+				this.activeCategory = categoryId
+			},
+			toggleSubTag(categoryId, subTag) {
+				let cat = this.selectedCategories.find(c => c.categoryId === categoryId)
+				if (!cat) {
+					cat = {
+						categoryId: categoryId,
+						subTags: []
+					}
+					this.selectedCategories.push(cat)
+				}
+				const subTagIndex = cat.subTags.findIndex(st => st.id === subTag.id)
+				if (subTagIndex > -1) {
+					cat.subTags.splice(subTagIndex, 1)
+					if (cat.subTags.length === 0) {
+						const catIndex = this.selectedCategories.findIndex(c => c.categoryId === categoryId)
+						if (catIndex > -1) {
+							this.selectedCategories.splice(catIndex, 1)
+						}
+					}
 				} else {
-					this.selectedTags.push(tag.id)
-					this.selectedTagNames.push(tag.title)
+					cat.subTags.push(subTag)
 				}
 				this.page = 1
 				this.hasMore = true
@@ -316,7 +345,6 @@
 	.virtual-tags {
 		background-color: #16213e;
 		padding: 20rpx 0;
-		padding-top: 140rpx;
 		border-bottom: 1rpx solid #2a2a4a;
 	}
 
@@ -344,64 +372,72 @@
 	.filter-container {
 		display: flex;
 		background-color: #1a1a2e;
-		height: 280rpx;
+		height: 350rpx;
+		padding-top: 100rpx;
 	}
 
-	.filter-left {
-		flex: 1;
-		border-right: 1rpx solid #2a2a4a;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.filter-right {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.section-title {
-		font-size: 26rpx;
-		color: #fff;
-		font-weight: bold;
-		padding: 20rpx 15rpx;
-		height: 60rpx;
-		box-sizing: border-box;
-	}
-
-	.tags-scroll {
-		height: 220rpx;
-		padding: 10rpx 15rpx;
-	}
-
-	.tags-wrap {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 10rpx;
-	}
-
-	.filter-tag {
-		padding: 10rpx 18rpx;
+	.filter-left-scroll {
+		width: 140rpx;
+		height: 100%;
 		background-color: #16213e;
-		border-radius: 18rpx;
-		font-size: 22rpx;
+	}
+
+	.category-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20rpx 10rpx;
+		font-size: 26rpx;
 		color: #999;
+		position: relative;
+		border-left: 4rpx solid transparent;
 		transition: all 0.3s;
-		margin-bottom: 10rpx;
 
 		&.active {
-			background-color: #ffd700;
-			color: #000;
+			color: #ffd700;
+			font-weight: bold;
+			background-color: rgba(255, 215, 0, 0.1);
+			border-left-color: #ffd700;
 		}
+	}
 
-		&.single.active {
+	.selected-count {
+		margin-left: 8rpx;
+		font-size: 20rpx;
+		color: #ffd700;
+		background-color: rgba(255, 215, 0, 0.2);
+		padding: 2rpx 8rpx;
+		border-radius: 10rpx;
+	}
+
+	.filter-right-scroll {
+		flex: 1;
+		height: 100%;
+		padding: 15rpx;
+	}
+
+	.sub-tags-wrap {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12rpx;
+	}
+
+	.sub-tag {
+		padding: 12rpx 24rpx;
+		background-color: #2a2a4a;
+		border-radius: 20rpx;
+		font-size: 24rpx;
+		color: #999;
+		transition: all 0.3s;
+
+		&.active {
 			background-color: #ffd700;
 			color: #000;
 		}
 	}
 
 	.content-list {
-		height: calc(100vh - 500rpx);
+		height: calc(100vh - 470rpx);
 		padding: 20rpx;
 	}
 
@@ -499,7 +535,7 @@
 	.vip-badge {
 		position: absolute;
 		top: 10rpx;
-		right: 10rpx;
+		left: 10rpx;
 		font-size: 22rpx;
 		color: #fff;
 		background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%);
@@ -513,29 +549,45 @@
 	.item-footer {
 		padding: 16rpx 20rpx;
 		display: flex;
+		flex-direction: column;
+		gap: 8rpx;
+	}
+
+	.item-title-bottom {
+		font-size: 26rpx;
+		color: #fff;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.item-meta {
+		display: flex;
 		align-items: center;
 		justify-content: space-between;
 	}
 
 	.time-text {
-		font-size: 26rpx;
-		color: #999;
+		font-size: 22rpx;
+		color: #666;
 	}
 
 	.item-like {
 		display: flex;
 		align-items: center;
-		gap: 10rpx;
+		gap: 8rpx;
 	}
 
 	.like-icon {
-		width: 36rpx;
-		height: 36rpx;
+		width: 28rpx;
+		height: 28rpx;
 	}
 
 	.like-text {
-		font-size: 26rpx;
-		color: #999;
+		font-size: 22rpx;
+		color: #666;
 	}
 
 	.empty-state {

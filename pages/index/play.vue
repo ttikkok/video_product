@@ -15,44 +15,17 @@
 		<!-- 视频播放窗口 -->
 		<view class="video-container">
 			<sunny-video 
-			v-if="videoSrc"
-						 title="视频"
-						 :src="videoSrc" 
-						 :poster="videoPoster"
-						 :trialTime="10"
-						 :seekTime="0"
-						 @timeupdate="timeupdate" 
-						 @handleBtn="handleBtn" 
-						 zIndex="0"
-				 />
-			<!-- <video 
-			v-if="videoSrc"
-			id="videoPlayer"
-			class="video-player"
-			:src="videoSrc"
-			:poster="videoPoster"
-			:autoplay="false"
-			:show-center-play-btn="true"
-			:controls="true"
-			:enable-progress-gesture="true"
-			:show-play-btn="true"
-			:show-fullscreen-btn="true"
-			:enable-play-gesture="true"
-			:show-mute-btn="false"
-			:enable-auto-rotation="false"
-			object-fit="contain"
-			playsinline
-			webkit-playsinline
-			@play="onPlay"
-			@pause="onPause"
-			@timeupdate="onTimeUpdate"
-			@error="handleVideoError"
-			@ended="onEnded"
-			@loadedmetadata="onLoadedMetadata"
-			@canplay="onCanPlay"
-			@waiting="onVideoWaiting"
-			@seeked="onSeeked"
-		></video> -->
+				v-if="videoSrc"
+				title="视频"
+				:src="videoSrc" 
+				:poster="videoPoster"
+				:trialTime="10"
+				:seekTime="0"
+				@timeupdate="timeupdate" 
+				@handleBtn="handleBtn" 
+				@trialEnd="trialEnd"
+				zIndex="0"
+			/>
 			<view v-if="!videoSrc" class="video-placeholder">
 				<view class="loading-spinner"></view>
 				<text class="placeholder-text">视频加载中...</text>
@@ -132,7 +105,7 @@
 				</view>
 			</view>
 
-			<view class="video-list">
+			<view class="content-container">
 				<view 
 					v-for="(item, index) in recommendList" 
 					:key="index" 
@@ -140,27 +113,21 @@
 					@click="playVideo(item)"
 				>
 					<view class="item-cover-wrap">
-						<view class="item-title-overlay">
-							<text class="item-title">{{ item.title || '精彩视频推荐' }}</text>
-						</view>
 						<image :src="item.cover_image || item.poster" mode="aspectFill" class="cover-image" />
-						<!-- <view class="video-overlay">
-							<view class="play-icon">▶</view>
-						</view> -->
-						<text class="play-count">{{ item.look_number || item.views || '0' }}次播放</text>
+						<text class="play-count">{{ item.look_number || item.views || '0' }}</text>
 						<text class="video-duration">{{ item.duration || '00:15:00' }}</text>
 						<view v-if="item.is_free === 0" class="vip-badge">VIP</view>
 					</view>
 					<view class="item-footer">
-						<text class="time-text">{{ item.createtime ? formatTime(item.createtime) : '' }} 发布</text>
-						<view class="item-like">
-							<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
-							<text class="like-text">{{ item.like_number || item.likeNumber || 0 }}</text>
+						<text class="item-title-bottom">{{ item.title || '精彩视频推荐' }}</text>
+						<view class="item-meta">
+							<text class="time-text">{{ item.createtime ? formatTime(item.createtime) : '' }} 发布</text>
+							<view class="item-like">
+								<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
+								<text class="like-text">{{ item.like_number || item.likeNumber || 0 }}</text>
+							</view>
 						</view>
 					</view>
-				</view>
-				<view v-if="!recommendHasMore && recommendList.length > 0" class="load-more-tip">
-					<text>没有更多了</text>
 				</view>
 			</view>
 		</view>
@@ -255,6 +222,26 @@
 				uni.switchTab({
 					url: '/pages/vip/index'
 				});
+			},
+			trialEnd() {
+				const userInfo = uni.getStorageSync('userinfo');
+				const isMember = userInfo && userInfo.is_member === 1;
+				if (!isMember) {
+					uni.showModal({
+						title: '会员专属',
+						content: '试看结束，开通VIP会员即可观看完整视频',
+						confirmText: '开通会员',
+						cancelText: '取消',
+						showCancel: true,
+						success: (res) => {
+							if (res.confirm) {
+								uni.switchTab({
+									url: '/pages/vip/index'
+								});
+							}
+						}
+					});
+				}
 			},
 			handleVideoClick(index) {
 				// if (this.currentPlayingIndex === index) {
@@ -564,8 +551,8 @@
 					uni.showToast({ title: '收藏失败', icon: 'none' });
 				});
 			}
-		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
@@ -617,18 +604,137 @@
 		width: 60rpx;
 	}
 
+	.navbar-speed {
+		width: 100rpx;
+		height: 60rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(255, 255, 255, 0.15);
+		border-radius: 30rpx;
+	}
+
+	.navbar-speed-text {
+		color: #fff;
+		font-size: 28rpx;
+		font-weight: 600;
+	}
+
+	.navbar-speed-menu {
+		position: absolute;
+		top: 100rpx;
+		right: 30rpx;
+		background-color: rgba(0, 0, 0, 0.95);
+		border-radius: 16rpx;
+		min-width: 160rpx;
+		overflow: hidden;
+		z-index: 10000;
+	}
+
+	.navbar-speed-option {
+		padding: 24rpx 30rpx;
+		text-align: center;
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+	}
+
+	.navbar-speed-option:last-child {
+		border-bottom: none;
+	}
+
+	.navbar-speed-option text {
+		color: #fff;
+		font-size: 30rpx;
+	}
+
+	.navbar-speed-option.active text {
+		color: #ffd700;
+		font-weight: 600;
+	}
+
 	.video-container {
+		position: fixed;
+		top: 108rpx;
+		left: 0;
+		right: 0;
 		width: 100%;
-		min-height: 420rpx;
+		height: 410rpx;
 		background-color: #000;
+		z-index: 999;
+	}
+
+	.video-wrapper {
 		position: relative;
-		padding-top: 114rpx;
+		width: 100%;
+		height: 100%;
 	}
 
 	.video-player {
 		width: 100%;
 		height: 100%;
 	}
+
+	/* cover-view 样式 - App/小程序端 */
+	.speed-cover-btn {
+		position: absolute;
+		top: 0;
+		right: 0;
+		background-color: rgba(0, 0, 0, 0.75);
+		padding: 8rpx 18rpx;
+		border-radius: 0 0 0 12rpx;
+		z-index: 999;
+		border: 1rpx solid rgba(255, 255, 255, 0.2);
+	}
+
+	.speed-cover-text {
+		color: #ffffff;
+		font-size: 26rpx;
+		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	.speed-cover-menu {
+		position: absolute;
+		top: 60rpx;
+		right: 0;
+		background-color: rgba(0, 0, 0, 0.95);
+		min-width: 140rpx;
+		z-index: 999;
+	}
+
+	.speed-cover-option {
+		padding: 16rpx 24rpx;
+		text-align: center;
+		border-bottom: 1rpx solid rgba(255, 255, 255, 0.15);
+	}
+
+	.speed-cover-option:last-child {
+		border-bottom: none;
+	}
+
+	.speed-cover-option cover-view {
+		color: #ffffff;
+		font-size: 26rpx;
+	}
+
+	.speed-cover-active cover-view {
+		color: #ffd700;
+		font-weight: 600;
+	}
+
+	.speed-cover-btn-hover {
+		background-color: rgba(0, 0, 0, 0.9) !important;
+		opacity: 0.85;
+	}
+
+
+
+
+
+
+
+
+
+
 
 	.video-placeholder {
 		position: absolute;
@@ -742,8 +848,9 @@
 
 	.video-info {
 		padding: 30rpx;
-		background-color: #16213e;
-		margin: 20rpx;
+		padding-top: 580rpx;
+		// background-color: #16213e;
+		// margin: 20rpx;
 		border-radius: 16rpx;
 	}
 
@@ -920,9 +1027,9 @@
 		font-size: 24rpx;
 	}
 
-	.video-list {
-		display: flex;
-		flex-direction: column;
+	.content-container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 20rpx;
 	}
 
@@ -935,25 +1042,7 @@
 	.item-cover-wrap {
 		position: relative;
 		width: 100%;
-		height: 370rpx;
-	}
-
-	.item-title-overlay {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-		padding: 60rpx 20rpx 15rpx;
-	}
-
-	.item-title {
-		color: #fff;
-		font-size: 28rpx;
-		font-weight: 500;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		height: 280rpx;
 	}
 
 	.cover-image {
@@ -961,92 +1050,151 @@
 		height: 100%;
 	}
 
-	.video-overlay {
+	.play-count {
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 80rpx;
-		height: 80rpx;
-		background-color: rgba(0, 0, 0, 0.6);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.play-icon {
-		color: #fff;
-		font-size: 32rpx;
-		margin-left: 5rpx;
+		bottom: 10rpx;
+		left: 15rpx;
+		font-size: 22rpx;
+		color: rgba(255, 255, 255, 0.9);
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 4rpx 12rpx;
+		border-radius: 8rpx;
 	}
 
 	.video-duration {
 		position: absolute;
-		bottom: 15rpx;
+		bottom: 10rpx;
 		right: 15rpx;
-		background-color: rgba(0, 0, 0, 0.7);
-		color: #fff;
 		font-size: 22rpx;
-		padding: 6rpx 12rpx;
-		border-radius: 8rpx;
-	}
-
-	.play-count {
-		position: absolute;
-		top: 15rpx;
-		left: 15rpx;
-		background-color: rgba(0, 0, 0, 0.6);
-		color: #fff;
-		font-size: 22rpx;
-		padding: 6rpx 12rpx;
+		color: rgba(255, 255, 255, 0.9);
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 4rpx 12rpx;
 		border-radius: 8rpx;
 	}
 
 	.vip-badge {
 		position: absolute;
-		top: 15rpx;
-		right: 15rpx;
-		background: linear-gradient(135deg, #ffd700, #ff8c00);
-		color: #1a1a1a;
+		top: 10rpx;
+		left: 10rpx;
 		font-size: 22rpx;
-		font-weight: 600;
-		padding: 6rpx 12rpx;
+		color: #fff;
+		background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%);
+		padding: 6rpx 16rpx;
 		border-radius: 8rpx;
+		font-weight: 700;
+		box-shadow: 0 4rpx 12rpx rgba(255, 69, 0, 0.5);
+		z-index: 10;
 	}
 
 	.item-footer {
 		padding: 16rpx 20rpx;
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		gap: 8rpx;
+	}
+
+	.item-title-bottom {
+		font-size: 26rpx;
+		color: #fff;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.item-meta {
+		display: flex;
 		justify-content: space-between;
+		align-items: center;
 	}
 
 	.time-text {
-		font-size: 26rpx;
+		font-size: 22rpx;
 		color: #999;
 	}
 
 	.item-like {
 		display: flex;
 		align-items: center;
-		gap: 8rpx;
+		gap: 6rpx;
 	}
 
 	.like-icon {
-		width: 32rpx;
-		height: 32rpx;
+		width: 24rpx;
+		height: 24rpx;
 	}
 
 	.like-text {
-		font-size: 26rpx;
+		font-size: 22rpx;
 		color: #999;
 	}
+	.speed-control {
+		position: absolute;
+		top: 140rpx;
+		right: 30rpx;
+		z-index: 999;
+	}
 
-	.load-more-tip {
-		padding: 30rpx;
+	.speed-btn {
+		background-color: rgba(0, 0, 0, 0.7);
+		padding: 0rpx 12rpx;
+		border-radius: 12rpx;
+	}
+
+	.speed-text {
+		color: #fff;
+		font-size: 30rpx;
+		font-weight: 600;
+	}
+
+	.speed-menu {
+		position: absolute;
+		top: 70rpx;
+		right: 0;
+		background-color: rgba(0, 0, 0, 0.9);
+		border-radius: 16rpx;
+		min-width: 140rpx;
+	}
+
+	.speed-option {
+		padding: 20rpx 28rpx;
 		text-align: center;
-		font-size: 24rpx;
-		color: #999;
+	}
+
+	.speed-option text,
+	.speed-option cover-text {
+		color: #fff;
+		font-size: 28rpx;
+	}
+
+	.speed-option.active text,
+	.speed-option.active cover-text {
+		color: #ffd700;
+		font-weight: 600;
+	}
+
+	.speed-float-btn {
+		display: none;
+	}
+
+	.speed-float-text {
+		display: none;
+	}
+
+	.speed-float-menu {
+		display: none;
+	}
+
+	.speed-float-option {
+		display: none;
+	}
+
+	.speed-float-option text {
+		display: none;
+	}
+
+	.speed-float-option.active text {
+		display: none;
 	}
 </style>

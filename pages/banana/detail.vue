@@ -22,15 +22,14 @@
 			<!-- 帖子视频 -->
 			<view v-if="post.video" class="post-media video">
 				<sunny-video 
-					v-if="post.video"
-					title="视频"
-					:src="post.video" 
+					videoId="videoPlayer"
+					:title="post.title"
+					:src="post.video"
 					:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
-					:trialTime="0.1"
+					:trialTime="0"
 					:seekTime="0"
-					@timeupdate="timeupdate" 
-					@handleBtn="handleBtn" 
-					zIndex="0"
+					@play="onVideoPlay"
+					@handleBtn="handleBtn"
 				/>
 			</view>
 			<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
@@ -100,10 +99,14 @@
 				isCollected: false,
 				showPreview: false,
 				previewImages: [],
-				currentPreviewIndex: 0
+				currentPreviewIndex: 0,
+				isMember: false,
+				showingVipModal: false
 			}
 		},
 		onLoad(options) {
+			const userInfo = uni.getStorageSync('userinfo');
+			this.isMember = userInfo && userInfo.is_member === 1;
 			if (options.id) {
 				this.loadPostDetail(options.id)
 			} else if (options.post) {
@@ -133,19 +136,40 @@
 			goBack() {
 					uni.navigateBack();
 				},
-				timeupdate(e) {
+				onVideoPlay() {
+					if (!this.isMember) {
+						this.showVipModal()
+						const videoContext = uni.createVideoContext('videoPlayer', this);
+						videoContext.pause();
+						return;
+					}
 				},
 				handleBtn() {
-					uni.switchTab({
-						url: '/pages/vip/index'
-					});
+					this.showVipModal();
 				},
-				playVideo() {
-					if (this.post.video) {
-						uni.navigateTo({
-							url: `/pages/index/play?id=${this.post.id}&title=${encodeURIComponent(this.post.title)}`
-						})
-					}
+				showVipModal() {
+					if (this.showingVipModal) return;
+					this.showingVipModal = true;
+					uni.showModal({
+						title: '会员专属',
+						content: '此视频为VIP专属内容，开通会员即可观看完整视频',
+						confirmText: '开通会员',
+						cancelText: '取消',
+						success: (res) => {
+							this.showingVipModal = false;
+							if (res.confirm) {
+								uni.switchTab({
+									url: '/pages/vip/index'
+								});
+							}
+						},
+						fail: () => {
+							this.showingVipModal = false;
+						},
+						complete: () => {
+							this.showingVipModal = false;
+						}
+					});
 				},
 			toggleLike() {
 				CircleApi_circle_like({ circle_id: this.post.id }).then(res => {
@@ -327,9 +351,10 @@
 		justify-content: center;
 	}
 
-	.video-player {
+	.video {
+		position: relative;
 		width: 100%;
-		height: 400rpx;
+		max-height: 460rpx;
 	}
 
 	.video-duration {
@@ -377,6 +402,7 @@
 		position: relative;
 		margin-bottom: 15rpx;
 		width: 100%;
+		// height: 400rpx;
 	}
 
 	.media-image {

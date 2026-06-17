@@ -68,14 +68,14 @@
 				</view>
 			</view>
 
-			<view v-if="advertiseList.length > 0" class="advertise-section">
+			<view v-if="cardList.length > 0" class="card-section">
 				<view 
-					v-for="(ad, index) in advertiseList" 
+					v-for="(card, index) in cardList" 
 					:key="index"
-					class="advertise-card"
-					@click="openAdvertiseUrl(ad.url)"
+					class="card-item"
+					@click="openCardUrl(card.url)"
 				>
-					<image :src="ad.image || ad.cover_image" mode="aspectFill" class="advertise-image" />
+					<image :src="card.image || card.cover_image" mode="aspectFill" class="card-image" />
 				</view>
 			</view>
 
@@ -205,7 +205,7 @@
 				needMore: 0,
 				rules: [],
 				promotionRules: [],
-				advertiseList: []
+				cardList: []
 			}
 		},
 		onLoad() {
@@ -228,16 +228,16 @@
 					}
 				}
 			},
-			loadAdvertiseList() {
+			loadCardList() {
 				AdvertiseApi_advertise_list({ name: '推广页面广告位' }).then(res => {
 					if (res && res.code === 1 && res.data && Array.isArray(res.data)) {
-						this.advertiseList = res.data
+						this.cardList = res.data
 					}
 				}).catch(err => {
-					console.error('加载推广页面广告失败:', err)
+					console.error('加载推广页面卡片失败:', err)
 				})
 			},
-			openAdvertiseUrl(url) {
+			openCardUrl(url) {
 				if (!url) return
 				// #ifdef APP-PLUS
 				if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
@@ -1059,12 +1059,12 @@
 		height: 60rpx;
 	}
 
-	.advertise-section {
+	.card-section {
 		padding: 0 30rpx;
 		margin-bottom: 30rpx;
 	}
 
-	.advertise-card {
+	.card-item {
 		background-color: #fff;
 		border-radius: 16rpx;
 		overflow: hidden;
@@ -1072,11 +1072,11 @@
 		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
 	}
 
-	.advertise-card:last-child {
+	.card-item:last-child {
 		margin-bottom: 0;
 	}
 
-	.advertise-image {
+	.card-image {
 		width: 100%;
 		height: 240rpx;
 		display: block;

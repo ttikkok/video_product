@@ -25,7 +25,7 @@ export function IndexPopup_window(params) {
  * UserApi/register_login
  */
 export function register_login(params) {
-	return http.post("UserApi/register_login", params);
+	return http.post("UserApi/register_login", params, null, true);
 }
 
 /**

@@ -96,8 +96,8 @@
 				</view>
 			</view>
 
-			<view v-if="squareAd" class="square-ad" @click="handleSquareAdClick">
-				<image :src="squareAd.image" mode="aspectFill" class="square-ad-image" />
+			<view v-if="squareAd" class="square-card" @click="handleSquareCardClick">
+				<image :src="squareAd.image" mode="aspectFill" class="square-card-image" />
 			</view>
 
 			<view class="video-section" v-for="(module, moduleIndex) in videoModules" :key="module.id">
@@ -315,10 +315,13 @@
 								<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
 							</view>
 							<view class="category-video-footer">
-								<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
-								<view class="category-like">
-									<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
-									<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
+								<text class="category-video-title-bottom">{{ video.title }}</text>
+								<view class="category-video-meta">
+									<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
+									<view class="category-like">
+										<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
+										<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
+									</view>
 								</view>
 							</view>
 						</view>
@@ -373,12 +376,15 @@
 							<view v-if="video.is_free === 0" class="vip-badge">VIP</view>
 						</view>
 						<view class="category-video-footer">
-							<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
-							<view class="category-like">
-								<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
-								<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
+								<text class="category-video-title-bottom">{{ video.title }}</text>
+								<view class="category-video-meta">
+									<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
+									<view class="category-like">
+										<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
+										<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
+									</view>
+								</view>
 							</view>
-						</view>
 					</view>
 				</view>
 				<u-loadmore 
@@ -428,18 +434,21 @@
 						<text class="popup-title">最新公告!</text>
 					</view>
 					<view class="popup-body">
-						<text class="popup-text">{{ popupList[currentPopupIndex].content }}</text>
+						<rich-text :nodes="popupList[currentPopupIndex].content"></rich-text>
 					</view>
 				</view>
 				<image 
 					v-if="popupList[currentPopupIndex] && popupList[currentPopupIndex].images" 
 					:src="popupList[currentPopupIndex].images" 
-					mode="aspectFill" 
+					mode="widthFix" 
 					class="popup-image" 
 					@click="handlePopupImageClick"
 				/>
-				<view class="popup-btn" @click="closePopup">
+				<view class="popup-btn" @click="closePopup" v-if="popupList[currentPopupIndex] && popupList[currentPopupIndex].content">
 					<text>知道了</text>
+				</view>
+				<view class="popup-btn-img" @click="closePopup" v-if="popupList[currentPopupIndex] && popupList[currentPopupIndex].images">
+					<image src="../../static/images/close.png" mode="widthFix" class="popup-icon" />
 				</view>
 			</view>
 		</view>
@@ -598,7 +607,7 @@
 							tags: video.tags || [],
 							videoUrl: video.video || '',
 							createtime: video.createtime || '',
-							isFree: video.is_free,
+							is_free: video.is_free,
 							score: video.fraction || 0
 						}))
 						if (isLoadMore) {
@@ -1872,10 +1881,10 @@
 		color: #999;
 	}
 
-	.square-ad {
+	.square-card {
 		position: fixed;
 		right: 20rpx;
-		top: 70%;
+		top: 80%;
 		transform: translateY(-50%);
 		width: 120rpx;
 		height: 120rpx;
@@ -1884,7 +1893,7 @@
 		z-index: 99;
 	}
 
-	.square-ad-image {
+	.square-card-image {
 		width: 100%;
 		height: 100%;
 	}
@@ -1994,8 +2003,8 @@
 		width: 90%;
 		max-width: 680rpx;
 		background-color: #fff;
-		border-radius: 30rpx;
-		overflow: hidden;
+		// border-radius: 30rpx;
+		// overflow: hidden;
 		position: relative;
 	}
 
@@ -2023,21 +2032,25 @@
 		min-height: 300rpx;
 	}
 
-	.popup-text {
-		font-size: 28rpx;
-		color: #333;
-		line-height: 1.8;
-	}
 
 	.popup-image {
 		width: 100%;
-		height: 700rpx;
 	}
 
 	.popup-btn {
 		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
 		padding: 25rpx;
 		text-align: center;
+	}
+	.popup-btn-img {
+		position: absolute;
+		left: 50%;
+		margin-left: -32rpx;
+		bottom: -84rpx;
+		// z-index: 999;
+	}
+	.popup-icon {
+		width: 64rpx;
 	}
 
 	.popup-btn text {
@@ -2188,24 +2201,40 @@
 	.category-video-footer {
 		padding: 16rpx 20rpx;
 		display: flex;
+		flex-direction: column;
+		gap: 8rpx;
+	}
+
+	.category-video-title-bottom {
+		font-size: 26rpx;
+		color: #fff;
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.category-video-meta {
+		display: flex;
 		align-items: center;
 		justify-content: space-between;
 	}
 
 	.video-time-left {
-		font-size: 26rpx;
-		color: #999;
+		font-size: 22rpx;
+		color: #666;
 	}
 
 	.category-like {
 		display: flex;
 		align-items: center;
-		gap: 10rpx;
+		gap: 8rpx;
 	}
 
 	.category-like-icon {
-		width: 36rpx;
-		height: 36rpx;
+		width: 28rpx;
+		height: 28rpx;
 	}
 
 	.category-like-text {

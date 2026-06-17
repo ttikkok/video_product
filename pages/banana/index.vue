@@ -58,19 +58,15 @@
 				<!-- 视频直接加载 -->
 				<view v-if="post.video" class="post-media video-container" @click.stop>
 					<sunny-video 
-						 :ref="el => { if (el) videoRefs[index] = el }"
-						 :video-id="'sunny-video-' + index"
-						 title="视频"
-						 :src="post.video" 
-						 :poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
-						 :trialTime="0.1"
-						 :seekTime="0"
-						 @timeupdate="timeupdate" 
-						 @handleBtn="handleBtn" 
-						 zIndex="0"
-						 @click="() => handleVideoClick(index)"
-						 @play="() => handleVideoPlay(index)"
-				 />
+						:videoId="'videoPlayer-' + index"
+						:title="post.title"
+						:src="post.video"
+						:poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
+						:trialTime="0"
+						:seekTime="0"
+						@play="(e) => onVideoPlay(index, e)"
+						@handleBtn="handleBtn"
+					/>
 					<text v-if="post.duration" class="video-duration">{{ post.duration }}</text>
 				</view>
 				<view v-else-if="post.images && post.images.length > 1" class="post-media images-grid">
@@ -200,16 +196,19 @@
 				loading: false,
 				searchKeyword: '',
 				hasMore: true,
-				actualDataCount: 0, // 实际数据条数（不包括广告）
+				actualDataCount: 0,
 				showPreview: false,
 				previewImages: [],
 				currentPreviewIndex: 0,
 				advertiseList: [],
 				currentPlayingIndex: -1,
-				videoRefs: {}
+				isMember: false,
+				showingVipModal: false
 			}
 		},
-		onLoad() {
+		onShow() {
+			const userInfo = uni.getStorageSync('userinfo');
+			this.isMember = userInfo && userInfo.is_member === 1;
 			this.loadCategoryList()
 			this.loadAdvertiseList()
 			this.loadPostList()
@@ -218,32 +217,55 @@
 			this.loadMore()
 		},
 		methods: {
-			handleVideoClick(index) {
-				if (this.currentPlayingIndex === index) {
-					this.currentPlayingIndex = -1
-				} else {
-					this.currentPlayingIndex = index
+			onVideoPlay(index, e) {
+				if (!this.isMember) {
+					this.showVipModal()
+					const videoContext = uni.createVideoContext('videoPlayer-' + index, this);
+					videoContext.pause();
+					return;
 				}
-			},
-			handleVideoPlay(index) {
 				if (this.currentPlayingIndex !== index) {
 					this.pauseOtherVideos(index)
 					this.currentPlayingIndex = index
 				}
 			},
+			handleBtn() {
+				this.showVipModal();
+			},
 			pauseOtherVideos(currentIndex) {
 				for (let i = 0; i < this.postList.length; i++) {
 					if (i !== currentIndex && this.postList[i].video) {
-						const videoRef = this.videoRefs[i]
-						if (videoRef && videoRef.videoCtx) {
-							videoRef.videoCtx.pause()
+						try {
+							const videoContext = uni.createVideoContext('videoPlayer-' + i, this);
+							videoContext.pause();
+						} catch(e) {
+							console.log('暂停视频失败', i, e);
 						}
 					}
 				}
 			},
-			handleBtn() {
-				uni.switchTab({
-					url: '/pages/vip/index'
+			showVipModal() {
+				if (this.showingVipModal) return;
+				this.showingVipModal = true;
+				uni.showModal({
+					title: '会员专属',
+					content: '此视频为VIP专属内容，开通会员即可观看完整视频',
+					confirmText: '开通会员',
+					cancelText: '取消',
+					success: (res) => {
+						this.showingVipModal = false;
+						if (res.confirm) {
+							uni.switchTab({
+								url: '/pages/vip/index'
+							});
+						}
+					},
+					fail: () => {
+						this.showingVipModal = false;
+					},
+					complete: () => {
+						this.showingVipModal = false;
+					}
 				});
 			},
 			loadMore() {
@@ -809,7 +831,7 @@
 
 	.media-image {
 		width: 100%;
-		height: 420rpx;
+		height: 410rpx;
 		display: block;
 	}
 
@@ -843,13 +865,9 @@
 	.video-container {
 		position: relative;
 		width: 100%;
-		border-radius: 12rpx;
+		max-height: 460rpx;
+		// border-radius: 12rpx;
 		overflow: hidden;
-	}
-
-	.video-player {
-		width: 100%;
-		height: 420rpx;
 	}
 
 	.video-duration {

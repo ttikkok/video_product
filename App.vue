@@ -1,7 +1,7 @@
 <script>
 	// import { getUserInfo } from "@/api/public";
 	import config from "@/http/config";
-	import { register_login } from "@/api/home.js";
+	import { register_login, UserApi_get_user_info } from "@/api/home.js";
 	import { getRealDeviceId } from "@/common/device.js";
 	
 	let loginPromise = null
@@ -34,45 +34,7 @@
 			}
 			// #endif
 			this.setPageTitle()
-			// uni.request({  
-			// 	url: config.baseApiOrg + 'app/index/logo', // url地址  
-			// 	method: 'GET',
-			// 	timeout: 5000, // 设置超时时间为5000毫秒（5秒）  
-			// 	success: (res) => {  
-			// 		// 请求成功时的处理
-			// 		// console.log('请求成功', res);  
-			// 	},  
-			// 	fail: (err) => {  
-			// 		// 请求失败时的处理  
-			// 		// 跳转到指定页面 
-			// 		uni.reLaunch({
-			// 			url: '/pages/update/index'
-			// 		}); 
-			// 		// if (err.errMsg === 'request:fail timeout') {  
-			// 		// 	// 检查是否是超时错误  
-			// 		// } else {
-			// 		// 	// 其他错误处理  
-			// 		// 	// console.error('请求失败', err);  
-			// 		// }  
-			// 	}  
-			// });
-			// console.log('App Show')
-			// getUserInfo().then(res => {
-			// 	if (res.code == 200 && res.data) {
-			// 		let orgUserInfo = JSON.stringify(res.data.userinfo);
-			// 		uni.setStorageSync('userInfo', orgUserInfo);
-			// 	}
-			// })
-			// let accesToken = uni.getStorageSync('token');
-			// if (accesToken) {
-      //   // 获取用户登录后的信息
-			// 	getUserInfo().then(res => {
-			// 		if (res.code == 200 && res.data) {
-			// 			let orgUserInfo = JSON.stringify(res.data);
-			// 			uni.setStorageSync('userInfo', orgUserInfo);
-			// 		}
-			// 	})
-			// }
+			this.updateUserInfo()
 		},
 		onHide: function() {
 			// console.log('App Hide')
@@ -84,6 +46,24 @@
 					window.document.title = '视频平台'
 				}
 				//#endif
+			},
+			updateUserInfo() {
+				let token = uni.getStorageSync('token')
+				if (token) {
+					UserApi_get_user_info().then(res => {
+						if (res && res.code === 1 && res.data) {
+							if (res.data.userinfo) {
+								uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))
+							}
+							if (res.data.token) {
+								uni.setStorageSync('token', res.data.token)
+							}
+							console.log('用户信息更新成功')
+						}
+					}).catch(err => {
+						console.error('更新用户信息失败', err)
+					})
+				}
 			},
 			autoLogin() {
 				loginPromise = new Promise((resolve, reject) => {
