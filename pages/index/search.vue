@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="search-header">
 			<view class="back-btn" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -303,7 +303,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	.search-header {
@@ -315,7 +315,7 @@
 		display: flex;
 		align-items: center;
 		padding: 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.back-btn {
@@ -335,7 +335,7 @@
 		text-align: center;
 		font-size: 32rpx;
 		font-weight: bold;
-		color: #fff;
+		color: #333333;
 	}
 
 	.header-placeholder {
@@ -343,9 +343,9 @@
 	}
 
 	.virtual-tags {
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding: 20rpx 0;
-		border-bottom: 1rpx solid #2a2a4a;
+		border-bottom: 1rpx solid #e0e0e0;
 	}
 
 	.virtual-tags-scroll {
@@ -356,22 +356,22 @@
 	.virtual-tag {
 		display: inline-block;
 		padding: 15rpx 30rpx;
-		background-color: #2a2a4a;
+		background-color: #f0f0f0;
 		border-radius: 30rpx;
 		margin-right: 20rpx;
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 		transition: all 0.3s;
 
 		&.active {
-			background-color: #ffd700;
-			color: #000;
+			background-color: #ff2155;
+			color: #fff;
 		}
 	}
 
 	.filter-container {
 		display: flex;
-		background-color: #1a1a2e;
+		background-color: #ffffff;
 		height: 350rpx;
 		padding-top: 100rpx;
 	}
@@ -379,7 +379,7 @@
 	.filter-left-scroll {
 		width: 140rpx;
 		height: 100%;
-		background-color: #16213e;
+		background-color: #ffffff;
 	}
 
 	.category-item {
@@ -388,24 +388,24 @@
 		justify-content: center;
 		padding: 20rpx 10rpx;
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 		position: relative;
 		border-left: 4rpx solid transparent;
 		transition: all 0.3s;
 
 		&.active {
-			color: #ffd700;
+			color: #ff2155;
 			font-weight: bold;
-			background-color: rgba(255, 215, 0, 0.1);
-			border-left-color: #ffd700;
+			background-color: rgba(255, 33, 85, 0.25);
+			border-left-color: #ff2155;
 		}
 	}
 
 	.selected-count {
 		margin-left: 8rpx;
 		font-size: 20rpx;
-		color: #ffd700;
-		background-color: rgba(255, 215, 0, 0.2);
+		color: #ff2155;
+		background-color: rgba(255, 33, 85, 0.1);
 		padding: 2rpx 8rpx;
 		border-radius: 10rpx;
 	}
@@ -424,15 +424,15 @@
 
 	.sub-tag {
 		padding: 12rpx 24rpx;
-		background-color: #2a2a4a;
+		background-color: #e8e8e8;
 		border-radius: 20rpx;
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		transition: all 0.3s;
 
 		&.active {
-			background-color: #ffd700;
-			color: #000;
+			background-color: #ff2155;
+			color: #fff;
 		}
 	}
 
@@ -448,9 +448,10 @@
 	}
 
 	.content-item {
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 16rpx;
 		overflow: hidden;
+		box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
 	}
 
 	.item-cover-wrap {
@@ -555,7 +556,7 @@
 
 	.item-title-bottom {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 		display: -webkit-box;
 		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
@@ -605,7 +606,7 @@
 
 	.empty-text {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		margin-bottom: 15rpx;
 	}
 

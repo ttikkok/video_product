@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bgColor="#16213e"></u-status-bar>
+		<u-status-bar bgColor="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back_black.png" mode="widthFix" class="back-icon" />
@@ -228,7 +228,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
+		background-color: #f7f8fc;
 		padding-top: 120rpx;
 	}
 
@@ -241,7 +241,7 @@
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		background-color: #fff;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -364,7 +364,7 @@
 	.vip-icon {
 		width: 60rpx;
 		height: 60rpx;
-		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(135deg, #ff2155 0%, #ff8c00 100%);
 		border-radius: 12rpx;
 		display: flex;
 		align-items: center;

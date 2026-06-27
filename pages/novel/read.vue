@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 - 固定 -->
 		<view class="top-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -89,10 +89,11 @@
 					<text class="popup-subtitle">{{ currentChapter && currentChapter.title || '' }}</text>
 				</view>
 				<scroll-view scroll-y class="popup-content" :scroll-top="scrollTop">
-					<text class="content-text">{{ currentChapter && currentChapter.content || '' }}</text>
+					<!-- <text class="content-text">{{ currentChapter && currentChapter.content || '' }}</text> -->
+					<rich-text class="content-text" :nodes="currentChapter && currentChapter.content || ''"></rich-text>
 				</scroll-view>
 				<view class="popup-bottom">
-					<view class="popup-btn" @click="prevChapter">
+					<view class="popup-btn primary" @click="prevChapter">
 						<text>◀ 上一章</text>
 					</view>
 					<view class="popup-btn" @click="closeContent">
@@ -155,11 +156,11 @@
 		},
 		methods: {
 			checkVipStatus() {
-				const userinfo = uni.getStorageSync('userinfo')
-				if (userinfo) {
+				const userinfoStr = uni.getStorageSync('userinfo')
+				if (userinfoStr) {
 					try {
-						const user = JSON.parse(userinfo)
-						this.isVip = user.is_vip === 1 || user.vip_level > 0
+						const user = typeof userinfoStr === 'string' ? JSON.parse(userinfoStr) : userinfoStr
+						this.isVip = user.is_member === 1 || user.is_vip === 1 || user.vip_level > 0
 					} catch (e) {
 						console.error('解析用户信息失败:', e)
 					}
@@ -341,7 +342,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	/* 顶部导航 - 固定 */
@@ -352,7 +353,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -371,7 +372,7 @@
 
 	.title-text {
 		font-size: 34rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
@@ -393,7 +394,7 @@
 	.novel-header {
 		display: flex;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin-bottom: 20rpx;
 	}
 
@@ -413,14 +414,14 @@
 
 	.detail-title {
 		font-size: 34rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		margin-bottom: 10rpx;
 	}
 
 	.detail-author {
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 		margin-bottom: 15rpx;
 	}
 
@@ -433,8 +434,8 @@
 
 	.detail-tag {
 		font-size: 22rpx;
-		color: #6BA3E0;
-		background-color: rgba(107, 163, 224, 0.15);
+		color: #ff2155;
+		background-color: rgba(255, 33, 85, 0.1);
 		padding: 5rpx 15rpx;
 		border-radius: 6rpx;
 	}
@@ -447,7 +448,7 @@
 
 	.detail-stat {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		display: inline-flex;
 		align-items: center;
 		white-space: nowrap;
@@ -471,13 +472,13 @@
 		align-items: center;
 		gap: 8rpx;
 		padding: 10rpx 20rpx;
-		background-color: rgba(255, 255, 255, 0.05);
+		background-color: #ffffff;
 		border-radius: 30rpx;
 		transition: all 0.2s ease;
 	}
 
 	.action-item.active {
-		background-color: rgba(107, 163, 224, 0.2);
+		background-color: rgba(255, 33, 85, 0.1);
 	}
 
 	.action-icon {
@@ -487,16 +488,16 @@
 
 	.action-text {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.action-item.active .action-text {
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	/* 简介 - 固定三行省略 */
 	.novel-intro {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin: 0 20rpx 20rpx;
 		border-radius: 12rpx;
 		padding: 20rpx;
@@ -511,13 +512,13 @@
 
 	.intro-title {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.intro-content {
 		font-size: 26rpx;
-		color: #ccc;
+		color: #666666;
 		line-height: 1.8;
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
@@ -527,7 +528,7 @@
 
 	/* 章节列表 */
 	.chapter-section {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin: 0 20rpx;
 		border-radius: 12rpx;
 		overflow: hidden;
@@ -539,18 +540,18 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.section-title {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.chapter-count {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.chapter-list {
@@ -561,12 +562,12 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 28rpx 20rpx;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.05);
+		border-bottom: 1rpx solid #eee;
 		transition: background-color 0.2s ease;
 	}
 
 	.chapter-item:active {
-		background-color: rgba(255, 255, 255, 0.05);
+		background-color: #ffffff;
 	}
 
 	.chapter-info {
@@ -577,18 +578,19 @@
 
 	.chapter-number {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.chapter-title {
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.chapter-vip {
 		font-size: 20rpx;
-		color: #ffd700;
-		background-color: rgba(255, 215, 0, 0.2);
+		color: #fff;
+		background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%);
+		// box-shadow: 0 2px 6px rgba(255, 69, 0, 0.5);
 		padding: 4rpx 12rpx;
 		border-radius: 4rpx;
 	}
@@ -600,7 +602,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.9);
+		background-color: rgba(0, 0, 0, 0.5);
 		z-index: 1000;
 		display: flex;
 		align-items: flex-start;
@@ -610,7 +612,7 @@
 	.content-popup {
 		width: 100%;
 		height: 100%;
-		background-color: #1a1a2e;
+		background-color: #ffffff;
 		display: flex;
 		flex-direction: column;
 	}
@@ -618,13 +620,13 @@
 	.popup-header {
 		padding: 80rpx 30rpx 30rpx;
 		text-align: center;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.popup-title {
 		display: block;
 		font-size: 34rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		margin-bottom: 8rpx;
 	}
@@ -632,7 +634,7 @@
 	.popup-subtitle {
 		display: block;
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.popup-content {
@@ -643,7 +645,7 @@
 
 	.content-text {
 		font-size: 30rpx;
-		color: #ddd;
+		color: #333333;
 		line-height: 2;
 		text-align: justify;
 		white-space: pre-wrap;
@@ -655,22 +657,22 @@
 		padding: 20rpx 30rpx;
 		padding-bottom: calc(20rpx + constant(safe-area-inset-bottom));
 		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-top: 1rpx solid #ffffff;
 	}
 
 	.popup-btn {
 		flex: 1;
 		text-align: center;
 		padding: 20rpx;
-		background-color: rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
 		border-radius: 12rpx;
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.popup-btn.primary {
-		background-color: #ffd700;
-		color: #000;
+		background-color: #ff2155;
+		color: #fff;
 	}
 
 	.loading-overlay {
@@ -690,8 +692,8 @@
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
-		border: 4rpx solid rgba(255, 255, 255, 0.2);
-		border-top-color: #ffd700;
+		border: 4rpx solid rgba(0, 0, 0, 0.1);
+		border-top-color: #ff2155;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
@@ -704,7 +706,7 @@
 
 	.loading-text {
 		font-size: 28rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.empty-state {
@@ -722,6 +724,6 @@
 
 	.empty-text {
 		font-size: 28rpx;
-		color: #999;
+		color: #666666;
 	}
 </style>

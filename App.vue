@@ -1,5 +1,6 @@
 <script>
 	// import { getUserInfo } from "@/api/public";
+	import { initInvite, checkWakeUp, reportBind, getPendingInviterId } from '@/utils/inviteService';
 	import config from "@/http/config";
 	import { register_login, UserApi_get_user_info } from "@/api/home.js";
 	import { getRealDeviceId } from "@/common/device.js";
@@ -15,6 +16,8 @@
 				plus.runtime.setRuntimeVersionCheck(false);
 			}
 			// #endif
+			// ✅ 第一步：新安装归因（仅在onLaunch调用一次）
+			initInvite();
 			this.autoLogin()
 			this.setPageTitle()
 		},
@@ -33,6 +36,8 @@
 				plus.runtime.setRuntimeVersionCheck(false);
 			}
 			// #endif
+			// ✅ 第二步：唤醒监听（每次App回到前台都需检查）
+    	checkWakeUp();
 			this.setPageTitle()
 			this.updateUserInfo()
 		},
@@ -91,7 +96,7 @@
 						
 						uni.setStorageSync('last_device_id', deviceId)
 						
-						register_login({ device_id: deviceId }).then(res => {
+						register_login({ device_id: deviceId }).then(async res => {
 							loginResolved = true
 							if (res && res.code === 1 && res.data) {
 								if (res.data.userinfo) {
@@ -101,6 +106,10 @@
 									uni.setStorageSync('token', res.data.token)
 								}
 								console.log('自动登录成功')
+								const success = await reportBind(res.data.userinfo.username);
+								if (success) {
+									uni.showToast({ title: '绑定成功', icon: 'none' });
+								}
 							} else if (res && res.code !== 1) {
 								console.log('登录返回非成功状态:', res.code, res.msg)
 							}
@@ -123,13 +132,17 @@
 						
 						uni.setStorageSync('last_device_id', deviceId)
 						
-						register_login({ device_id: deviceId }).then(res => {
+						register_login({ device_id: deviceId }).then(async res => {
 							if (res && res.code === 1 && res.data) {
 								if (res.data.userinfo) {
 									uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))
 								}
 								if (res.data.token) {
 									uni.setStorageSync('token', res.data.token)
+								}
+								const success = await reportBind(res.data.userinfo.username);
+								if (success) {
+									uni.showToast({ title: '绑定成功', icon: 'none' });
 								}
 							}
 							resolve(res)
@@ -181,6 +194,7 @@
 				// text-overflow: ellipsis;
 				// white-space: nowrap;
 				// width: 95%;
+				margin-top: 0 !important;
 				height: 46rpx;
 				line-height: 20rpx !important;
 				display: flex;

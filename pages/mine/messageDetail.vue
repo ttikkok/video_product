@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -92,7 +92,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		display: flex;
 		flex-direction: column;
 	}
@@ -104,7 +104,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -121,7 +121,7 @@
 		justify-content: space-between;
 		padding: 0 20rpx;
 		height: 88rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: var(--status-bar-height, 44px);
 		position: fixed;
 		top: 0;
@@ -146,7 +146,7 @@
 		flex: 1;
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #fff;
+		color: #333333;
 		text-align: center;
 	}
 
@@ -169,7 +169,7 @@
 		gap: 20rpx;
 		margin-bottom: 30rpx;
 		padding-bottom: 30rpx;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.detail-icon {
@@ -186,18 +186,18 @@
 
 	.detail-title {
 		font-size: 34rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
 	.detail-time {
 		font-size: 24rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.detail-content {
 		font-size: 30rpx;
-		color: #ccc;
+		color: #333333;
 		line-height: 2;
 		white-space: pre-wrap;
 	}

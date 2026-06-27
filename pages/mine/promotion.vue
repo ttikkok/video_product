@@ -358,7 +358,7 @@
 				ctx.font = '12px sans-serif'
 				ctx.fillText('邀请码自动上报，无需手动填写', width / 2, 445)
 
-				ctx.setFillStyle('#ffd700')
+				ctx.setFillStyle('#ff2155')
 				ctx.font = 'bold 18px sans-serif'
 				ctx.fillText('好色先生TV', width / 2, 470)
 
@@ -450,7 +450,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
+		background-color: #f7f8fc;
 		padding-top: 120rpx;
 	}
 
@@ -661,7 +661,7 @@
 		align-items: center;
 		margin-top: 10rpx;
 		padding: 15rpx 20rpx;
-		background-color: #f8f9fa;
+		background-color: #ffffff;
 		border-radius: 10rpx;
 		width: 100%;
 	}
@@ -769,7 +769,7 @@
 		margin: 0 30rpx;
 		border-radius: 20rpx;
 		padding: 40rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 	}
 
 	.stat-item {
@@ -816,7 +816,7 @@
 		margin: 30rpx;
 		border-radius: 20rpx;
 		padding: 30rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 	}
 
 	.level-item {
@@ -854,7 +854,7 @@
 		margin: 0 30rpx;
 		padding: 20rpx 30rpx;
 		border-radius: 0 0 20rpx 20rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 	}
 
 	.level-desc text {
@@ -867,7 +867,7 @@
 		margin: 30rpx;
 		border-radius: 20rpx;
 		padding: 30rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 	}
 
 	.section-header {
@@ -973,7 +973,7 @@
 		margin: 30rpx;
 		border-radius: 20rpx;
 		padding: 30rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 	}
 
 	.rule-item {
@@ -1009,7 +1009,7 @@
 		margin: 0 30rpx 20rpx;
 		border-radius: 20rpx;
 		padding: 30rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 	}
 
 	.task-left {
@@ -1041,7 +1041,7 @@
 	}
 
 	.promote-btn {
-		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(135deg, #ff2155 0%, #ff8c00 100%);
 		margin: 40rpx 30rpx;
 		padding: 30rpx;
 		border-radius: 40rpx;

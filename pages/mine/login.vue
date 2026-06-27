@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -117,7 +117,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #0f1629;
+		background-color: #f7f8fc;
 		box-sizing: border-box;
 	}
 
@@ -131,7 +131,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx 30rpx;
-		background-color: #0f1629;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -146,7 +146,7 @@
 
 	.nav-title {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
@@ -161,8 +161,8 @@
 	.phone-input-wrap {
 		display: flex;
 		align-items: center;
-		background-color: #1a2744;
-		border: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border: 1rpx solid #ffffff;
 		border-radius: 10rpx;
 		padding: 0 20rpx;
 		margin-bottom: 25rpx;
@@ -172,12 +172,12 @@
 		padding: 0 20rpx 0 0;
 		height: 80rpx;
 		line-height: 80rpx;
-		border-right: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-right: 1rpx solid #ffffff;
 	}
 
 	.country-code text {
 		font-size: 28rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.phone-input {
@@ -186,7 +186,7 @@
 		line-height: 80rpx;
 		padding: 0 20rpx;
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		background: transparent;
 	}
 
@@ -197,8 +197,8 @@
 	.password-input-wrap {
 		display: flex;
 		align-items: center;
-		background-color: #1a2744;
-		border: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border: 1rpx solid #ffffff;
 		border-radius: 10rpx;
 		padding: 0 20rpx;
 		margin-bottom: 25rpx;
@@ -211,7 +211,7 @@
 		line-height: 80rpx;
 		padding: 0 20rpx;
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		background: transparent;
 		border: none;
 		outline: none;
@@ -231,7 +231,7 @@
 
 	.password-toggle text {
 		font-size: 32rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.remember-wrap {
@@ -252,8 +252,8 @@
 	}
 
 	.remember-checkbox.checked {
-		background-color: #ffd700;
-		border-color: #ffd700;
+		background-color: #ff2155;
+		border-color: #ff2155;
 	}
 
 	.remember-checkbox text {
@@ -264,11 +264,11 @@
 
 	.remember-text {
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.login-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 16rpx 28rpx;
 		border-radius: 10rpx;
 		text-align: center;
@@ -276,12 +276,12 @@
 	}
 
 	.login-btn.disabled {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(0, 0, 0, 0.2);
 	}
 
 	.login-btn text {
 		font-size: 30rpx;
-		color: #16213e;
+		color: #ffffff;
 		font-weight: 600;
 	}
 
@@ -297,7 +297,7 @@
 
 	.link-item text {
 		font-size: 26rpx;
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.note {

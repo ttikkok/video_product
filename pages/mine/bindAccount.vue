@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -134,7 +134,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #0f1629;
+		background-color: #f7f8fc;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 		box-sizing: border-box;
@@ -146,7 +146,7 @@
 		padding: 30rpx;
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -164,7 +164,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -180,8 +180,8 @@
 	.phone-input-wrap {
 		display: flex;
 		align-items: center;
-		background-color: #1a2744;
-		border: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border: 1rpx solid #ffffff;
 		border-radius: 10rpx;
 		padding: 0 20rpx;
 		margin-bottom: 40rpx;
@@ -189,12 +189,12 @@
 
 	.country-code {
 		padding: 0 20rpx 0 0;
-		border-right: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-right: 1rpx solid #ffffff;
 	}
 
 	.country-code text {
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.phone-input {
@@ -203,7 +203,7 @@
 		line-height: 80rpx;
 		padding: 0 20rpx;
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		background: transparent;
 	}
 
@@ -212,24 +212,24 @@
 	}
 
 	.bind-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 16rpx;
 		border-radius: 10rpx;
 		text-align: center;
 	}
 
 	.bind-btn.disabled {
-		background: rgba(255, 255, 255, 0.2);
+		background: rgba(0, 0, 0, 0.2);
 	}
 
 	.bind-btn text {
 		font-size: 30rpx;
-		color: #000;
+		color: #ffffff;
 		font-weight: 600;
 	}
 
 	.bind-btn.disabled text {
-		color: #666;
+		color: #ffffff;
 	}
 
 	.bound-success {
@@ -255,14 +255,14 @@
 
 	.success-title {
 		font-size: 36rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		margin-bottom: 20rpx;
 	}
 
 	.success-phone {
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 		margin-bottom: 10rpx;
 	}
 
@@ -277,7 +277,7 @@
 
 	.login-link text {
 		font-size: 26rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	.note {
@@ -300,12 +300,12 @@
 
 	.rules-title {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
 	.rule-item {
-		background-color: #1a2744;
+		background-color: #ffffff;
 		border-radius: 10rpx;
 		padding: 20rpx;
 		margin-bottom: 15rpx;
@@ -314,14 +314,14 @@
 	.rule-item .rule-title {
 		display: block;
 		font-size: 26rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 		margin-bottom: 10rpx;
 	}
 
 	.rule-item .rule-content {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		line-height: 1.6;
 	}
 </style>

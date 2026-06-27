@@ -13,7 +13,7 @@ body {
 	padding: 0;
 	margin: 0;
 	font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif, '宋体';
-	background-color: #1a1a2e;
+	background-color: #f7f8fc;
 }
 /* (2) 图片默认100%宽度 */
 image, img {
@@ -27,39 +27,37 @@ view, p, span, text, input, button, label {
 }
 
 /* 主色调 */
-/* 主背景颜色（橙色）*/
+/* 主背景颜色 */
 .main-bg-color {
-	background: #151521;
+	background: #ffffff;
 }
 
-/* 主点击背景颜色（淡橙色）*/
+/* 主点击背景颜色 */
 .main-bg-hover-color {
-	background: rgba(247, 106, 133, 0.65);
+	background: rgba(0, 123, 255, 0.1);
 }
 
-/* 主字体颜色（橙色）*/
+/* 主字体颜色 */
 .main-text-color {
-	color: #ffdd00;
+	color: #333333;
 }
 
 /* 主边框颜色 */
 .main-border-color {
-	border-color: #F1F1F1;
+	border-color: #eeeeee;
 }
 
 /* 主题卡片 */
 .main-cell {
 	width: 100%;
 	height: 100%;
-	backdrop-filter: saturate(150%) contrast(70%) blur(1px);
-	-webkit-backdrop-filter: saturate(150%) contrast(70%) blur(1px);
-	background-color: rgba(255, 255, 255, .5);
-	box-shadow: 0 5rpx 5rpx rgba(100, 100, 100, 0.5);
+	background-color: #ffffff;
+	box-shadow: 0 5rpx 10rpx #ffffff;
 	background-size: 100% 100%;
 }
 
 ::v-deep .u-popup__content {
-	background-color: #151521;
+	background-color: #ffffff;
 }
 
 /* 统一顶部导航样式 */
@@ -69,7 +67,7 @@ view, p, span, text, input, button, label {
 	padding: 30rpx;
 	padding-top: calc(30rpx + constant(safe-area-inset-top));
 	padding-top: calc(30rpx + env(safe-area-inset-top));
-	background-color: #16213e;
+	background-color: #ffffff;
 }
 
 .nav-back {
@@ -88,7 +86,7 @@ view, p, span, text, input, button, label {
 .nav-title {
 	flex: 1;
 	font-size: 34rpx;
-	color: #fff;
+	color: #333333;
 	font-weight: 600;
 	text-align: center;
 }
@@ -99,5 +97,5 @@ view, p, span, text, input, button, label {
 
 .nav-edit {
 	font-size: 28rpx;
-	color: #6BA3E0;
+	color: #666666;
 }

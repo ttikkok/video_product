@@ -1,6 +1,6 @@
 {
     "name" : "视频APP",
-    "appid" : "__UNI__14F1142",
+    "appid" : "__UNI__D0ED724",
     "description" : "视频APP",
     "versionName" : "1.0",
     "versionCode" : 1,
@@ -87,6 +87,35 @@
             "bottom" : {
                 // 底部安全区域配置  
                 "offset" : "none" // 底部安全区域偏移，"none"表示不空出安全区域，"auto"自动计算空出安全区域，默认值为"none"  
+            }
+        },
+        "nativePlugins" : {
+            "shoot-sharetrace" : {
+                "sharetrace-appkey" : "8c2e86611ca219be",
+                "sharetrace-server" : "",
+                "__plugin_info__" : {
+                    "name" : "sharetrace 免填邀请码",
+                    "description" : "sharetrace 携带参数安装，免填写邀请码，自动绑定邀请关系，渠道统计，一键拉起",
+                    "platforms" : "Android,iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=1893",
+                    "android_package_name" : "io.android.videoApp",
+                    "ios_bundle_id" : "io.ios.videoApp",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "1893",
+                    "parameters" : {
+                        "sharetrace-appkey" : {
+                            "des" : "sharetrace appkey",
+                            "key" : "com.sharetrace.APP_KEY",
+                            "value" : ""
+                        },
+                        "sharetrace-server" : {
+                            "des" : "sharetrace server (注:如未启用,请勿填写)",
+                            "key" : "com.sharetrace.SERVER_DOMAIN",
+                            "value" : ""
+                        }
+                    }
+                }
             }
         }
     },

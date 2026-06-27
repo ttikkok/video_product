@@ -8,10 +8,10 @@ const configService = {
   defaultLine: {
     id: 'default',
     name: '默认线路',
-    baseApiOrg: 'https://ad.buenmtdnet.xyz/api/',
-    imgOrg: 'https://ad.buenmtdnet.xyz/storage/',
-    domain: 'https://ad.buenmtdnet.xyz/',
-    wss: 'wss://ad.buenmtdnet.xyz/'
+    baseApiOrg: 'https://ad.juzi518.com/api/',
+    imgOrg: 'https://ad.juzi518.com/storage/',
+    domain: 'https://ad.juzi518.com/',
+    wss: 'wss://ad.juzi518.com/'
   },
   
   // 设置线路列表

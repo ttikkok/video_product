@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -27,7 +27,7 @@
 			>
 				<view class="line-main">
 					<view class="line-icon">
-						<image src="../../static/images/wangluo.png" mode="aspectFit"style="width: 60%;"></image>
+						<image src="../../static/images/wangluo-s.png" mode="aspectFit"style="width: 60%;"></image>
 						<!-- <text class="icon-text">{{ line.name.charAt(line.name.length - 1) }}</text> -->
 					</view>
 					<view class="line-info">
@@ -184,7 +184,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
@@ -198,7 +198,7 @@
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -216,7 +216,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -228,7 +228,7 @@
 
 	.action-text {
 		font-size: 26rpx;
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.loading-container {
@@ -249,8 +249,8 @@
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
-		border: 4rpx solid rgba(255, 255, 255, 0.2);
-		border-top-color: #ffd700;
+		border: 4rpx solid rgba(0, 0, 0, 0.1);
+		border-top-color: #ff2155;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
@@ -262,7 +262,7 @@
 	.loading-text {
 		margin-top: 20rpx;
 		font-size: 26rpx;
-		color: #888;
+		color: #999999;
 	}
 
 	.line-list {
@@ -279,15 +279,15 @@
 		padding: 28rpx 30rpx;
 		margin-bottom: 20rpx;
 		border-radius: 16rpx;
-		background: linear-gradient(145deg, #1e2842, #16213e);
+		background: #ffffff;
 		border: 2rpx solid transparent;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		box-shadow: 0 4rpx 20rpx #ffffff;
 		transition: all 0.3s ease;
 	}
 
 	.line-item.active {
-		border-color: #ffd700;
-		background: linear-gradient(145deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+		border-color: #ff2155;
+		background: rgba(255, 33, 85, 0.1);
 	}
 
 	.line-main {
@@ -300,7 +300,7 @@
 		width: 70rpx;
 		height: 70rpx;
 		border-radius: 14rpx;
-		background: linear-gradient(135deg, #ffd700, #ffaa00);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -320,13 +320,13 @@
 
 	.line-name {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.current-tag {
 		font-size: 20rpx;
-		color: #ffd700;
+		color: #ff2155;
 		margin-top: 4rpx;
 	}
 
@@ -343,22 +343,22 @@
 		
 		&.loading {
 			background-color: rgba(255, 215, 0, 0.2);
-			color: #ffd700;
+			color: #ff2155;
 		}
 		
 		&.success {
-			background-color: rgba(0, 255, 0, 0.2);
-			color: #0f0;
+			background-color: rgba(0, 255, 0, 0.1);
+			color: #2ecc71;
 		}
 		
 		&.error {
-			background-color: rgba(255, 0, 0, 0.2);
-			color: #f00;
+			background-color: rgba(255, 0, 0, 0.1);
+			color: #e74c3c;
 		}
 		
 		&.idle {
-			background-color: rgba(255, 255, 255, 0.1);
-			color: #888;
+			background-color: #ffffff;
+			color: #999999;
 		}
 	}
 
@@ -374,7 +374,7 @@
 		width: 44rpx;
 		height: 44rpx;
 		border-radius: 50%;
-		background: linear-gradient(135deg, #ffd700, #ffaa00);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -382,7 +382,7 @@
 
 	.check-text {
 		font-size: 24rpx;
-		color: #1a1a2e;
+		color: #fff;
 		font-weight: bold;
 	}
 
@@ -390,7 +390,7 @@
 		width: 40rpx;
 		height: 40rpx;
 		border-radius: 50%;
-		border: 2rpx solid #444;
+		border: 2rpx solid #ccc;
 	}
 
 	.empty-state {
@@ -410,7 +410,7 @@
 
 	.empty-text {
 		font-size: 28rpx;
-		color: #888;
+		color: #999999;
 	}
 
 	.bottom-area {
@@ -421,7 +421,7 @@
 		padding: 30rpx;
 		padding-bottom: calc(30rpx + constant(safe-area-inset-bottom));
 		padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
-		background: linear-gradient(transparent, #1a1a2e 20%);
+		background: linear-gradient(transparent, #ffffff 20%);
 	}
 
 	.current-info {
@@ -436,12 +436,12 @@
 
 	.info-label {
 		font-size: 26rpx;
-		color: #888;
+		color: #999999;
 	}
 
 	.info-value {
 		font-size: 26rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 500;
 		margin-left: 8rpx;
 	}

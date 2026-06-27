@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -233,7 +233,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	.top-header {
@@ -243,7 +243,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 0 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		// padding-top: calc(20rpx + constant(safe-area-inset-top));
 		// padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -264,7 +264,7 @@
 		display: flex;
 		align-items: center;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -282,7 +282,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -296,14 +296,14 @@
 
 	.nav-all {
 		font-size: 26rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	/* 分类标签 */
 	.category-tabs {
-		background-color: #16213e;
+		background-color: #ffffff;
 		white-space: nowrap;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 		// position: fixed;
 		// top: calc(120rpx + constant(safe-area-inset-top));
 		// top: calc(120rpx + env(safe-area-inset-top));
@@ -321,13 +321,13 @@
 	.tab-item {
 		padding: 20rpx 10rpx;
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 		position: relative;
 		white-space: nowrap;
 	}
 
 	.tab-item.active {
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 	}
 
@@ -339,7 +339,7 @@
 		transform: translateX(-50%);
 		width: 40rpx;
 		height: 4rpx;
-		background-color: #ffd700;
+		background-color: #ff2155;
 		border-radius: 2rpx;
 	}
 
@@ -355,7 +355,7 @@
 	.message-item {
 		display: flex;
 		align-items: flex-start;
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 12rpx;
 		padding: 25rpx;
 		margin-bottom: 20rpx;
@@ -363,7 +363,7 @@
 	}
 
 	.message-item.unread {
-		background-color: rgba(107, 163, 224, 0.1);
+		background-color: rgba(255, 33, 85, 0.1);
 	}
 
 	.msg-icon {
@@ -386,18 +386,18 @@
 
 	.msg-title {
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
 	.msg-time {
 		font-size: 22rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.msg-desc {
 		font-size: 24rpx;
-		color: #ccc;
+		color: #666666;
 		line-height: 1.5;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;

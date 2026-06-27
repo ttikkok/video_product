@@ -18,7 +18,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -32,13 +32,13 @@
 	.title {
 		display: block;
 		font-size: 40rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		margin-bottom: 20rpx;
 	}
 	
 	.desc {
 		font-size: 28rpx;
-		color: #999;
+		color: #666666;
 	}
 </style>

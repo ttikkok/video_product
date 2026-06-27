@@ -1,13 +1,21 @@
 {
 	"pages": [
 		{
+      "path": "pages/launch/launch",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false
+        }
+      }
+    },
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "",
 				"navigationBarBackgroundColor": "#16213e",
 				"navigationBarTextStyle": "white",
-				"navigationStyle": "custom",
-				"enablePullDownRefresh": true
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -258,10 +266,10 @@
 		"backgroundColor": "#F8F8F8"
 	},
 	"tabBar": {
-    "color": "#828A99",
-    "selectedColor": "#ffd700",
+    "color": "#333333",
+    "selectedColor": "#ff2155",
     "borderStyle": "black",
-    "backgroundColor": "#1a1a2e",
+    "backgroundColor": "#ffffff",
 		"fontSize": "12px",
     "list": [
 			{

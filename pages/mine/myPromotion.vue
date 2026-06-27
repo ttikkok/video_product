@@ -166,7 +166,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
+		background-color: #f7f8fc;
 		padding-top: 120rpx;
 	}
 
@@ -177,7 +177,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #fff;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -198,7 +198,7 @@
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		background-color: #fff;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {

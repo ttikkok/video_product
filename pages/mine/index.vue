@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 -->
 		<view class="top-header">
-			<u-status-bar bg-Color="#16213e"></u-status-bar>
+			<u-status-bar bg-Color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-title">我的</view>
 				<!-- @click="goToSetting" -->
@@ -240,7 +240,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		padding-bottom: 120rpx;
 		padding-top: 120rpx;
 	}
@@ -252,7 +252,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -265,7 +265,7 @@
 
 	.nav-title {
 		font-size: 34rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
@@ -278,7 +278,7 @@
 	}
 
 	.user-section {
-		background-color: #16213e;
+		background-color: #ffffff;
 		padding: 40rpx 30rpx;
 	}
 
@@ -292,7 +292,7 @@
 		width: 120rpx;
 		height: 120rpx;
 		border-radius: 50%;
-		border: 3rpx solid #ffd700;
+		border: 3rpx solid #ff2155;
 	}
 
 	.user-detail {
@@ -303,19 +303,19 @@
 
 	.user-name {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.bind-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 15rpx 30rpx;
-		border-radius: 30rpx;
+		border-radius: 20rpx;
 	}
 
 	.bind-btn text {
 		font-size: 24rpx;
-		color: #000;
+		color: #ffffff;
 		font-weight: 600;
 	}
 
@@ -325,18 +325,18 @@
 		gap: 8rpx;
 		margin-top: 20rpx;
 		padding-top: 20rpx;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-top: 1rpx solid #ffffff;
 	}
 
 	.device-label {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		font-family: monospace;
 	}
 
 	.device-hint {
 		font-size: 22rpx;
-		color: #666;
+		color: #999999;
 	}
 
 	.user-vip {
@@ -347,7 +347,7 @@
 
 	.vip-tag {
 		font-size: 22rpx;
-		color: #ffd700;
+		color: #ff2155;
 		background-color: rgba(255, 215, 0, 0.2);
 		padding: 4rpx 12rpx;
 		border-radius: 6rpx;
@@ -355,7 +355,7 @@
 
 	.vip-time {
 		font-size: 22rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.vip-banner {
@@ -386,39 +386,40 @@
 
 	.banner-title {
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
 	.banner-desc {
 		font-size: 22rpx;
-		color: rgba(255, 255, 255, 0.7);
+		color: rgba(0, 0, 0, 0.6);
 	}
 
 	.banner-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 12rpx 25rpx;
-		border-radius: 30rpx;
+		border-radius: 20rpx;
 	}
 
 	.banner-btn text {
 		font-size: 24rpx;
-		color: #000;
+		color: #ffffff;
 		font-weight: 600;
 	}
 
 	.menu-section {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin: 20rpx;
 		border-radius: 16rpx;
 		overflow: hidden;
+		border: 1rpx solid #eee;
 	}
 
 	.menu-item {
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.05);
+		border-bottom: 1rpx solid #eee;
 	}
 
 	.menu-item:last-child {
@@ -426,7 +427,6 @@
 	}
 
 	.menu-icon {
-		// font-size: 36rpx;
 		width: 36rpx;
 		margin-right: 20rpx;
 	}
@@ -434,18 +434,18 @@
 	.menu-name {
 		flex: 1;
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.menu-count {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		margin-right: 15rpx;
 	}
 
 	.menu-value {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		margin-right: 15rpx;
 	}
 
@@ -463,12 +463,12 @@
 
 	.menu-badge text {
 		font-size: 22rpx;
-		color: #fff;
+		color: #ffffff;
 		font-weight: 600;
 	}
 
 	.menu-arrow {
 		font-size: 36rpx;
-		color: #666;
+		color: #999999;
 	}
 </style>

@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -148,7 +148,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #0f1629;
+		background-color: #f7f8fc;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
@@ -159,7 +159,7 @@
 		padding: 30rpx;
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -177,7 +177,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -187,7 +187,7 @@
 	}
 
 	.setting-list {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin: 20rpx;
 		border-radius: 12rpx;
 		overflow: hidden;
@@ -197,7 +197,7 @@
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.setting-item:last-child {
@@ -206,7 +206,7 @@
 
 	.item-label {
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		flex: 1;
 	}
 
@@ -217,24 +217,24 @@
 
 	.item-value {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 		margin-right: 15rpx;
 	}
 
 	.cache-size {
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.item-hint {
 		font-size: 24rpx;
-		color: #999;
+		color: #999999;
 		margin-right: 15rpx;
 	}
 
 	.item-arrow {
 		font-size: 32rpx;
-		color: #ccc;
+		color: #999999;
 	}
 
 	.item-dot {

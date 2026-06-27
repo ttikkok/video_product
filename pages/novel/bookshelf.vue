@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -133,7 +133,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	.top-header {
@@ -143,7 +143,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -165,13 +165,13 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx 30rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-title {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #fff;
+		color: #333333;
 	}
 
 	.nav-placeholder {
@@ -190,7 +190,7 @@
 
 	.novel-item {
 		display: flex;
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 20rpx;
 		padding: 20rpx;
 		margin-bottom: 20rpx;
@@ -224,7 +224,7 @@
 
 	.novel-author {
 		font-size: 24rpx;
-		color: #888;
+		color: #666666;
 		margin-top: 8rpx;
 	}
 
@@ -237,8 +237,8 @@
 
 	.novel-tag {
 		font-size: 20rpx;
-		color: #6BA3E0;
-		background-color: rgba(107, 163, 224, 0.2);
+		color: #ff2155;
+		background-color: rgba(255, 33, 85, 0.1);
 		padding: 4rpx 12rpx;
 		border-radius: 6rpx;
 	}
@@ -251,14 +251,14 @@
 
 	.meta-item {
 		font-size: 22rpx;
-		color: #666;
+		color: #999999;
 	}
 
 	.novel-vip {
 		position: absolute;
 		top: 20rpx;
 		right: 20rpx;
-		background-color: #ffd700;
+		background-color: #ff2155;
 		color: #000;
 		font-size: 20rpx;
 		padding: 4rpx 12rpx;

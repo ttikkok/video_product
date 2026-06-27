@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -173,11 +173,11 @@
 			toggleEdit() {
 				this.isEdit = !this.isEdit
 				if (!this.isEdit) {
-					this.filteredHistory.forEach(item => item.selected = false)
+					this.history.forEach(item => item.selected = false)
 				}
 			},
 			toggleSelect(index) {
-				this.filteredHistory[index].selected = !this.filteredHistory[index].selected
+				this.history[index].selected = !this.history[index].selected
 			},
 			playVideo(item) {
 				if (!this.isEdit) {
@@ -197,7 +197,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	.top-header {
@@ -207,7 +207,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -228,7 +228,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx 30rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -243,7 +243,7 @@
 
 	.nav-title {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
@@ -251,27 +251,27 @@
 		width: 80rpx;
 		text-align: right;
 		font-size: 28rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	.time-filter {
 		display: flex;
 		gap: 20rpx;
 		padding: 20rpx;
-		background-color: #16213e;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.filter-item {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 		padding: 10rpx 20rpx;
 		border-radius: 20rpx;
-		background-color: rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
 	}
 
 	.filter-item.active {
-		color: #ffd700;
+		color: #ff2155;
 		background-color: rgba(255, 215, 0, 0.2);
 	}
 
@@ -291,7 +291,7 @@
 
 	.empty-text {
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.content-list {
@@ -305,7 +305,7 @@
 	.content-item {
 		display: flex;
 		align-items: center;
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 12rpx;
 		padding: 20rpx;
 		margin-bottom: 20rpx;
@@ -324,7 +324,7 @@
 
 	.item-checkbox text {
 		font-size: 24rpx;
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.item-cover-wrap {
@@ -353,7 +353,7 @@
 
 	.progress-bar {
 		height: 100%;
-		background-color: #ffd700;
+		background-color: #ff2155;
 	}
 
 	.item-duration {
@@ -376,7 +376,7 @@
 
 	.item-title {
 		font-size: 28rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 		margin-bottom: 8rpx;
 		display: -webkit-box;
@@ -394,8 +394,8 @@
 
 	.item-tag {
 		font-size: 20rpx;
-		color: #6BA3E0;
-		background-color: rgba(107, 163, 224, 0.2);
+		color: #ff2155;
+		background-color: rgba(255, 33, 85, 0.1);
 		padding: 4rpx 12rpx;
 		border-radius: 4rpx;
 	}
@@ -408,12 +408,12 @@
 
 	.item-year {
 		font-size: 22rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.item-time {
 		font-size: 22rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.bottom-bar {
@@ -421,8 +421,8 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 30rpx;
-		background-color: #16213e;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border-top: 1rpx solid #ffffff;
 		position: fixed;
     width: 100%;
     left: 0;
@@ -431,7 +431,7 @@
 
 	.bar-info text {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.bar-delete {
@@ -450,6 +450,6 @@
 		padding: 30rpx;
 		text-align: center;
 		font-size: 24rpx;
-		color: #999;
+		color: #999999;
 	}
 </style>

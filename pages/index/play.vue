@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部自定义导航栏 -->
 		<view class="top-header">
-			<u-status-bar bgColor="#16213e"></u-status-bar>
+			<u-status-bar bgColor="#ffffff"></u-status-bar>
 			<view class="custom-navbar">
 				<view class="navbar-back" @click="goBack">
 					<image src="/static/images/back.png" class="back-icon" mode="aspectFit"></image>
@@ -19,7 +19,7 @@
 				title="视频"
 				:src="videoSrc" 
 				:poster="videoPoster"
-				:trialTime="10"
+				:trialTime="this.isFree==0 && !isMember ? 10 : 0"
 				:seekTime="0"
 				@timeupdate="timeupdate" 
 				@handleBtn="handleBtn" 
@@ -185,7 +185,13 @@
 				this.videoId = options.id;
 			}
 			// 先从本地缓存获取用户会员状态
-			const userInfo = uni.getStorageSync('userinfo');
+			const userInfoStr = uni.getStorageSync('userinfo');
+			let userInfo = null;
+			try {
+				userInfo = typeof userInfoStr === 'string' ? JSON.parse(userInfoStr) : userInfoStr;
+			} catch (e) {
+				console.error('解析用户信息失败:', e);
+			}
 			this.isMember = userInfo && userInfo.is_member === 1;
 			// 调用接口获取最新用户信息
 			this.loadUserInfo();
@@ -224,9 +230,9 @@
 				});
 			},
 			trialEnd() {
-				const userInfo = uni.getStorageSync('userinfo');
+				const userInfo = uni.getStorageSync('userinfo') ? JSON.parse(uni.getStorageSync('userinfo')) : {};
 				const isMember = userInfo && userInfo.is_member === 1;
-				if (!isMember) {
+				if (!isMember && this.isFree == 0) {
 					uni.showModal({
 						title: '会员专属',
 						content: '试看结束，开通VIP会员即可观看完整视频',
@@ -314,8 +320,7 @@
 						const userInfo = res.data;
 						if (userInfo.userinfo && userInfo.userinfo.is_member !== undefined) {
 							this.isMember = userInfo.userinfo.is_member === 1;
-							// 更新本地缓存
-							uni.setStorageSync('userinfo', userInfo.userinfo);
+							uni.setStorageSync('userinfo', JSON.stringify(userInfo.userinfo));
 						}
 					}
 				}).catch(err => {
@@ -558,7 +563,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		padding-bottom: 30rpx;
 	}
 
@@ -569,7 +574,7 @@
 		right: 0;
 		z-index: 9999;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -596,7 +601,7 @@
 
 	.navbar-title {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
@@ -610,12 +615,12 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background-color: rgba(255, 255, 255, 0.15);
+		background-color: #ffffff;
 		border-radius: 30rpx;
 	}
 
 	.navbar-speed-text {
-		color: #fff;
+		color: #333333;
 		font-size: 28rpx;
 		font-weight: 600;
 	}
@@ -634,7 +639,7 @@
 	.navbar-speed-option {
 		padding: 24rpx 30rpx;
 		text-align: center;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.navbar-speed-option:last-child {
@@ -642,12 +647,12 @@
 	}
 
 	.navbar-speed-option text {
-		color: #fff;
+		color: #333333;
 		font-size: 30rpx;
 	}
 
 	.navbar-speed-option.active text {
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 	}
 
@@ -682,7 +687,7 @@
 		padding: 8rpx 18rpx;
 		border-radius: 0 0 0 12rpx;
 		z-index: 999;
-		border: 1rpx solid rgba(255, 255, 255, 0.2);
+		border: 1rpx solid rgba(0, 0, 0, 0.3);
 	}
 
 	.speed-cover-text {
@@ -704,7 +709,7 @@
 	.speed-cover-option {
 		padding: 16rpx 24rpx;
 		text-align: center;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.15);
+		border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
 	}
 
 	.speed-cover-option:last-child {
@@ -717,7 +722,7 @@
 	}
 
 	.speed-cover-active cover-view {
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 	}
 
@@ -752,7 +757,7 @@
 	.loading-spinner {
 		width: 60rpx;
 		height: 60rpx;
-		border: 4rpx solid rgba(255, 255, 255, 0.3);
+		border: 4rpx solid rgba(0, 0, 0, 0.2);
 		border-top-color: #ff6b6b;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
@@ -766,7 +771,7 @@
 
 	.placeholder-text {
 		margin-top: 20rpx;
-		color: #888;
+		color: #999999;
 		font-size: 28rpx;
 	}
 
@@ -856,7 +861,7 @@
 
 	.video-title {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		line-height: 56rpx;
 		// margin-bottom: 20rpx;
@@ -875,7 +880,7 @@
 
 	.meta-text {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.video-actions {
@@ -897,7 +902,7 @@
 
 	.action-text {
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.video-tags {
@@ -909,8 +914,8 @@
 
 	.video-tag {
 		padding: 8rpx 20rpx;
-		background-color: rgba(107, 163, 224, 0.2);
-		color: #6BA3E0;
+		background-color: rgba(107, 163, 224, 0.1);
+		color: #4A90D9;
 		font-size: 24rpx;
 		border-radius: 20rpx;
 	}
@@ -924,7 +929,7 @@
 	.rating-bar {
 		flex: 1;
 		height: 12rpx;
-		background-color: #2a3a52;
+		background-color: #e9ecef;
 		border-radius: 6rpx;
 		overflow: hidden;
 		margin-right: 20rpx;
@@ -932,14 +937,14 @@
 
 	.rating-fill {
 		height: 100%;
-		background: linear-gradient(90deg, #f39c12 0%, #ffd700 100%);
+		background: linear-gradient(90deg, #f39c12 0%, #ff2155 100%);
 		border-radius: 6rpx;
 		transition: width 0.3s ease;
 	}
 
 	.rating-text {
 		font-size: 24rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 500;
 		white-space: nowrap;
 	}
@@ -950,7 +955,7 @@
 
 	.desc-text {
 		font-size: 26rpx;
-		color: #ccc;
+		color: #666666;
 		line-height: 1.6;
 	}
 
@@ -975,14 +980,14 @@
 	.title-badge {
 		width: 8rpx;
 		height: 32rpx;
-		background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(180deg, #ff2155 0%, #ff8c00 100%);
 		border-radius: 4rpx;
 	}
 
 	.section-title {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #fff;
+		color: #333333;
 	}
 
 	.section-more {
@@ -992,13 +997,13 @@
 
 	.section-more text {
 		font-size: 26rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.section-more .arrow {
 		font-size: 32rpx;
 		margin-left: 5rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.ad-item {
@@ -1023,7 +1028,7 @@
 	}
 
 	.ad-title {
-		color: #fff;
+		color: #ffffff;
 		font-size: 24rpx;
 	}
 
@@ -1034,7 +1039,7 @@
 	}
 
 	.content-item {
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 16rpx;
 		overflow: hidden;
 	}
@@ -1095,7 +1100,7 @@
 
 	.item-title-bottom {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 		display: -webkit-box;
 		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
@@ -1111,7 +1116,7 @@
 
 	.time-text {
 		font-size: 22rpx;
-		color: #999;
+		color: #666666;
 	}
 
 	.item-like {
@@ -1127,7 +1132,7 @@
 
 	.like-text {
 		font-size: 22rpx;
-		color: #999;
+		color: #666666;
 	}
 	.speed-control {
 		position: absolute;
@@ -1143,7 +1148,7 @@
 	}
 
 	.speed-text {
-		color: #fff;
+		color: #ffffff;
 		font-size: 30rpx;
 		font-weight: 600;
 	}
@@ -1164,13 +1169,13 @@
 
 	.speed-option text,
 	.speed-option cover-text {
-		color: #fff;
+		color: #ffffff;
 		font-size: 28rpx;
 	}
 
 	.speed-option.active text,
 	.speed-option.active cover-text {
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 	}
 

@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 -->
 		<view class="top-header">
-			<u-status-bar bgColor="#16213e"></u-status-bar>
+			<u-status-bar bgColor="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view style="width: 100rpx;"></view>
 				<view class="nav-title">VIP充值中心</view>
@@ -26,6 +26,8 @@
 			<view class="vip-hint">
 				<text>购买会员享受无限次数观影体验</text>
 			</view>
+			<text v-if="isVisitor" class="user-bg-text">游客</text>
+			<text v-else class="user-bg-text">用户</text>
 		</view>
 
 		<!-- VIP套餐 -->
@@ -37,10 +39,10 @@
 				:class="['package-card', { active: selectedPackage === index }]"
 				@click="selectPackage(index)"
 			>
+				<!-- <view v-if="pkg.days === 365" class="card-corner"></view>
 				<view v-if="pkg.days === 365" class="card-corner"></view>
 				<view v-if="pkg.days === 365" class="card-corner"></view>
-				<view v-if="pkg.days === 365" class="card-corner"></view>
-				<view v-if="pkg.days === 365" class="card-corner"></view>
+				<view v-if="pkg.days === 365" class="card-corner"></view> -->
 				<view class="package-inner">
 					<view v-if="pkg.days === 365" class="recommend-tag">
 						<text class="recommend-text">推荐</text>
@@ -48,7 +50,7 @@
 					<view class="package-price">
 						<text class="price-symbol">¥</text>
 						<text class="price-value">{{ pkg.price }}</text>
-						<text class="price-unit">/{{ pkg.days }}天</text>
+						<!-- <text class="price-unit">/{{ pkg.days }}天</text> -->
 					</view>
 					<view v-if="pkg.original_price" class="package-original">
 						<text>原价¥{{ pkg.original_price }}</text>
@@ -115,9 +117,9 @@
 		<!-- 底部支付栏 -->
 		<view class="bottom-bar">
 			<view class="bar-left">
-				<view class="service-icon">
+				<!-- <view class="service-icon">
 					<text class="service-text">客服</text>
-				</view>
+				</view> -->
 				<view class="price-info">
 					<text class="price-label">合計：</text>
 					<text class="price-total-symbol">¥</text>
@@ -439,7 +441,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+		background: #f7f8fc;
 		padding-bottom: calc(160rpx + constant(safe-area-inset-bottom));
 		padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
 		padding-top: 120rpx;
@@ -453,7 +455,7 @@
 		right: 0;
 		z-index: 100;
 		padding: 30rpx 20rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 	}
@@ -466,32 +468,31 @@
 
 	.nav-title {
 		font-size: 34rpx;
-		color: #ffd700;
+		color: #333;
 		font-weight: 600;
 	}
 
 	.nav-order {
 		font-size: 26rpx;
-		color: #ffd700;
+		color: #ff2155;
 		padding: 10rpx 20rpx;
 	}
 
 	/* 用户信息 */
 	.user-section {
-		background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%);
+		background: linear-gradient(90deg, rgba(255, 33, 85, 0.08) 0%, rgba(255, 33, 85, 0.88) 100%);
 		padding: 30rpx 20rpx;
 		position: relative;
 		overflow: hidden;
 	}
 
-	.user-section::after {
-		content: '遊客';
+	.user-bg-text {
 		position: absolute;
 		right: 30rpx;
 		top: 50%;
 		transform: translateY(-50%);
 		font-size: 80rpx;
-		color: rgba(255, 255, 255, 0.1);
+		color: #ffffff;
 		font-weight: bold;
 	}
 
@@ -506,7 +507,7 @@
 		width: 100rpx;
 		height: 100rpx;
 		border-radius: 50%;
-		border: 3rpx solid #ffd700;
+		border: 3rpx solid #ff2155;
 	}
 
 	.user-detail {
@@ -517,13 +518,13 @@
 
 	.user-name {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.user-status {
 		font-size: 22rpx;
-		color: #999;
+		color: #666;
 	}
 
 	.vip-badge {
@@ -542,13 +543,13 @@
 
 	.vip-text {
 		font-size: 24rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 500;
 	}
 
 	.vip-hint {
 		font-size: 24rpx;
-		color: #ccc;
+		color: #666;
 	}
 
 	/* VIP套餐 */
@@ -565,60 +566,64 @@
 	}
 
 	.package-card {
+		width: 320rpx;
 		position: relative;
 		// width: 280rpx;
 		flex-shrink: 0;
 		border-radius: 24rpx;
 		overflow: hidden;
-		border: 4rpx solid transparent;
+		// border: 4rpx solid transparent;
 		transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-		background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
-		box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.3);
+		// background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+		// box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.1);
 	}
 
 	.package-card.active {
 		transform: translateY(-10rpx);
-		box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.5);
+		// box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.2);
 	}
 
 	.package-card:nth-child(1) {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: linear-gradient(135deg, #ffe7ab, #ffce6c);
 	}
 
-	.package-card:nth-child(1).active {
-		border-color: #a78bfa;
-	}
+	// .package-card:nth-child(1).active {
+	// 	border-color: #a78bfa;
+	// }
 
 	.package-card:nth-child(2) {
-		background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+		background: linear-gradient(135deg, #eed1c5, #e8ac92);
 	}
 
-	.package-card:nth-child(2).active {
-		border-color: #fb7185;
-	}
+	// .package-card:nth-child(2).active {
+	// 	border-color: #fb7185;
+	// }
 
 	.package-card:nth-child(3) {
-		background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+		background: linear-gradient(135deg, #b8d7e9, #bebbe5);
 	}
 
-	.package-card:nth-child(3).active {
-		border-color: #67e8f9;
-	}
+	// .package-card:nth-child(3).active {
+	// 	border-color: #67e8f9;
+	// }
 
 	.package-card:nth-child(4) {
-		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ff6347 100%);
-		box-shadow: 
-			0 0 60rpx rgba(255, 215, 0, 0.3),
-			0 8rpx 30rpx rgba(0, 0, 0, 0.4);
+		background-color: #ffe6b4;
+    background-image: radial-gradient(circle at 10% 96%, rgba(230, 209, 255, 0.63) 0%, rgba(215, 189, 255, 0) 79%), radial-gradient(circle at 0% 0%, rgba(255, 178, 210, 0.52) 0%, rgba(255, 168, 199, 0) 86%, rgba(255, 168, 199, 0) 86%);
+		// background: linear-gradient(135deg, #232526 0%, #414345 100%); 
+		// box-shadow: 
+		// 	0 0 60rpx rgba(255, 215, 0, 0.3),
+		// 	0 8rpx 30rpx rgba(0, 0, 0, 0.4);
+		margin-right: 40rpx;
 	}
 
-	.package-card:nth-child(4).active {
-		border-color: #fff;
-		transform: translateY(-15rpx);
-		box-shadow: 
-			0 0 80rpx rgba(255, 215, 0, 0.5),
-			0 20rpx 50rpx rgba(0, 0, 0, 0.5);
-	}
+	// .package-card:nth-child(4).active {
+	// 	border-color: #fff;
+	// 	transform: translateY(-15rpx);
+	// 	box-shadow: 
+	// 		0 0 80rpx rgba(255, 215, 0, 0.5),
+	// 		0 20rpx 50rpx rgba(0, 0, 0, 0.5);
+	// }
 
 	.package-card:nth-child(4)::before {
 		content: '';
@@ -704,12 +709,13 @@
 	.vip-packages .recommend-tag {
 		position: absolute;
 		top: 0;
-		right: 0;
-		background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
-		padding: 10rpx 24rpx;
-		border-radius: 0 24rpx 0 24rpx;
+		left: 0;
+		background: linear-gradient(to right, #ff7d31, #ff1480);
+		// background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+		padding: 0 24rpx;
+		border-radius: 24rpx 0 24rpx 0;
 		z-index: 10;
-		box-shadow: 0 4rpx 16rpx rgba(255, 71, 87, 0.5);
+		// box-shadow: 0 4rpx 16rpx rgba(255, 71, 87, 0.5);
 		animation: pulseTag 2s ease-in-out infinite;
 	}
 
@@ -738,20 +744,20 @@
 
 	.price-symbol {
 		font-size: 28rpx;
-		color: #fff;
+		color: #4d0819;
 		font-weight: 500;
 	}
 
 	.price-value {
 		font-size: 64rpx;
-		color: #fff;
+		color: #4d0819;
 		font-weight: 900;
-		text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.3);
+		// text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.3);
 	}
 
 	.price-unit {
 		font-size: 26rpx;
-		color: rgba(255, 255, 255, 0.8);
+		color: #4d0819;
 	}
 
 	.package-original {
@@ -763,13 +769,13 @@
 
 	.package-original text {
 		font-size: 24rpx;
-		color: rgba(255, 255, 255, 0.5);
+		color: rgba(77,8,25,.7);
 		text-decoration: line-through;
 	}
 
 	.package-card-bg {
 		padding: 20rpx;
-		background-color: rgba(255, 255, 255, 0.1);
+		// background-color: rgba(255, 255, 255, 0.4);
 		position: relative;
 		z-index: 1;
 	}
@@ -785,14 +791,14 @@
 	.card-chip {
 		width: 44rpx;
 		height: 32rpx;
-		background-color: rgba(255, 255, 255, 0.25);
+		background-color: rgba(77,8,25, 0.25);
 		border-radius: 8rpx;
 	}
 
 	.card-signal {
 		width: 32rpx;
 		height: 32rpx;
-		background: conic-gradient(from 0deg, rgba(255, 255, 255, 0.3) 0deg 180deg, transparent 180deg 360deg);
+		background: conic-gradient(from 0deg, rgba(77,8,25, 0.3) 0deg 180deg, transparent 180deg 360deg);
 		border-radius: 50%;
 		margin-left: -10rpx;
 	}
@@ -800,14 +806,14 @@
 	.package-name {
 		text-align: center;
 		font-size: 34rpx;
-		color: #fff;
+		color: #4d0819;
 		font-weight: 700;
 		letter-spacing: 2rpx;
 	}
 
 	/* VIP权益 */
 	.benefits-section {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin: 20rpx;
 		border-radius: 16rpx;
 		padding: 30rpx 20rpx;
@@ -823,7 +829,7 @@
 
 	.benefits-title {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.benefits-value {
@@ -834,26 +840,26 @@
 
 	.value-symbol {
 		font-size: 22rpx;
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.value-number {
 		font-size: 34rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: bold;
 	}
 
 	.benefits-text {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.benefits-tag {
 		position: absolute;
 		right: 20rpx;
 		top: 20rpx;
-		background-color: #ffd700;
-		color: #000;
+		background-color: #ff2155;
+		color: #fff;
 		font-size: 18rpx;
 		padding: 6rpx 15rpx;
 		border-radius: 20rpx;
@@ -879,7 +885,7 @@
 
 	.benefit-name {
 		font-size: 22rpx;
-		color: #ccc;
+		color: #666666;
 		text-align: center;
 	}
 
@@ -951,9 +957,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background-color: #1a1a1a;
+		background-color: #ffffff;
 		padding: 20rpx 30rpx;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-top: 1rpx solid #ffffff;
 		z-index: 99;
 	}
 
@@ -967,7 +973,7 @@
 		width: 80rpx;
 		height: 80rpx;
 		border-radius: 50%;
-		background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(135deg, #ff2155 0%, #ff8c00 100%);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -986,29 +992,29 @@
 
 	.price-label {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.price-total-symbol {
 		font-size: 28rpx;
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.price-total {
 		font-size: 48rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: bold;
 	}
 
 	.pay-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 20rpx 50rpx;
 		border-radius: 40rpx;
 	}
 
 	.pay-text {
 		font-size: 30rpx;
-		color: #000;
+		color: #fff;
 		font-weight: 600;
 	}
 
@@ -1027,7 +1033,7 @@
 
 	.pay-modal-content {
 		width: 100%;
-		background-color: #1a1a2e;
+		background-color: #ffffff;
 		border-radius: 30rpx 30rpx 0 0;
 		padding-bottom: constant(safe-area-inset-bottom);
 		padding-bottom: env(safe-area-inset-bottom);
@@ -1038,12 +1044,12 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 30rpx;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.pay-modal-title {
 		font-size: 34rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 	}
 
@@ -1057,17 +1063,17 @@
 
 	.pay-modal-close text {
 		font-size: 36rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.pay-modal-notice {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 20rpx 30rpx;
 	}
 
 	.pay-modal-notice text {
 		font-size: 24rpx;
-		color: #333;
+		color: #ffffff;
 	}
 
 	.pay-modal-amount {
@@ -1084,19 +1090,19 @@
 
 	.amount-symbol {
 		font-size: 36rpx;
-		color: #ffd700;
+		color: #ff2155;
 		margin-right: 8rpx;
 	}
 
 	.amount-value {
 		font-size: 72rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: bold;
 	}
 
 	.amount-label {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 		margin-top: 10rpx;
 	}
 
@@ -1112,7 +1118,7 @@
 		display: flex;
 		align-items: center;
 		padding: 20rpx;
-		background-color: #252540;
+		background-color: #ffffff;
 		border-radius: 12rpx;
 		width: calc(50% - 12rpx);
 		border: 2rpx solid transparent;
@@ -1120,7 +1126,7 @@
 	}
 
 	.channel-item.active {
-		border-color: #ffd700;
+		border-color: #ff2155;
 		background-color: rgba(255, 215, 0, 0.1);
 	}
 
@@ -1156,7 +1162,7 @@
 
 	.channel-name {
 		font-size: 24rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.pay-channels .recommend-tag {
@@ -1179,14 +1185,14 @@
 
 	.channel-desc {
 		font-size: 18rpx;
-		color: #999;
+		color: #999999;
 		margin-top: 2rpx;
 	}
 
 	.channel-check {
 		width: 32rpx;
 		height: 32rpx;
-		border: 2rpx solid #666;
+		border: 2rpx solid #ccc;
 		border-radius: 50%;
 		display: flex;
 		align-items: center;
@@ -1195,8 +1201,8 @@
 	}
 
 	.channel-check.checked {
-		background-color: #ffd700;
-		border-color: #ffd700;
+		background-color: #ff2155;
+		border-color: #ff2155;
 	}
 
 	.channel-check.checked text {
@@ -1209,7 +1215,7 @@
 	}
 
 	.pay-submit-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 24rpx;
 		border-radius: 12rpx;
 		text-align: center;
@@ -1217,7 +1223,7 @@
 
 	.pay-submit-btn text {
 		font-size: 32rpx;
-		color: #000;
+		color: #fff;
 		font-weight: 600;
 	}
 
@@ -1226,7 +1232,7 @@
 		margin: 20rpx;
 		border-radius: 16rpx;
 		overflow: hidden;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 	}
 
 	.vip-advertise .advertise-image {

@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -106,7 +106,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		padding-bottom: 50rpx;
 	}
 
@@ -116,7 +116,7 @@
 		padding: 30rpx 20rpx;
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -134,7 +134,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -144,7 +144,7 @@
 		flex-direction: column;
 		align-items: center;
 		padding: 60rpx 20rpx;
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin-bottom: 20rpx;
 	}
 
@@ -157,18 +157,18 @@
 
 	.app-name {
 		font-size: 36rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: bold;
 		margin-bottom: 10rpx;
 	}
 
 	.app-version {
 		font-size: 24rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.about-section {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin: 0 20rpx 20rpx;
 		border-radius: 12rpx;
 		padding: 30rpx;
@@ -176,14 +176,14 @@
 
 	.section-title {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		margin-bottom: 20rpx;
 	}
 
 	.section-content text {
 		font-size: 26rpx;
-		color: #ccc;
+		color: #666666;
 		line-height: 1.8;
 	}
 
@@ -197,7 +197,7 @@
 		display: flex;
 		align-items: center;
 		padding: 20rpx;
-		background-color: rgba(255, 255, 255, 0.05);
+		background-color: #ffffff;
 		border-radius: 10rpx;
 	}
 
@@ -208,13 +208,13 @@
 
 	.contact-label {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 		flex: 1;
 	}
 
 	.contact-value {
 		font-size: 26rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	.agreement-list {
@@ -228,13 +228,13 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx;
-		background-color: rgba(255, 255, 255, 0.05);
+		background-color: #ffffff;
 		border-radius: 10rpx;
 	}
 
 	.agreement-item text:first-child {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.arrow {
@@ -257,12 +257,12 @@
 
 	.info-label {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.info-value {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.about-footer {

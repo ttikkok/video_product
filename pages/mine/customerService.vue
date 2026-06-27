@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -104,7 +104,7 @@
 <style lang="scss" scoped>
 	.page {
 		height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		display: flex;
 		flex-direction: column;
 	}
@@ -115,7 +115,7 @@
 		padding: 30rpx 20rpx;
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -133,7 +133,7 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
@@ -143,8 +143,8 @@
 		flex-direction: column;
 		align-items: center;
 		padding: 60rpx 20rpx;
-		background-color: #16213e;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.service-avatar {
@@ -164,7 +164,7 @@
 
 	.service-name {
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		margin-bottom: 10rpx;
 	}
@@ -181,7 +181,7 @@
 
 	.service-tip text {
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.action-area {
@@ -189,7 +189,7 @@
 	}
 
 	.contact-btn {
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		padding: 24rpx;
 		border-radius: 12rpx;
 		text-align: center;
@@ -197,7 +197,7 @@
 
 	.contact-btn text {
 		font-size: 32rpx;
-		color: #000;
+		color: #ffffff;
 		font-weight: 600;
 	}
 </style>

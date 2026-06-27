@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#16213e"></u-status-bar>
+		<u-status-bar bg-color="#ffffff"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -139,7 +139,7 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 		display: flex;
 		flex-direction: column;
 	}
@@ -150,7 +150,7 @@
 		padding: 30rpx 20rpx;
 		padding-top: calc(30rpx + constant(safe-area-inset-top));
 		padding-top: calc(30rpx + env(safe-area-inset-top));
-		background-color: #16213e;
+		background-color: #f7f8fc;
 	}
 
 	.nav-back {
@@ -168,19 +168,19 @@
 	.nav-title {
 		flex: 1;
 		font-size: 32rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 600;
 		text-align: center;
 	}
 
 	.nav-edit {
 		font-size: 28rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	.download-stats {
 		display: flex;
-		background-color: #16213e;
+		background-color: #ffffff;
 		padding: 30rpx 20rpx;
 		margin-bottom: 20rpx;
 	}
@@ -195,13 +195,13 @@
 
 	.stat-value {
 		font-size: 36rpx;
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: bold;
 	}
 
 	.stat-label {
 		font-size: 24rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.empty-state {
@@ -220,7 +220,7 @@
 
 	.empty-text {
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.download-list {
@@ -232,7 +232,7 @@
 	.download-item {
 		display: flex;
 		align-items: center;
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 12rpx;
 		padding: 20rpx;
 		margin-bottom: 20rpx;
@@ -251,7 +251,7 @@
 
 	.item-checkbox text {
 		font-size: 24rpx;
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.item-cover {
@@ -271,7 +271,7 @@
 
 	.item-title {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 		margin-bottom: 8rpx;
 		display: -webkit-box;
@@ -290,26 +290,26 @@
 	.progress-bar {
 		flex: 1;
 		height: 8rpx;
-		background-color: rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
 		border-radius: 4rpx;
 		overflow: hidden;
 	}
 
 	.progress-fill {
 		height: 100%;
-		background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+		background: linear-gradient(90deg, #ff215599 0%, #ff2155 100%);
 		border-radius: 4rpx;
 	}
 
 	.progress-text {
 		font-size: 22rpx;
-		color: #ffd700;
+		color: #ff2155;
 		min-width: 60rpx;
 	}
 
 	.item-size {
 		font-size: 22rpx;
-		color: #999;
+		color: #999999;
 		margin-bottom: 8rpx;
 	}
 
@@ -318,11 +318,11 @@
 	}
 
 	.item-status.downloading {
-		color: #ffd700;
+		color: #ff2155;
 	}
 
 	.item-status.paused {
-		color: #999;
+		color: #999999;
 	}
 
 	.item-status.completed {
@@ -364,13 +364,13 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 30rpx;
-		background-color: #16213e;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
+		border-top: 1rpx solid #ffffff;
 	}
 
 	.bar-info text {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.bar-delete {

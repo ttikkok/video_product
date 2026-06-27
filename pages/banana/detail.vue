@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 -->
 		<view class="top-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -16,17 +16,20 @@
 		<scroll-view scroll-y class="content">
 			<!-- 帖子内容 -->
 			<view class="post-content">
-				<text>{{ post.title }}</text>
+				<view style="color: #333;font-size: 32rpx;font-weight: bold;margin-bottom: 24rpx;">
+					<text>{{ post.title }}</text>
+				</view>
+				<rich-text :nodes="post.content" style="color: #666;"></rich-text>
 			</view>
 
 			<!-- 帖子视频 -->
-			<view v-if="post.video" class="post-media video">
+			<view v-if="post.video && post.video.trim() !== ''" class="post-media video">
 				<sunny-video 
 					videoId="videoPlayer"
 					:title="post.title"
 					:src="post.video"
 					:poster="post.images && post.images.length > 0 ? post.images[0] : ''"
-					:trialTime="0"
+					:trialTime="!isMember ? 0.1 : 0"
 					:seekTime="0"
 					@play="onVideoPlay"
 					@handleBtn="handleBtn"
@@ -42,7 +45,7 @@
 					@click.stop="previewImage(post.images, imgIndex)"
 				/>
 			</view>
-			<view v-else-if="post.images && post.images.length === 1" class="post-media single-image">
+			<view v-else-if="post.images && post.images.length > 0" class="post-media single-image">
 				<image :src="post.images[0]" mode="aspectFill" class="media-image" @click.stop="previewImage(post.images, 0)" />
 			</view>
 
@@ -60,7 +63,7 @@
 			<view class="action-bar">
 				<view class="action-item" :class="{ active: isLiked }" @click="toggleLike">
 					<image :src="isLiked ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="action-icon" />
-					<text class="action-text">{{ post.like_number }}</text>
+					<text class="action-text">{{ post.like_number || 0 }}</text>
 				</view>
 				<view class="action-item" :class="{ active: isCollected }" @click="toggleCollect">
 					<image :src="isCollected ? '../../static/images/collect_active.png' : '../../static/images/collect.png'" mode="widthFix" class="action-icon" />
@@ -68,6 +71,14 @@
 				</view>
 			</view>
 		</scroll-view>
+
+		<!-- 底部固定联系方式按钮 -->
+		<view v-if="post.information && post.information.trim() !== ''" class="bottom-contact-bar">
+			<view class="contact-btn" @click="getContact">
+				<!-- <image src="../../static/images/kefu.png" mode="widthFix" class="contact-icon" /> -->
+				<text class="contact-text">获取联系方式</text>
+			</view>
+		</view>
 
 		<!-- 图片预览遮罩 -->
 		<view v-if="showPreview" class="preview-overlay" @click="closePreview">
@@ -105,15 +116,16 @@
 			}
 		},
 		onLoad(options) {
-			const userInfo = uni.getStorageSync('userinfo');
+			const userInfoStr = uni.getStorageSync('userinfo');
+			let userInfo = null;
+			try {
+				userInfo = typeof userInfoStr === 'string' ? JSON.parse(userInfoStr) : userInfoStr;
+			} catch (e) {
+				console.error('解析用户信息失败:', e);
+			}
 			this.isMember = userInfo && userInfo.is_member === 1;
 			if (options.id) {
 				this.loadPostDetail(options.id)
-			} else if (options.post) {
-				const postData = JSON.parse(decodeURIComponent(options.post));
-				this.post = postData;
-				this.isLiked = postData.is_like === 1
-				this.isCollected = postData.is_collect === 1
 			}
 		},
 		methods: {
@@ -134,43 +146,55 @@
 				})
 			},
 			goBack() {
-					uni.navigateBack();
-				},
-				onVideoPlay() {
-					if (!this.isMember) {
-						this.showVipModal()
-						const videoContext = uni.createVideoContext('videoPlayer', this);
-						videoContext.pause();
-						return;
-					}
-				},
-				handleBtn() {
-					this.showVipModal();
-				},
-				showVipModal() {
-					if (this.showingVipModal) return;
-					this.showingVipModal = true;
-					uni.showModal({
-						title: '会员专属',
-						content: '此视频为VIP专属内容，开通会员即可观看完整视频',
-						confirmText: '开通会员',
-						cancelText: '取消',
-						success: (res) => {
-							this.showingVipModal = false;
-							if (res.confirm) {
-								uni.switchTab({
-									url: '/pages/vip/index'
-								});
-							}
-						},
-						fail: () => {
-							this.showingVipModal = false;
-						},
-						complete: () => {
-							this.showingVipModal = false;
+				uni.navigateBack();
+			},
+			onVideoPlay() {
+				if (!this.isMember) {
+					this.showVipModal()
+					const videoContext = uni.createVideoContext('videoPlayer', this);
+					videoContext.pause();
+					return;
+				}
+			},
+			handleBtn() {
+				this.showVipModal();
+			},
+			getContact() {
+				if (!this.isMember) {
+					this.showVipModal(1);
+					return;
+				}
+				uni.showModal({
+					title: '联系方式',
+					content: this.post.information,
+					showCancel: false,
+					confirmText: '知道了'
+				});
+			},
+			showVipModal(type) {
+				if (this.showingVipModal) return;
+				this.showingVipModal = true;
+				uni.showModal({
+					title: '会员专属',
+					content: type == 1 ? '开通会员即可查看联系方式' : '此视频为VIP专属内容，开通会员即可观看完整视频',
+					confirmText: '开通会员',
+					cancelText: '取消',
+					success: (res) => {
+						this.showingVipModal = false;
+						if (res.confirm) {
+							uni.switchTab({
+								url: '/pages/vip/index'
+							});
 						}
-					});
-				},
+					},
+					fail: () => {
+						this.showingVipModal = false;
+					},
+					complete: () => {
+						this.showingVipModal = false;
+					}
+				});
+			},
 			toggleLike() {
 				CircleApi_circle_like({ circle_id: this.post.id }).then(res => {
 					if (res && res.code === 1) {
@@ -222,7 +246,7 @@
 
 <style lang="scss">
 	page {
-		background-color: #0f1629;
+		background-color: #f7f8fc;
 		min-height: 100vh;
 	}
 
@@ -235,7 +259,7 @@
 	.top-header {
 		padding: 30rpx 20rpx;
 		// height: 88rpx;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: calc(20rpx + constant(safe-area-inset-top));
 		padding-top: calc(20rpx + env(safe-area-inset-top));
 		position: fixed;
@@ -267,7 +291,7 @@
 	.nav-title {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #fff;
+		color: #333333;
 	}
 
 	.nav-placeholder {
@@ -277,13 +301,14 @@
 	.content {
 		flex: 1;
 		padding-top: calc(120rpx + var(--status-bar-height, 44px));
+		padding-bottom: 140rpx;
 	}
 
 	.post-header {
 		display: flex;
 		align-items: center;
 		padding: 20rpx;
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin-bottom: 15rpx;
 	}
 
@@ -311,12 +336,12 @@
 	.user-name {
 		font-size: 30rpx;
 		font-weight: 600;
-		color: #fff;
+		color: #333333;
 	}
 
 	.user-level {
 		font-size: 20rpx;
-		color: #ffd700;
+		color: #ff2155;
 		background-color: rgba(255, 215, 0, 0.15);
 		padding: 2rpx 10rpx;
 		border-radius: 20rpx;
@@ -333,8 +358,8 @@
 		font-size: 24rpx;
 		padding: 6rpx 16rpx;
 		border-radius: 6rpx;
-		background-color: rgba(107, 163, 224, 0.2);
-		color: #6BA3E0;
+		background-color: rgba(255, 33, 85, 0.1);
+		color: #ff2155;
 	}
 
 	.video-overlay {
@@ -365,7 +390,7 @@
 		padding: 4rpx 12rpx;
 		border-radius: 6rpx;
 		font-size: 24rpx;
-		color: #fff;
+		color: #ffffff;
 	}
 
 	.images-grid {
@@ -385,15 +410,15 @@
 		padding: 0 20rpx;
 	}
 
-	.single-image .media-image {
-		border-radius: 12rpx;
-		max-height: 600rpx;
-	}
+	// .single-image .media-image {
+	// 	border-radius: 12rpx;
+	// 	max-height: 600rpx;
+	// }
 
 	.post-content {
 		padding: 0 20rpx 15rpx;
 		font-size: 28rpx;
-		color: #ccc;
+		color: #666666;
 		line-height: 1.6;
 		padding-top: 40rpx;
 	}
@@ -407,7 +432,7 @@
 
 	.media-image {
 		width: 100%;
-		height: auto;
+		height: 410rpx;
 		display: block;
 	}
 
@@ -442,7 +467,7 @@
 
 	.location-text {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.post-topics {
@@ -454,15 +479,15 @@
 
 	.topic-tag {
 		font-size: 26rpx;
-		color: #6BA3E0;
-		background-color: rgba(107, 163, 224, 0.15);
+		color: #ff2155;
+		background-color: rgba(255, 33, 85, 0.1);
 		padding: 5rpx 15rpx;
 		border-radius: 6rpx;
 	}
 
 	.divider {
 		height: 15rpx;
-		background-color: #0f1629;
+		background-color: #ffffff;
 	}
 
 	.action-bar {
@@ -470,7 +495,7 @@
 		justify-content: center;
 		gap: 100rpx;
 		padding: 25rpx 0;
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin-bottom: 15rpx;
 	}
 
@@ -492,11 +517,44 @@
 
 	.action-text {
 		font-size: 26rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	.action-item.active .action-text {
-		color: #ffd700;
+		color: #ff2155;
+	}
+
+	.bottom-contact-bar {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background-color: rgba(255, 255, 255, 0.95);
+		padding: 20rpx;
+		padding-bottom: calc(20rpx + constant(safe-area-inset-bottom));
+		padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+		z-index: 9998;
+	}
+
+	.bottom-contact-bar .contact-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+		border-radius: 12rpx;
+		padding: 24rpx;
+		gap: 16rpx;
+	}
+
+	.contact-icon {
+		width: 48rpx;
+		height: 48rpx;
+	}
+
+	.contact-text {
+		font-size: 32rpx;
+		color: #fff;
+		font-weight: bold;
 	}
 
 	/* 图片预览 */
@@ -507,7 +565,7 @@
 		right: 0;
 		bottom: 0;
 		background-color: rgba(0, 0, 0, 0.95);
-		z-index: 1000;
+		z-index: 9999;
 		display: flex;
 		flex-direction: column;
 	}

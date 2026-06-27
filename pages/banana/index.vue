@@ -4,7 +4,7 @@
 		<scroll-view scroll-y class="scroll-container" @scrolltolower="loadMore">
 			<!-- 页面头部 -->
 			<view class="page-header">
-				<u-status-bar bg-color="#16213e"></u-status-bar>
+				<u-status-bar bg-color="#ffffff"></u-status-bar>
 				<!-- 顶部搜索栏 -->
 				<view class="search-header">
 					<view class="search-bar">
@@ -52,17 +52,18 @@
 					<view v-else @click.stop="goToDetail(post)">
 				<!-- 帖子内容 -->
 				<view class="post-content">
-					<text>{{ post.title }}</text>
+					<!-- <text>{{ post.title }}</text> -->
+					<rich-text :nodes="post.title"></rich-text>
 				</view>
 
 				<!-- 视频直接加载 -->
-				<view v-if="post.video" class="post-media video-container" @click.stop>
+				<view v-if="post.video && post.video.trim() !== ''" class="post-media video-container" @click.stop>
 					<sunny-video 
 						:videoId="'videoPlayer-' + index"
 						:title="post.title"
 						:src="post.video"
 						:poster="post.images && post.images.length > 0 ? post.images[0] : post.cover_image"
-						:trialTime="0"
+						:trialTime="!isMember ? 0.1 : 0"
 						:seekTime="0"
 						@play="(e) => onVideoPlay(index, e)"
 						@handleBtn="handleBtn"
@@ -79,7 +80,7 @@
 						@click.stop="previewImage(post.images, imgIndex)"
 					/>
 				</view>
-				<view v-else-if="post.images && post.images.length === 1" class="post-media single-image">
+				<view v-else-if="post.images && post.images.length > 0" class="post-media single-image">
 					<image :src="post.images[0]" mode="aspectFill" class="media-image" @click.stop="previewImage(post.images, 0)" />
 				</view>
 
@@ -106,11 +107,10 @@
 					</view>
 					<!-- <view class="stat-item">
 						<text class="stat-icon">↗️</text>
-					</view>
-					<view class="stat-item reward-btn">
-						<text class="stat-icon">🧧</text>
-						<text class="stat-text">打賞</text>
 					</view> -->
+					<view class="stat-item reward-btn" v-if="post.information && post.information.trim() !== ''" @click.stop="getContact">
+						<view class="stat-btn">联系方式</view>
+					</view>
 				</view>
 
 				<!-- 位置标签 -->
@@ -207,7 +207,13 @@
 			}
 		},
 		onShow() {
-			const userInfo = uni.getStorageSync('userinfo');
+			const userInfoStr = uni.getStorageSync('userinfo');
+			let userInfo = null;
+			try {
+				userInfo = typeof userInfoStr === 'string' ? JSON.parse(userInfoStr) : userInfoStr;
+			} catch (e) {
+				console.error('解析用户信息失败:', e);
+			}
 			this.isMember = userInfo && userInfo.is_member === 1;
 			this.loadCategoryList()
 			this.loadAdvertiseList()
@@ -244,12 +250,12 @@
 					}
 				}
 			},
-			showVipModal() {
+			showVipModal(type) {
 				if (this.showingVipModal) return;
 				this.showingVipModal = true;
 				uni.showModal({
 					title: '会员专属',
-					content: '此视频为VIP专属内容，开通会员即可观看完整视频',
+					content: type == 1 ? '开通会员即可查看联系方式' : '此视频为VIP专属内容，开通会员即可观看完整视频',
 					confirmText: '开通会员',
 					cancelText: '取消',
 					success: (res) => {
@@ -266,6 +272,18 @@
 					complete: () => {
 						this.showingVipModal = false;
 					}
+				});
+			},
+			getContact() {
+				if (!this.isMember) {
+					this.showVipModal(1);
+					return;
+				}
+				uni.showModal({
+					title: '联系方式',
+					content: this.post.information,
+					showCancel: false,
+					confirmText: '知道了'
 				});
 			},
 			loadMore() {
@@ -426,9 +444,8 @@
 				})
 			},
 			goToDetail(post) {
-				const postData = encodeURIComponent(JSON.stringify(post));
 				uni.navigateTo({
-					url: `/pages/banana/detail?post=${postData}`
+					url: `/pages/banana/detail?id=${post.id}`
 				});
 			},
 			playVideo(post) {
@@ -563,19 +580,19 @@
 <style lang="scss" scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	/* 页面头部 */
 	.page-header {
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
 
 	/* 搜索头部 */
 	.search-header {
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding: 20rpx 30rpx;
 		display: flex;
 		align-items: center;
@@ -587,7 +604,7 @@
 		flex: 1;
 		display: flex;
 		align-items: center;
-		background-color: rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
 		border-radius: 30rpx;
 		padding: 15rpx 25rpx;
 	}
@@ -611,7 +628,7 @@
 		flex: 1;
 		background: transparent;
 		border: none;
-		color: #fff;
+		color: #333333;
 		font-size: 28rpx;
 	}
 
@@ -621,15 +638,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #999;
+		color: #999999;
 		font-size: 28rpx;
 	}
 
 	/* 导航标签 */
 	.nav-tabs {
-		background-color: #16213e;
+		background-color: #ffffff;
 		white-space: nowrap;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.tabs {
@@ -641,13 +658,13 @@
 	.tab-item {
 		padding: 20rpx 10rpx;
 		font-size: 30rpx;
-		color: #999;
+		color: #666666;
 		position: relative;
 		white-space: nowrap;
 	}
 
 	.tab-item.active {
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 	}
 
@@ -659,7 +676,7 @@
 		transform: translateX(-50%);
 		width: 40rpx;
 		height: 4rpx;
-		background-color: #ffd700;
+		background-color: #ff2155;
 		border-radius: 2rpx;
 	}
 
@@ -676,7 +693,7 @@
 		width: 60rpx;
 		height: 60rpx;
 		border: 4rpx solid rgba(107, 163, 224, 0.3);
-		border-top-color: #6BA3E0;
+		border-top-color: #ff2155;
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
@@ -690,7 +707,7 @@
 	.loading-text {
 		margin-top: 20rpx;
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	/* 空状态 */
@@ -704,7 +721,7 @@
 
 	.empty-text {
 		font-size: 28rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	/* 滚动容器 */
@@ -720,11 +737,11 @@
 	}
 
 	.post-card {
-		background-color: #16213e;
+		background-color: #ffffff;
 		margin-bottom: 20rpx;
 		padding: 20rpx;
 		border-radius: 16rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
 	}
 
 	/* 帖子头部 */
@@ -760,12 +777,12 @@
 
 	.user-name {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		font-weight: 500;
 	}
 
 	.user-level {
-		background-color: #ffd700;
+		background-color: #ff2155;
 		color: #000;
 		font-size: 20rpx;
 		padding: 2rpx 8rpx;
@@ -773,8 +790,8 @@
 	}
 
 	.follow-btn {
-		background-color: rgba(255, 255, 255, 0.1);
-		color: #6BA3E0;
+		background-color: rgba(107, 163, 224, 0.1);
+		color: #ff2155;
 		font-size: 26rpx;
 		padding: 8rpx 20rpx;
 		border-radius: 20rpx;
@@ -791,24 +808,24 @@
 	.post-tag {
 		font-size: 24rpx;
 		padding: 8rpx 18rpx;
-		border-radius: 20rpx;
-		background-color: rgba(107, 163, 224, 0.15);
-		color: #6BA3E0;
-		border: 1rpx solid rgba(107, 163, 224, 0.3);
+		border-radius: 10rpx;
+		background-color: #eee;
+		color: #777;
+		border: 1rpx solid #dfdfdf;
 	}
 	.post-page {
 		width: 100%;
 		padding: 20rpx;
-		background-color: #16213e;
+		background-color: #fff;
 		// border-radius: 16rpx;
-		// box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		// box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
 		margin-bottom: 20rpx;
 	}
 
 	/* 帖子内容 */
 	.post-content {
 		font-size: 30rpx;
-		color: #fff;
+		color: #333333;
 		line-height: 1.7;
 		margin-bottom: 20rpx;
 		white-space: pre-wrap;
@@ -816,16 +833,16 @@
 	}
 
 	.expand-text {
-		color: #6BA3E0;
+		color: #ff2155;
 	}
 
 	/* 帖子媒体 */
 	.post-media {
 		position: relative;
 		margin-bottom: 20rpx;
-		border-radius: 12rpx;
+		// border-radius: 12rpx;
 		overflow: hidden;
-		background-color: #0f0f1a;
+		// background-color: #0f0f1a;
 		z-index: 1;
 	}
 
@@ -887,7 +904,7 @@
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 8rpx;
-		border-radius: 12rpx;
+		// border-radius: 12rpx;
 		overflow: hidden;
 	}
 
@@ -897,16 +914,16 @@
 	}
 
 	.single-image {
-		border-radius: 12rpx;
+		// border-radius: 12rpx;
 		overflow: hidden;
 	}
 
-	.single-image .media-image {
-		width: 100%;
-		height: auto;
-		max-height: 500rpx;
-		display: block;
-	}
+	// .single-image .media-image {
+	// 	width: 100%;
+	// 	height: auto;
+	// 	max-height: 500rpx;
+	// 	display: block;
+	// }
 
 	/* 互动数据 */
 	.post-stats {
@@ -915,7 +932,7 @@
 		gap: 50rpx;
 		margin-bottom: 0;
 		padding-top: 20rpx;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+		border-top: 1rpx solid #ffffff;
 	}
 
 	.stat-item {
@@ -923,7 +940,7 @@
 		align-items: center;
 		gap: 10rpx;
 		font-size: 26rpx;
-		color: #888;
+		color: #666666;
 		white-space: nowrap;
 		transition: all 0.3s ease;
 	}
@@ -944,16 +961,15 @@
 	}
 
 	.reward-btn {
-		background-color: linear-gradient(135deg, #ff6b6b, #ee5a5a);
-		color: #fff;
-		padding: 8rpx 20rpx;
-		border-radius: 20rpx;
 		margin-left: auto;
-		font-size: 24rpx;
 	}
-
-	.reward-btn .stat-text {
+	
+	.reward-btn .stat-btn {
+		font-size: 24rpx;
+		padding: 8rpx 20rpx;
+		border-radius: 10rpx;
 		color: #fff;
+		background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
 	}
 
 	/* 位置标签 */
@@ -962,7 +978,7 @@
 		align-items: center;
 		gap: 5rpx;
 		font-size: 24rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 		margin-bottom: 15rpx;
 	}
 
@@ -980,7 +996,7 @@
 
 	.topic-item {
 		font-size: 24rpx;
-		color: #6BA3E0;
+		color: #ff2155;
 		background-color: rgba(107, 163, 224, 0.1);
 		padding: 5rpx 12rpx;
 		border-radius: 4rpx;
@@ -993,7 +1009,7 @@
 		gap: 8rpx;
 		margin-bottom: 15rpx;
 		padding: 10rpx 0;
-		border-top: 1rpx solid rgba(255, 255, 255, 0.05);
+		border-top: 1rpx solid #ffffff;
 	}
 
 	.reply-avatar {
@@ -1004,7 +1020,7 @@
 
 	/* 底部回复 */
 	.bottom-reply {
-		background-color: rgba(255, 255, 255, 0.05);
+		background-color: rgba(0, 0, 0, 0.03);
 		padding: 15rpx;
 		border-radius: 8rpx;
 	}
@@ -1030,11 +1046,11 @@
 
 	.reply-user-name {
 		font-size: 26rpx;
-		color: #fff;
+		color: #333333;
 	}
 
 	.reply-user-level {
-		background-color: #ffd700;
+		background-color: #ff2155;
 		color: #000;
 		font-size: 18rpx;
 		padding: 2rpx 6rpx;
@@ -1043,7 +1059,7 @@
 
 	.reply-content {
 		font-size: 26rpx;
-		color: #ccc;
+		color: #666666;
 		line-height: 1.5;
 	}
 
@@ -1051,7 +1067,7 @@
 		padding: 30rpx;
 		text-align: center;
 		font-size: 24rpx;
-		color: #999;
+		color: #999999;
 	}
 
 	/* 图片预览 */
@@ -1098,11 +1114,11 @@
 	}
 
 	.advertise-card {
-		background-color: #16213e;
-		border-radius: 16rpx;
+		background-color: #ffffff;
+		// border-radius: 16rpx;
 		overflow: hidden;
 		margin-bottom: 20rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
 	}
 
 	.advertise-image {

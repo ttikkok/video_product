@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="fixed-header">
-			<u-status-bar bg-color="#16213e"></u-status-bar>
+			<u-status-bar bg-color="#ffffff"></u-status-bar>
 			<view class="search-header">
 				<view class="search-bar">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
@@ -264,7 +264,7 @@
 
 <style lang="scss" scoped>
 	.page {
-		background-color: #1a1a2e;
+		background-color: #f7f8fc;
 	}
 
 	.fixed-header {
@@ -272,14 +272,14 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		z-index: 100;
 		padding-top: constant(safe-area-inset-top);
 		padding-top: env(safe-area-inset-top);
 	}
 
 	.search-header {
-		background-color: #16213e;
+		background-color: #f7f8fc;
 		padding: 20rpx 30rpx;
 		display: flex;
 		align-items: center;
@@ -291,7 +291,7 @@
 		flex: 1;
 		display: flex;
 		align-items: center;
-		background-color: rgba(255, 255, 255, 0.1);
+		background-color: #ffffff;
 		border-radius: 30rpx;
 		padding: 15rpx 25rpx;
 	}
@@ -304,14 +304,14 @@
 		flex: 1;
 		background: transparent;
 		border: none;
-		color: #fff;
+		color: #333333;
 		font-size: 28rpx;
 	}
 
 	.category-tabs {
-		background-color: #16213e;
+		background-color: #ffffff;
 		white-space: nowrap;
-		border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1rpx solid #ffffff;
 	}
 
 	.tabs {
@@ -323,13 +323,13 @@
 	.tab-item {
 		padding: 20rpx 10rpx;
 		font-size: 30rpx;
-		color: #999;
+		color: #666666;
 		position: relative;
 		white-space: nowrap;
 	}
 
 	.tab-item.active {
-		color: #ffd700;
+		color: #ff2155;
 		font-weight: 600;
 	}
 
@@ -341,7 +341,7 @@
 		transform: translateX(-50%);
 		width: 40rpx;
 		height: 4rpx;
-		background-color: #ffd700;
+		background-color: #ff2155;
 		border-radius: 2rpx;
 	}
 
@@ -364,7 +364,7 @@
 	.novel-card {
 		display: flex;
 		padding: 20rpx;
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 15rpx;
 		margin-bottom: 20rpx;
 	}
@@ -415,7 +415,7 @@
 	.novel-title {
 		font-size: 30rpx;
 		font-weight: bold;
-		color: #fff;
+		color: #333333;
 		margin-bottom: 10rpx;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -424,7 +424,7 @@
 
 	.novel-author {
 		font-size: 24rpx;
-		color: #999;
+		color: #666666;
 		margin-bottom: 10rpx;
 	}
 
@@ -435,8 +435,8 @@
 	}
 
 	.novel-tag {
-		background-color: rgba(107, 163, 224, 0.2);
-		color: #6BA3E0;
+		background-color: rgba(255, 33, 85, 0.1);
+		color: #ff2155;
 		font-size: 22rpx;
 		padding: 5rpx 12rpx;
 		border-radius: 5rpx;
@@ -447,7 +447,7 @@
 	.novel-intro {
 		flex: 1;
 		font-size: 24rpx;
-		color: #666;
+		color: #666666;
 		line-height: 1.5;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -467,7 +467,7 @@
 		display: flex;
 		align-items: center;
 		font-size: 22rpx;
-		color: #666;
+		color: #999999;
 	}
 
 	.stat-icon {
@@ -477,11 +477,11 @@
 	}
 
 	.advertise-card {
-		background-color: #16213e;
+		background-color: #ffffff;
 		border-radius: 16rpx;
 		overflow: hidden;
 		margin-bottom: 20rpx;
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
 	}
 
 	.advertise-image {
