@@ -7,6 +7,7 @@
       class="bg-image" 
       :class="{ 'is-active': currentIndex === index }"
       :src="item.image"
+      @click="handlePopupImageClick"
     ></image>
 
     <!-- 底部信息区域 -->
@@ -76,6 +77,38 @@ export default {
           this.goHome();
         }
       }, 1000);
+    },
+    handlePopupImageClick() {
+      const current = this.imageList[this.currentIndex]
+      if (current && current.url) {
+        this.openExternalURL(current.url)
+      } else if(current && current.title) {
+        this.openExternalURL(current.title)
+      } else if (current && current.link) {
+        this.openExternalURL(current.link)
+      }
+    },
+    openExternalURL(url) {
+      if (!url) return
+      // #ifdef APP-PLUS
+      if (typeof plus !== 'undefined' && plus.runtime && plus.runtime.openURL) {
+        plus.runtime.openURL(url)
+        return
+      }
+      // #endif
+      // #ifdef H5
+      if (typeof window !== 'undefined' && window.open) {
+        window.open(url, '_blank')
+        return
+      }
+      // #endif
+      // 其他平台（微信小程序等）
+      uni.setClipboardData({
+        data: url,
+        success: () => {
+          uni.showToast({ title: '链接已复制，请到浏览器打开', icon: 'none' })
+        }
+      })
     },
     goHome() {
       clearInterval(this.imgTimer);

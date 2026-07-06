@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="fixed-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="search-header">
 				<view class="search-bar">
 					<image src="../../static/images/search.png" mode="widthFix" style="width:32rpx;" class="search-icon" />
@@ -34,7 +34,7 @@
 					class="novel-item"
 				>
 					<view v-if="novel.is_advertise" class="advertise-card" @click="openAdvertiseUrl(novel.url)">
-						<image :src="novel.image || novel.cover_image" mode="aspectFill" class="advertise-image" />
+						<image :src="novel.image || novel.cover_image" mode="widthFix" class="advertise-image" />
 					</view>
 					<view v-else class="novel-card" @click="goToRead(novel)">
 						<view class="novel-cover">
@@ -486,7 +486,7 @@
 
 	.advertise-image {
 		width: 100%;
-		height: 240rpx;
+		// height: 240rpx;
 		display: block;
 	}
 </style>

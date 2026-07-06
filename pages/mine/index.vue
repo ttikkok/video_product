@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 -->
 		<view class="top-header">
-			<u-status-bar bg-Color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-title">我的</view>
 				<!-- @click="goToSetting" -->

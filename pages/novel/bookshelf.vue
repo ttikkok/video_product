@@ -1,13 +1,16 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
 				</view>
 				<view class="nav-title">我的书架</view>
-				<view class="nav-placeholder"></view>
+				<!-- <view class="nav-placeholder"></view> -->
+				<view class="nav-edit" @click="toggleEdit">
+					<text>{{ isEdit ? '完成' : '编辑' }}</text>
+				</view>
 			</view>
 		</view>
 
@@ -30,6 +33,10 @@
 								<text class="meta-item">{{ novel.chapters }}</text>
 							</view>
 						</view>
+						<view class="item-delete" v-if="isEdit" @click.stop="deleteItem(index)">
+							<!-- <text>🗑️</text> -->
+							<image src="../../static/images/delecte.png" mode="widthFix" class="delete-icon" />
+						</view>
 						<view v-if="novel.isVip" class="novel-vip">VIP</view>
 					</view>
 					<u-loadmore 
@@ -47,7 +54,7 @@
 </template>
 
 <script>
-	import { NovelApi_novel_collect_list } from '@/api/home.js'
+	import { NovelApi_novel_collect_list, NovelApi_novel_collect_add } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -56,7 +63,8 @@
 				pageSize: 10,
 				total: 0,
 				loading: false,
-				hasMore: true
+				hasMore: true,
+				isEdit: false,
 			}
 		},
 		onLoad() {
@@ -119,6 +127,25 @@
 						uni.hideLoading()
 					}
 					console.error('加载书架失败:', err)
+				})
+			},
+			toggleEdit() {
+				this.isEdit = !this.isEdit
+				if (!this.isEdit) {
+					this.novels.forEach(item => item.selected = false)
+				}
+			},
+			deleteItem(index) {
+				const item = this.novels[index]
+				NovelApi_novel_collect_add({ novel_id: item.id }).then(res => {
+					if (res && res.code === 1) {
+						this.novels.splice(index, 1)
+						uni.showToast({ title: '取消收藏成功', icon: 'success' })
+					} else {
+						uni.showToast({ title: '取消收藏失败', icon: 'none' })
+					}
+				}).catch(err => {
+					uni.showToast({ title: '取消收藏失败', icon: 'none' })
 				})
 			},
 			goToRead(novel) {
@@ -216,7 +243,7 @@
 	.novel-title {
 		font-size: 30rpx;
 		font-weight: bold;
-		color: #fff;
+		color: #333;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -264,5 +291,26 @@
 		padding: 4rpx 12rpx;
 		border-radius: 6rpx;
 		font-weight: bold;
+	}
+
+	.nav-edit {
+		width: 60rpx;
+		text-align: right;
+		font-size: 28rpx;
+		color: #666666;
+	}
+	.nav-back {
+		width: 60rpx;
+		display: flex;
+		align-items: center;
+	}
+	.item-delete {
+		font-size: 36rpx;
+		margin-left: 15rpx;
+		display: flex;
+    align-items: center;
+	}
+	.delete-icon {
+		width: 40rpx;
 	}
 </style>

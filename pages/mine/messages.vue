@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -38,7 +38,7 @@
 					<view class="msg-content">
 						<view class="msg-header">
 							<text class="msg-title">{{ msg.title }}</text>
-							<text class="msg-time">{{ formatTime(msg.createtime) }}</text>
+							<text class="msg-time">{{ formatTime(msg.createtime*1000) }}</text>
 						</view>
 						<text class="msg-desc">{{ msg.content || '点击查看详情' }}</text>
 					</view>
@@ -146,47 +146,7 @@
 					this.loading = false
 					uni.hideLoading()
 					console.error('加载消息列表失败', err)
-					if (this.page === 1) {
-						this.loadMockData()
-					}
 				})
-			},
-			loadMockData() {
-				this.messages = [
-					{
-						id: 1,
-						category_id: 30,
-						title: '系统消息1',
-						content: '平台新增午夜电台功能，快去体验吧',
-						is_read: 0,
-						createtime: Date.now() - 600000
-					},
-					{
-						id: 2,
-						category_id: 30,
-						title: '系统消息2',
-						content: '恭喜您成为VIP会员，享受无限观影特权',
-						is_read: 0,
-						createtime: Date.now() - 1800000
-					},
-					{
-						id: 3,
-						category_id: 31,
-						title: '订单消息1',
-						content: '您的订单已支付成功',
-						is_read: 1,
-						createtime: Date.now() - 3600000
-					},
-					{
-						id: 4,
-						category_id: 31,
-						title: '订单消息2',
-						content: '您的订单正在处理中',
-						is_read: 1,
-						createtime: Date.now() - 7200000
-					}
-				]
-				this.total = 4
 			},
 			getCategoryIcon(categoryId) {
 				const icons = {
@@ -407,8 +367,8 @@
 
 	.unread-dot {
 		position: absolute;
-		top: 30rpx;
-		right: 30rpx;
+		top: 12rpx;
+		right: 12rpx;
 		width: 16rpx;
 		height: 16rpx;
 		background-color: #e74c3c;

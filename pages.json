@@ -13,17 +13,17 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/index/webview",
 			"style": {
-				"navigationBarTextStyle": "white",
+				"navigationBarTextStyle": "black",
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#2e344c",
+				"navigationBarBackgroundColor": "#f7f8fc",
 				"backgroundColor": "#F8F8F8",
 				"app-plus": {
 					"titleNView": {
@@ -36,36 +36,34 @@
 			"path": "pages/index/search",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/index/play",
 			"style": {
-				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "视频播放",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black"
 			}
 		},
 		{
 			"path": "pages/banana/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
-				"navigationStyle": "custom",
-				"onReachBottomDistance": 50
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/banana/detail",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -73,8 +71,8 @@
 			"path": "pages/discover/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -82,8 +80,8 @@
 			"path": "pages/novel/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -91,8 +89,8 @@
 			"path": "pages/novel/read",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -100,8 +98,8 @@
 			"path": "pages/novel/bookshelf",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -109,7 +107,7 @@
 		// 	"path": "pages/novel/reader",
 		// 	"style": {
 		// 		"navigationBarTitleText": "",
-		// 		"navigationBarBackgroundColor": "#16213e",
+		// 		"navigationBarBackgroundColor": "#f7f8fc",
 		// 		"navigationBarTextStyle": "white",
 		// 		"navigationStyle": "custom"
 		// 	}
@@ -118,8 +116,8 @@
 			"path": "pages/vip/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -127,8 +125,8 @@
 			"path": "pages/mine/index",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -136,8 +134,8 @@
 			"path": "pages/mine/favorites",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -145,8 +143,8 @@
 			"path": "pages/mine/history",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -154,8 +152,8 @@
 			"path": "pages/mine/downloads",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -163,8 +161,8 @@
 			"path": "pages/mine/messages",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -172,8 +170,8 @@
 			"path": "pages/mine/messageDetail",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -181,8 +179,8 @@
 			"path": "pages/mine/lines",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -190,8 +188,8 @@
 			"path": "pages/mine/customerService",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -199,8 +197,8 @@
 			"path": "pages/mine/about",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -208,8 +206,8 @@
 			"path": "pages/mine/bindAccount",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -217,8 +215,8 @@
 			"path": "pages/mine/login",
 			"style": {
 				"navigationBarTitleText": "",
-				"navigationBarBackgroundColor": "#16213e",
-				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#f7f8fc",
+				"navigationBarTextStyle": "black",
 				"navigationStyle": "custom"
 			}
 		},
@@ -261,9 +259,12 @@
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "home",
-		"navigationBarBackgroundColor": "#ffffff",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarTitleText": "快乐视频",
+		"navigationBarBackgroundColor": "#f7f8fc",
+		"backgroundColor": "#f7f8fc",
+		"app-plus": {
+        "background": "#f7f8fc"         
+    }
 	},
 	"tabBar": {
     "color": "#333333",
@@ -288,7 +289,7 @@
         "pagePath": "pages/novel/index",
         "iconPath": "static/tabbar/tab-currency.png",
         "selectedIconPath": "static/tabbar/tab-currency-active.png",
-        "text": "发现"
+        "text": "小说"
       },
       {
         "pagePath": "pages/vip/index",

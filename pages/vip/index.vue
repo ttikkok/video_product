@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 -->
 		<view class="top-header">
-			<u-status-bar bgColor="#ffffff"></u-status-bar>
+			<u-status-bar bgColor="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view style="width: 100rpx;"></view>
 				<view class="nav-title">VIP充值中心</view>
@@ -111,7 +111,7 @@
 
 		<!-- VIP广告位 -->
 		<view v-if="vipAdvertise" class="vip-advertise" @click="openVipAdvertiseUrl">
-			<image :src="vipAdvertise.image || vipAdvertise.cover_image" mode="aspectFill" class="advertise-image" />
+			<image :src="vipAdvertise.image || vipAdvertise.cover_image" mode="widthFix" class="advertise-image" />
 		</view>
 
 		<!-- 底部支付栏 -->
@@ -1237,7 +1237,7 @@
 
 	.vip-advertise .advertise-image {
 		width: 100%;
-		height: 240rpx;
+		// height: 240rpx;
 		display: block;
 	}
 </style>

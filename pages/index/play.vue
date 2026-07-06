@@ -1,8 +1,8 @@
 <template>
 	<view class="page">
 		<!-- 顶部自定义导航栏 -->
-		<view class="top-header">
-			<u-status-bar bgColor="#ffffff"></u-status-bar>
+		<!-- <view class="top-header">
+			<u-status-bar bgColor="#f7f8fc"></u-status-bar>
 			<view class="custom-navbar">
 				<view class="navbar-back" @click="goBack">
 					<image src="/static/images/back.png" class="back-icon" mode="aspectFit"></image>
@@ -10,12 +10,13 @@
 				<view class="navbar-title">视频播放</view>
 				<view class="navbar-placeholder"></view>
 			</view>
-		</view>
+		</view> -->
 
 		<!-- 视频播放窗口 -->
 		<view class="video-container">
+			<!-- <u-status-bar bgColor="#f7f8fc"></u-status-bar> -->
 			<sunny-video 
-				v-if="videoSrc"
+				v-if="videoPoster && videoSrc"
 				title="视频"
 				:src="videoSrc" 
 				:poster="videoPoster"
@@ -26,7 +27,7 @@
 				@trialEnd="trialEnd"
 				zIndex="0"
 			/>
-			<view v-if="!videoSrc" class="video-placeholder">
+			<view v-if="!videoSrc  && !videoPoster" class="video-placeholder">
 				<view class="loading-spinner"></view>
 				<text class="placeholder-text">视频加载中...</text>
 			</view>
@@ -99,7 +100,7 @@
 
 			<!-- 广告区域 -->
 			<view v-if="recommendAdvertise" class="ad-item" @click="openAdUrl(recommendAdvertise.url)">
-				<image :src="recommendAdvertise.image" mode="aspectFill" class="ad-image" />
+				<image :src="recommendAdvertise.image" mode="widthFix" class="ad-image" />
 				<view class="ad-overlay">
 					<text class="ad-title">{{ recommendAdvertise.title }}</text>
 				</view>
@@ -121,7 +122,7 @@
 					<view class="item-footer">
 						<text class="item-title-bottom">{{ item.title || '精彩视频推荐' }}</text>
 						<view class="item-meta">
-							<text class="time-text">{{ item.createtime ? formatTime(item.createtime) : '' }} 发布</text>
+							<text class="time-text">{{ item.createtime ? formatTime(item.createtime*1000) : '' }} 发布</text>
 							<view class="item-like">
 								<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
 								<text class="like-text">{{ item.like_number || item.likeNumber || 0 }}</text>
@@ -657,13 +658,12 @@
 	}
 
 	.video-container {
-		position: fixed;
-		top: 108rpx;
-		left: 0;
-		right: 0;
+		// position: fixed;
+		// top: 108rpx;
+		// left: 0;
+		// right: 0;
 		width: 100%;
-		height: 410rpx;
-		background-color: #000;
+		// background-color: #000;
 		z-index: 999;
 	}
 
@@ -742,11 +742,11 @@
 
 
 	.video-placeholder {
-		position: absolute;
-		top: 120rpx;
-		left: 0;
+		// position: absolute;
+		// top: 120rpx;
+		// left: 0;
 		width: 100%;
-		height: calc(100% - 120rpx);
+		height: 420rpx;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -853,7 +853,7 @@
 
 	.video-info {
 		padding: 30rpx;
-		padding-top: 580rpx;
+		padding-top: 40rpx;
 		// background-color: #16213e;
 		// margin: 20rpx;
 		border-radius: 16rpx;
@@ -1015,7 +1015,7 @@
 
 	.ad-image {
 		width: 100%;
-		height: 200rpx;
+		// height: 200rpx;
 	}
 
 	.ad-overlay {

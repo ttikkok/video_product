@@ -15,6 +15,7 @@
 		</view>
 
 		<scroll-view scroll-y class="content-scroll">
+			<u-status-bar></u-status-bar>
 			<view v-if="showSaveSuccess" class="save-success-modal" @click="closeModal">
 				<view class="modal-content" @click.stop>
 					<view class="modal-close" @click="closeModal">✕</view>
@@ -25,7 +26,7 @@
 			<view class="banner-section">
 				<view class="banner-bg">
 					<view class="banner-title">邀者有礼 荐者有份</view>
-					<view class="banner-desc">邀请好友可获得更多观影次数和缓存量</view>
+					<view class="banner-desc">邀请好友可获得更多奖励</view>
 					<view class="banner-people">
 						<view class="person person-left">👩</view>
 						<view class="person person-right">👨</view>
@@ -79,7 +80,7 @@
 				</view>
 			</view>
 
-			<view class="stats-section">
+			<!-- <view class="stats-section">
 				<view class="stat-item">
 					<view class="stat-value">
 						<text class="stat-number">{{ todayViews }}</text>
@@ -94,7 +95,7 @@
 					</view>
 					<text class="stat-label">缓存影片数量</text>
 				</view>
-			</view>
+			</view> -->
 
 			<view class="level-section">
 				<view class="level-item level-current">
@@ -112,22 +113,22 @@
 
 			<view class="level-desc">
 				<text v-if="nextLevel">{{ nextLevel.content }}</text>
-				<text v-else>推广好友可获得更多观影次数和缓存量</text>
+				<text v-else>推广好友可获得更多观影天数和奖励</text>
 			</view>
 
 			<view class="plan-section">
 				<view class="section-header">
-					<text class="section-title">推廣計劃</text>
+					<text class="section-title">推广计划</text>
 				</view>
 				<view class="plan-desc">
-					<text>规则说明: 推广给好友成功下载APP并打开或者注册时好友填写您的邀请码，可以永久增加每日观影次数和缓存数量，以及获得额外香蕉奖励。</text>
+					<text>规则说明：推广给好友成功下载APP并打开，可以增加观影天数，免费小说，免费楼凤信息。</text>
 				</view>
 				<view class="plan-table">
 					<view class="table-header">
-						<text class="th">等級</text>
-						<text class="th">推廣人數</text>
-						<text class="th">每日觀影</text>
-						<text class="th">獎勵内容</text>
+						<text class="th">等级</text>
+						<text class="th">推广人数</text>
+						<text class="th">观影天数</text>
+						<text class="th">奖励内容</text>
 					</view>
 					<view class="table-body">
 						<view v-for="rule in rules" :key="rule.id" :class="['table-row', { active: currentNum >= rule.num }]">
@@ -138,9 +139,9 @@
 						</view>
 					</view>
 				</view>
-				<view class="plan-note">
+				<!-- <view class="plan-note">
 					<text>推廣檔次贈送的緩存數、每日觀影次數等，可與其他功能贈送的次數疊加使用。</text>
-				</view>
+				</view> -->
 			</view>
 
 			<view v-if="promotionRules.length > 0" class="rules-section">
@@ -153,7 +154,7 @@
 				</view>
 			</view>
 
-			<view class="task-section" @click="goToRecharge">
+			<!-- <view class="task-section" @click="goToRecharge">
 				<view class="task-left">
 					<text class="task-title">充值VIP</text>
 					<view class="task-desc">
@@ -173,10 +174,10 @@
 					</view>
 				</view>
 				<view class="task-arrow">›</view>
-			</view>
+			</view> -->
 
 			<view class="promote-btn" @click="handlePromote">
-				<text class="promote-text">立即推廣</text>
+				<text class="promote-text">立即推广</text>
 			</view>
 
 			<view class="bottom-space"></view>
@@ -336,7 +337,7 @@
 				ctx.setFillStyle('#ffffff')
 				ctx.font = 'bold 22px sans-serif'
 				ctx.setTextAlign('center')
-				ctx.fillText('扫码下载好色先生TV', width / 2, 45)
+				ctx.fillText('扫码下载快乐视频TV', width / 2, 45)
 
 				ctx.drawImage(qrPath, 55, 65, 250, 250)
 
@@ -360,7 +361,7 @@
 
 				ctx.setFillStyle('#ff2155')
 				ctx.font = 'bold 18px sans-serif'
-				ctx.fillText('好色先生TV', width / 2, 470)
+				ctx.fillText('快乐视频TV', width / 2, 470)
 
 				ctx.draw(false, () => {
 					setTimeout(() => {

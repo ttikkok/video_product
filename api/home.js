@@ -293,3 +293,10 @@ export function NovelApi_novel_details(params) {
 export function VodApi_get_recommend_videos(params) {
     return http.post("VodApi/get_recommend_videos", params);
 }
+
+/**
+ * VodApi/vod_history_delete
+ */
+export function vod_history_delete(params) {
+    return http.post("VodApi/vod_history_delete", params);
+}

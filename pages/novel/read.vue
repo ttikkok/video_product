@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 - 固定 -->
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />

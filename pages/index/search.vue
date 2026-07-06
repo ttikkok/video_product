@@ -1,12 +1,25 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#ffffff"></u-status-bar>
+		<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 		<view class="search-header">
 			<view class="back-btn" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
 			</view>
-			<view class="header-title">搜索</view>
-			<view class="header-placeholder"></view>
+			<view class="header-title">
+				<view class="search-bar">
+					<view class="search-input-wrap">
+						<image src="../../static/images/search.png" mode="widthFix" style="width:36rpx;" class="search-icon" />
+						<input class="search-input" placeholder="关键词搜索" v-model="searchKeyword" confirm-type="search" @confirm="goToSearch" />
+					</view>
+					<view class="search-actions">
+						<view class="action-btn" @click="goToSearch">
+							搜索
+							<!-- <image src="../../static/images/img02.png" mode="widthFix" style="width:60%;" /> -->
+						</view>
+					</view>
+				</view>
+			</view>
+			<!-- <view class="header-placeholder"></view> -->
 		</view>
 
 		<view class="filter-container">
@@ -68,7 +81,7 @@
 						<view class="item-footer">
 							<text class="item-title-bottom">{{ item.title }}</text>
 							<view class="item-meta">
-								<text class="time-text">{{ formatTime(item.createtime) }} 发布</text>
+								<text class="time-text">{{ formatTime(item.createtime*1000) }} 发布</text>
 								<view class="item-like">
 									<image :src="item.is_like == 1 ? '../../static/images/goods_active.png' : '../../static/images/goods.png'" mode="widthFix" class="like-icon" />
 									<text class="like-text">{{ item.likeNumber || 0 }}</text>
@@ -100,6 +113,7 @@
 					{ other_id: -2, name: '最近添加' },
 					{ other_id: -3, name: '最高评分' }
 				],
+				searchKeyword: '',
 				tags: [],
 				selectedVirtualTag: -1,
 				activeCategory: null,
@@ -127,6 +141,9 @@
 			this.loadVideoList()
 		},
 		methods: {
+			goToSearch() {
+				this.loadVideoList()
+			},
 			loadCategories() {
 				VodApi_vod_category_tags_list({}).then(res => {
 					if (res && res.code === 1 && res.data) {
@@ -155,6 +172,7 @@
 				const params = {
 					page: this.page,
 					pagesize: this.pageSize,
+					title: this.searchKeyword,
 					data_id: dataId,
 					other_id: this.selectedVirtualTag
 				}
@@ -332,10 +350,10 @@
 
 	.header-title {
 		flex: 1;
-		text-align: center;
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #333333;
+		// text-align: center;
+		// font-size: 32rpx;
+		// font-weight: bold;
+		// color: #333333;
 	}
 
 	.header-placeholder {
@@ -379,7 +397,7 @@
 	.filter-left-scroll {
 		width: 140rpx;
 		height: 100%;
-		background-color: #ffffff;
+		background-color: #f7f8fc;
 	}
 
 	.category-item {
@@ -613,5 +631,61 @@
 	.empty-hint {
 		font-size: 26rpx;
 		color: #666;
+	}
+
+
+	.search-bar {
+		display: flex;
+		align-items: center;
+		gap: 20rpx;
+		// margin-top: 6rpx;
+	}
+	
+	.search-input-wrap {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		background-color: #ffffff;
+		border-radius: 30rpx;
+		padding: 12rpx 25rpx;
+	}
+	
+	.search-icon {
+		font-size: 28rpx;
+		margin-right: 15rpx;
+	}
+	
+	.search-input {
+		flex: 1;
+		background: transparent;
+		border: none;
+		color: #333333;
+		font-size: 28rpx;
+	}
+	
+	.search-actions {
+		display: flex;
+		gap: 15rpx;
+	}
+
+	.action-btn {
+		width: 60rpx;
+		height: 60rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		// background-color: #ffffff;
+		// border-radius: 50%;
+		font-size: 26rpx;
+		color: #666;
+		
+		&.history-btn {
+			width: auto;
+			height: auto;
+			padding: 10rpx 20rpx;
+			border-radius: 30rpx;
+			flex-direction: column;
+			gap: 5rpx;
+		}
 	}
 </style>

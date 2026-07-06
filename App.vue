@@ -96,7 +96,7 @@
 						
 						uni.setStorageSync('last_device_id', deviceId)
 						
-						register_login({ device_id: deviceId }).then(async res => {
+						register_login({ device_id: deviceId, code: uni.getStorageSync('InviterId') || '' }).then(async res => {
 							loginResolved = true
 							if (res && res.code === 1 && res.data) {
 								if (res.data.userinfo) {
@@ -132,7 +132,7 @@
 						
 						uni.setStorageSync('last_device_id', deviceId)
 						
-						register_login({ device_id: deviceId }).then(async res => {
+						register_login({ device_id: deviceId, code: uni.getStorageSync('InviterId') || '' }).then(async res => {
 							if (res && res.code === 1 && res.data) {
 								if (res.data.userinfo) {
 									uni.setStorageSync('userinfo', JSON.stringify(res.data.userinfo))

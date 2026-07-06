@@ -1,7 +1,7 @@
 {
-    "name" : "视频APP",
-    "appid" : "__UNI__D0ED724",
-    "description" : "视频APP",
+    "name" : "快乐视频",
+    "appid" : "__UNI__FA0742B",
+    "description" : "快乐视频",
     "versionName" : "1.0",
     "versionCode" : 1,
     "transformPx" : false,
@@ -35,11 +35,13 @@
                 "permissions" : [],
                 "minSdkVersion" : 21,
                 "targetSdkVersion" : 33,
-                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ]
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
+                "schemes" : "happyvideo"
             },
             "ios" : {
                 "idfa" : false,
-                "dSYMs" : false
+                "dSYMs" : false,
+                "urltypes" : "happyvideo"
             },
             /* ios打包配置 */
             "sdkConfigs" : {
@@ -131,8 +133,8 @@
         "usingComponents" : true
     },
     "vueVersion" : "2",
-    "locale" : "en",
-    "fallbackLocale" : "en",
+    "locale" : "zh-Hans",
+    "fallbackLocale" : "zh-Hans",
     "h5" : {
         "title" : "视频平台",
         "router" : {

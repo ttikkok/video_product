@@ -21,6 +21,7 @@ export function initInvite() {
           ? JSON.parse(result.data.bindData)
           : result.data.bindData;
         pendingInviterId = bindData.inviter_id || null;
+        uni.setStorageSync('InviterId', pendingInviterId)
         console.log('[Invite] 新安装获取邀请人:', pendingInviterId);
       } catch (e) {
         console.error('[Invite] bindData 解析失败:', e);
@@ -45,6 +46,7 @@ export function checkWakeUp() {
         // 仅当没有待绑定ID时才覆盖，避免新安装参数被唤醒参数冲掉
         if (!pendingInviterId && bindData.inviter_id) {
           pendingInviterId = bindData.inviter_id;
+          uni.setStorageSync('InviterId', pendingInviterId)
           console.log('[Invite] 唤醒获取邀请人:', pendingInviterId);
         }
       } catch (e) {

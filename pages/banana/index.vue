@@ -4,7 +4,7 @@
 		<scroll-view scroll-y class="scroll-container" @scrolltolower="loadMore">
 			<!-- 页面头部 -->
 			<view class="page-header">
-				<u-status-bar bg-color="#ffffff"></u-status-bar>
+				<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 				<!-- 顶部搜索栏 -->
 				<view class="search-header">
 					<view class="search-bar">
@@ -40,14 +40,13 @@
 
 			<!-- 帖子列表内容 -->
 			<view class="post-list">
-			<u-status-bar></u-status-bar>
 			<!-- 空状态 -->
 			<u-empty v-if="!loading && postList.length === 0" :text="'暂无数据'" marginTop="50" icon="/static/images/empty-image-default.png"></u-empty>
 
 			<template v-if="postList.length > 0">
 				<view v-for="(post, index) in postList" :key="index" class="post-page">
 					<view v-if="post.is_advertise" class="advertise-card" @click.stop="openAdvertiseUrl(post.url)">
-						<image :src="post.image || post.cover_image" mode="aspectFill" class="advertise-image" />
+						<image :src="post.image || post.cover_image" mode="widthFix" class="advertise-image" />
 					</view>
 					<view v-else @click.stop="goToDetail(post)">
 				<!-- 帖子内容 -->
@@ -108,7 +107,7 @@
 					<!-- <view class="stat-item">
 						<text class="stat-icon">↗️</text>
 					</view> -->
-					<view class="stat-item reward-btn" v-if="post.information && post.information.trim() !== ''" @click.stop="getContact">
+					<view class="stat-item reward-btn" v-if="post.information && post.information.trim() !== ''" @click.stop="getContact(post)">
 						<view class="stat-btn">联系方式</view>
 					</view>
 				</view>
@@ -163,6 +162,7 @@
 
 		<!-- 图片预览遮罩 -->
 		<view v-if="showPreview" class="preview-overlay" @click="closePreview">
+			<u-status-bar></u-status-bar>
 			<view class="preview-header">
 				<text class="preview-close" @click="closePreview">✕</text>
 				<text class="preview-index">{{ currentPreviewIndex + 1 }}/{{ previewImages.length }}</text>
@@ -274,14 +274,14 @@
 					}
 				});
 			},
-			getContact() {
+			getContact(post) {
 				if (!this.isMember) {
 					this.showVipModal(1);
 					return;
 				}
 				uni.showModal({
 					title: '联系方式',
-					content: this.post.information,
+					content: post.information,
 					showCancel: false,
 					confirmText: '知道了'
 				});
@@ -1123,7 +1123,7 @@
 
 	.advertise-image {
 		width: 100%;
-		height: 240rpx;
+		// max-height: 180rpx;
 		display: block;
 	}
 </style>

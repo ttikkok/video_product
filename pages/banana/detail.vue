@@ -2,7 +2,7 @@
 	<view class="page">
 		<!-- 顶部导航 -->
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -82,6 +82,7 @@
 
 		<!-- 图片预览遮罩 -->
 		<view v-if="showPreview" class="preview-overlay" @click="closePreview">
+			<u-status-bar></u-status-bar>
 			<view class="preview-header">
 				<text class="preview-close" @click="closePreview">✕</text>
 				<text class="preview-index">{{ currentPreviewIndex + 1 }}/{{ previewImages.length }}</text>

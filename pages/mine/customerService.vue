@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#ffffff"></u-status-bar>
+		<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -12,7 +12,7 @@
 			<view class="service-avatar">
 				<text>🤖</text>
 			</view>
-			<text class="service-name">好色先生官方客服</text>
+			<text class="service-name">快乐视频官方客服</text>
 			<text class="service-status">在线</text>
 		</view>
 

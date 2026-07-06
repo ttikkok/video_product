@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -33,9 +33,9 @@
 
 			<template v-if="history.length > 0">
 				<view v-for="(item, index) in history" :key="index" class="content-item" @click="playVideo(item)">
-					<view v-if="isEdit" class="item-checkbox" @click.stop="toggleSelect(index)">
+					<!-- <view v-if="isEdit" class="item-checkbox" @click.stop="toggleSelect(index)">
 						<text>{{ item.selected ? '✓' : '' }}</text>
-					</view>
+					</view> -->
 					<view class="item-cover-wrap">
 						<image :src="item.cover" mode="aspectFill" class="item-cover" />
 						<view class="item-progress" v-if="item.progress > 0">
@@ -52,6 +52,10 @@
 							<text class="item-year" v-if="item.year">{{ item.year }}</text>
 							<text class="item-time">{{ item.watchTime }}</text>
 						</view>
+					</view>
+					<view class="item-delete" v-if="isEdit" @click.stop="deleteItem(index)">
+						<!-- <text>🗑️</text> -->
+						<image src="../../static/images/delecte.png" mode="widthFix" class="delete-icon" />
 					</view>
 				</view>
 				<!-- 加载更多 -->
@@ -78,7 +82,7 @@
 </template>
 
 <script>
-	import { VodApi_vod_history_list } from '@/api/home.js'
+	import { VodApi_vod_history_list, vod_history_delete } from '@/api/home.js'
 	export default {
 		data() {
 			return {
@@ -179,6 +183,19 @@
 			toggleSelect(index) {
 				this.history[index].selected = !this.history[index].selected
 			},
+			deleteItem(index) {
+				const item = this.history[index]
+				vod_history_delete({ id: item.id }).then(res => {
+					if (res && res.code === 1) {
+						this.history.splice(index, 1)
+						uni.showToast({ title: '删除成功', icon: 'success' })
+					} else {
+						uni.showToast({ title: '删除失败', icon: 'none' })
+					}
+				}).catch(err => {
+					uni.showToast({ title: '删除失败', icon: 'none' })
+				})
+			},
 			playVideo(item) {
 				if (!this.isEdit) {
 					uni.navigateTo({
@@ -242,16 +259,16 @@
 	}
 
 	.nav-title {
-		font-size: 32rpx;
+		font-size: 34rpx;
 		color: #333333;
-		font-weight: 500;
+		font-weight: 600;
 	}
 
 	.nav-edit {
-		width: 80rpx;
+		width: 60rpx;
 		text-align: right;
 		font-size: 28rpx;
-		color: #ff2155;
+		color: #666666;
 	}
 
 	.time-filter {
@@ -451,5 +468,12 @@
 		text-align: center;
 		font-size: 24rpx;
 		color: #999999;
+	}
+	.item-delete {
+		font-size: 36rpx;
+		margin-left: 15rpx;
+	}
+	.delete-icon {
+		width: 40rpx;
 	}
 </style>

@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<u-status-bar bg-color="#ffffff"></u-status-bar>
+		<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 		<view class="top-nav">
 			<view class="nav-back" @click="goBack">
 				<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -10,18 +10,18 @@
 
 		<view class="about-header">
 			<view class="app-logo-placeholder"></view>
-			<text class="app-name">好色先生</text>
+			<text class="app-name">快乐视频</text>
 			<text class="app-version">版本 2.5.8</text>
 		</view>
 
 		<view class="about-section">
 			<view class="section-title">关于我们</view>
 			<view class="section-content">
-				<text>好色先生是一款专注于提供优质成人内容的移动应用，致力于为用户带来最优质的观影体验。我们拥有丰富的视频资源库，每日更新热门内容。</text>
+				<text>快乐视频是一款专注于提供优质成人内容的移动应用，致力于为用户带来最优质的观影体验。我们拥有丰富的视频资源库，每日更新热门内容。</text>
 			</view>
 		</view>
 
-		<view class="about-section">
+		<!-- <view class="about-section">
 			<view class="section-title">联系方式</view>
 			<view class="contact-list">
 				<view class="contact-item" @click="copyText('123456789')">
@@ -40,7 +40,7 @@
 					<text class="contact-value">www.haoses.com</text>
 				</view>
 			</view>
-		</view>
+		</view> -->
 
 		<view class="about-section">
 			<view class="section-title">用户协议</view>
@@ -79,7 +79,7 @@
 		</view>
 
 		<view class="about-footer">
-			<text>© 2024 好色先生 版权所有</text>
+			<text>© 2026 快乐视频 版权所有</text>
 			<text>本APP仅供成年人使用</text>
 		</view>
 	</view>

@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="tabs-wrapper">
 				<view v-if="showCategoryList" class="back-btn" @click="goBackToHome">
 					<!-- <text class="back-icon">‹</text> -->
@@ -50,6 +50,7 @@
 		</view>
 
 		<view v-if="!showCategoryList">
+			<u-status-bar></u-status-bar>
 			<view class="banner-section">
 				<swiper 
 					class="banner-swiper"
@@ -96,13 +97,13 @@
 				</view>
 			</view>
 
-			<view v-if="squareAd" class="square-card" @click="handleSquareCardClick">
+			<view v-if="squareAd" class="square-card" @click="handleSquareAdClick">
 				<image :src="squareAd.image" mode="aspectFill" class="square-card-image" />
 			</view>
 
 			<view class="video-section" v-for="(module, moduleIndex) in videoModules" :key="module.id">
 				<view v-if="module.is_advertise" class="home-advertise-card" @click="openHomeAdvertiseUrl(module.url)">
-					<image :src="module.image || module.cover_image" mode="aspectFill" class="home-advertise-image" />
+					<image :src="module.image || module.cover_image" mode="widthFix" class="home-advertise-image" />
 				</view>
 				<view v-else>
 					<view class="section-header">
@@ -317,7 +318,7 @@
 							<view class="category-video-footer">
 								<text class="category-video-title-bottom">{{ video.title }}</text>
 								<view class="category-video-meta">
-									<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
+									<text class="video-time-left">{{ formatTime(video.createtime*1000) }} 发布</text>
 									<view class="category-like">
 										<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
 										<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
@@ -378,7 +379,7 @@
 						<view class="category-video-footer">
 								<text class="category-video-title-bottom">{{ video.title }}</text>
 								<view class="category-video-meta">
-									<text class="video-time-left">{{ formatTime(video.createtime) }} 发布</text>
+									<text class="video-time-left">{{ formatTime(video.createtime*1000) }} 发布</text>
 									<view class="category-like">
 										<image src="../../static/images/goods.png" mode="widthFix" class="category-like-icon" />
 										<text class="category-like-text">{{ video.likeNumber || 0 }}</text>
@@ -561,6 +562,8 @@
 				const current = this.popupList[this.currentPopupIndex]
 				if (current && current.url) {
 					this.openExternalURL(current.url)
+				} else if(current && current.title) {
+					this.openExternalURL(current.title)
 				} else if (current && current.link) {
 					this.openExternalURL(current.link)
 				}
@@ -2528,7 +2531,7 @@
 
 	.home-advertise-image {
 		width: 100%;
-		height: 180rpx;
+		// height: 180rpx;
 		display: block;
 	}
 </style>

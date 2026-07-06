@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="top-header">
-			<u-status-bar bg-color="#ffffff"></u-status-bar>
+			<u-status-bar bg-color="#f7f8fc"></u-status-bar>
 			<view class="top-nav-view">
 				<view class="nav-back" @click="goBack">
 					<image src="../../static/images/back.png" mode="widthFix" class="back-icon" />
@@ -18,7 +18,7 @@
 					<view class="detail-icon">{{ getCategoryIcon(message.category_id) }}</view>
 					<view class="detail-info">
 						<text class="detail-title">{{ message.title }}</text>
-						<text class="detail-time">{{ formatTime(message.createtime) }}</text>
+						<text class="detail-time">{{ formatTime(message.createtime*1000) }}</text>
 					</view>
 				</view>
 
@@ -51,22 +51,10 @@
 				MessageApi_message_details({ id: id }).then(res => {
 					if (res && res.code === 1 && res.data) {
 						this.message = res.data
-					} else {
-						this.loadMockData()
 					}
 				}).catch(err => {
 					console.error('加载消息详情失败', err)
-					this.loadMockData()
 				})
-			},
-			loadMockData() {
-				this.message = {
-					id: 1,
-					category_id: 30,
-					title: '系统消息',
-					content: '亲爱的用户，感谢您使用我们的服务！\n\n平台近期新增了午夜电台功能，您可以在VIP专区体验有声小说服务。\n\n如有任何问题，请随时联系在线客服。\n\n祝您使用愉快！',
-					createtime: Date.now() - 600000
-				}
 			},
 			getCategoryIcon(categoryId) {
 				const icons = {
