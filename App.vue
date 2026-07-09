@@ -1,15 +1,23 @@
 <script>
 	// import { getUserInfo } from "@/api/public";
-	import { initInvite, checkWakeUp, reportBind, getPendingInviterId } from '@/utils/inviteService';
+	// import { initInvite, checkWakeUp, reportBind, getPendingInviterId } from '@/utils/inviteService';
 	import config from "@/http/config";
 	import { register_login, UserApi_get_user_info } from "@/api/home.js";
 	import { getRealDeviceId } from "@/common/device.js";
 	
 	let loginPromise = null
 	let loginResolved = false
-	
+	const sharetrace = uni.requireNativePlugin('shoot-sharetrace');
 	export default {
+		// onReady() {
+		// 	var that = this
+		// 	sharetrace.getInstallTrace( data => {
+		// 			that.showResult(JSON.stringify(data));
+		// 			console.log(data)
+		// 	});
+		// },
 		onLaunch: function() {
+			var that = this
 			// #ifdef APP-PLUS
 			// 禁用HTML5+ Runtime版本检查
 			if (plus && plus.runtime && typeof plus.runtime.setRuntimeVersionCheck === 'function') {
@@ -17,9 +25,16 @@
 			}
 			// #endif
 			// ✅ 第一步：新安装归因（仅在onLaunch调用一次）
-			initInvite();
-			this.autoLogin()
-			this.setPageTitle()
+			// initInvite();
+			sharetrace.getInstallTrace( data => {
+				// console.log(data.data.paramsData)
+				const str = data.data.paramsData || ''
+				const code = that.getQueryValue(str, 'code');
+				uni.setStorageSync('InviterId', code)
+				// that.showResult(str);
+				this.autoLogin()
+				this.setPageTitle()
+			});
 		},
 		globalData: {
 			getLoginPromise: function() {
@@ -37,7 +52,7 @@
 			}
 			// #endif
 			// ✅ 第二步：唤醒监听（每次App回到前台都需检查）
-    	checkWakeUp();
+    	// checkWakeUp();
 			this.setPageTitle()
 			this.updateUserInfo()
 		},
@@ -45,6 +60,23 @@
 			// console.log('App Hide')
 		},
 		methods: {
+			showResult(data) {
+				uni.showModal({
+					title: 'ShareTrace',
+					content: data,
+					showCancel:false,
+					success: function (res) {
+
+					}
+				});
+			},
+			getQueryValue(str, key) {
+				if (!str) return '';
+				const reg = new RegExp('(^|&)' + key + '=([^&]*)(&|$)', 'i');
+				const match = str.match(reg);
+				// 注意：这里必须返回 match[2]，match[2] 才是等号后面的值
+				return match ? decodeURIComponent(match[2]) : '';
+			},
 			setPageTitle() {
 				//#ifdef H5
 				if (typeof window !== 'undefined' && window.document) {
@@ -106,10 +138,10 @@
 									uni.setStorageSync('token', res.data.token)
 								}
 								console.log('自动登录成功')
-								const success = await reportBind(res.data.userinfo.username);
-								if (success) {
-									uni.showToast({ title: '绑定成功', icon: 'none' });
-								}
+								// const success = await reportBind(res.data.userinfo.username);
+								// if (success) {
+								// 	uni.showToast({ title: '绑定成功', icon: 'none' });
+								// }
 							} else if (res && res.code !== 1) {
 								console.log('登录返回非成功状态:', res.code, res.msg)
 							}
@@ -140,10 +172,10 @@
 								if (res.data.token) {
 									uni.setStorageSync('token', res.data.token)
 								}
-								const success = await reportBind(res.data.userinfo.username);
-								if (success) {
-									uni.showToast({ title: '绑定成功', icon: 'none' });
-								}
+								// const success = await reportBind(res.data.userinfo.username);
+								// if (success) {
+								// 	uni.showToast({ title: '绑定成功', icon: 'none' });
+								// }
 							}
 							resolve(res)
 						}).catch(() => {
